@@ -1,0 +1,610 @@
+2025-03-15 08:45:11 POST Data: Array
+(
+    [name] => Test User
+    [attending] => 1
+    [companions] => 0
+    [message] => Test Message
+    [dietary] => None
+)
+
+2025-03-15 08:45:11 Processed Data: name: Test User, attending: 1, companions: 0, guest_id: 0, group_id: 
+2025-03-15 08:45:11 SQL Parameters: Array
+(
+    [guest_id] => 0
+    [name] => Test User
+    [attending] => 1
+    [companions] => 0
+    [message] => Test Message
+    [dietary] => None
+)
+
+2025-03-15 08:45:11 PDO Error: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`wedding`.`responses`, CONSTRAINT `responses_ibfk_1` FOREIGN KEY (`guest_id`) REFERENCES `guests` (`id`))
+2025-03-15 08:46:11 POST Data: Array
+(
+    [name] => Test User
+    [attending] => 1
+    [companions] => 0
+    [message] => Test Message
+    [dietary] => None
+)
+
+2025-03-15 08:46:11 Processed Data: name: Test User, attending: 1, companions: 0, guest_id: 0, group_id: 
+2025-03-15 08:46:11 Setting guest_id to NULL
+2025-03-15 08:46:11 SQL Parameters: Array
+(
+    [guest_id] => 
+    [name] => Test User
+    [attending] => 1
+    [companions] => 0
+    [message] => Test Message
+    [dietary] => None
+)
+
+2025-03-15 08:46:11 SQL Insert successful. Last Insert ID: 1
+2025-03-15 09:35:13 POST Data: Array
+(
+    [name] => TestUser
+    [email] => test@example.com
+    [attending] => 1
+    [companions] => 0
+    [message] => Test
+    [dietary] => None
+)
+
+2025-03-15 09:35:13 Processed Data: name: TestUser, email: test@example.com, attending: 1, companions: 0, guest_id: , group_id: 
+2025-03-15 09:35:13 Setting guest_id to NULL
+2025-03-15 09:35:13 SQL Parameters: Array
+(
+    [guest_id] => 
+    [name] => TestUser
+    [email] => test@example.com
+    [attending] => 1
+    [companions] => 0
+    [message] => Test
+    [dietary] => None
+)
+
+2025-03-15 09:35:13 SQL Insert successful. Last Insert ID: 5
+2025-03-15 09:36:31 POST Data: Array
+(
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [message] => q
+    [dietary] => q
+)
+
+2025-03-15 09:36:31 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 1, guest_id: , group_id: 
+2025-03-15 09:36:31 Setting guest_id to NULL
+2025-03-15 09:36:31 SQL Parameters: Array
+(
+    [guest_id] => 
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [message] => q
+    [dietary] => q
+)
+
+2025-03-15 09:36:32 SQL Insert successful. Last Insert ID: 6
+2025-03-15 09:37:37 POST Data: Array
+(
+    [name] => RidePulseDB
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 2
+    [message] => q
+    [dietary] => q
+)
+
+2025-03-15 09:37:37 Processed Data: name: RidePulseDB, email: syo.t.company@gmail.com, attending: 1, companions: 2, guest_id: , group_id: 
+2025-03-15 09:37:37 Setting guest_id to NULL
+2025-03-15 09:37:37 SQL Parameters: Array
+(
+    [guest_id] => 
+    [name] => RidePulseDB
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 2
+    [message] => q
+    [dietary] => q
+)
+
+2025-03-15 09:37:37 SQL Insert successful. Last Insert ID: 7
+2025-03-15 11:44:58 POST Data: Array
+(
+    [guest_id] => 3
+    [group_id] => family
+    [name] => aa
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 5
+    [message] => aaa
+    [dietary] => aaa
+)
+
+2025-03-15 11:44:58 Processed Data: name: aa, email: syo.t.company@gmail.com, attending: 1, companions: 5, guest_id: 3, group_id: family
+2025-03-15 11:44:58 SQL Parameters: Array
+(
+    [guest_id] => 3
+    [name] => aa
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 5
+    [message] => aaa
+    [dietary] => aaa
+)
+
+2025-03-15 11:44:58 SQL Insert successful. Last Insert ID: 8
+2025-03-15 12:32:37 POST Data: Array
+(
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 2
+    [message] => がんばれ
+    [dietary] => えび
+)
+
+2025-03-15 12:32:37 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 2, guest_id: , group_id: 
+2025-03-15 12:32:37 Duplicate submission detected: 村岡翔, syo.t.company@gmail.com
+2025-03-15 12:33:41 POST Data: Array
+(
+    [name] => 村岡翔
+    [email] => syou51158@gmail.com
+    [attending] => 1
+    [companions] => 3
+    [message] => がんばれれれれっれ
+    [dietary] => えび　かに
+)
+
+2025-03-15 12:33:41 Processed Data: name: 村岡翔, email: syou51158@gmail.com, attending: 1, companions: 3, guest_id: , group_id: 
+2025-03-15 12:33:41 Setting guest_id to NULL
+2025-03-15 12:33:41 SQL Parameters: Array
+(
+    [guest_id] => 
+    [name] => 村岡翔
+    [email] => syou51158@gmail.com
+    [attending] => 1
+    [companions] => 3
+    [message] => がんばれれれれっれ
+    [dietary] => えび　かに
+)
+
+2025-03-15 12:33:41 SQL Insert successful. Last Insert ID: 9
+2025-03-15 14:54:31 POST Data: Array
+(
+    [guest_id] => 5
+    [group_id] => tashima
+    [name] => 田嶋
+    [email] => tashima@sopranohaction.fun
+    [attending] => 1
+    [companions] => 2
+    [message] => 頑張れれれれれれ
+    [dietary] => チョコレート
+)
+
+2025-03-15 14:54:31 Processed Data: name: 田嶋, email: tashima@sopranohaction.fun, attending: 1, companions: 2, guest_id: 5, group_id: tashima
+2025-03-15 14:54:31 SQL Parameters: Array
+(
+    [guest_id] => 5
+    [name] => 田嶋
+    [email] => tashima@sopranohaction.fun
+    [attending] => 1
+    [companions] => 2
+    [message] => 頑張れれれれれれ
+    [dietary] => チョコレート
+)
+
+2025-03-15 14:54:31 SQL Insert successful. Last Insert ID: 10
+2025-03-15 15:03:03 POST Data: Array
+(
+    [guest_id] => 5
+    [group_id] => tashima
+    [name] => tashima
+    [email] => tashima@tashima.com
+    [attending] => 1
+    [companions] => 5
+    [message] => テスト
+    [dietary] => マンゴー
+)
+
+2025-03-15 15:03:03 Processed Data: name: tashima, email: tashima@tashima.com, attending: 1, companions: 5, guest_id: 5, group_id: tashima
+2025-03-15 15:03:03 SQL Parameters: Array
+(
+    [guest_id] => 5
+    [name] => tashima
+    [email] => tashima@tashima.com
+    [attending] => 1
+    [companions] => 5
+    [message] => テスト
+    [dietary] => マンゴー
+)
+
+2025-03-15 15:03:03 SQL Insert successful. Last Insert ID: 11
+2025-03-15 15:08:17 POST Data: Array
+(
+    [guest_id] => 5
+    [group_id] => tashima
+    [name] => 田島さえか
+    [email] => tashima@tashima.jp
+    [attending] => 0
+    [companions] => 0
+    [message] => ごめんね
+    [dietary] => マンゴー
+)
+
+2025-03-15 15:08:17 Processed Data: name: 田島さえか, email: tashima@tashima.jp, attending: 0, companions: 0, guest_id: 5, group_id: tashima
+2025-03-15 15:08:17 SQL Parameters: Array
+(
+    [guest_id] => 5
+    [name] => 田島さえか
+    [email] => tashima@tashima.jp
+    [attending] => 0
+    [companions] => 0
+    [message] => ごめんね
+    [dietary] => マンゴー
+)
+
+2025-03-15 15:08:17 SQL Insert successful. Last Insert ID: 12
+2025-03-16 01:28:22 POST Data: Array
+(
+    [name] => 村岡翔
+    [email] => syou51158@gmail.com
+    [attending] => 1
+    [companions] => 3
+    [message] => おめでとう
+    [dietary] => なし
+)
+
+2025-03-16 01:28:22 Processed Data: name: 村岡翔, email: syou51158@gmail.com, attending: 1, companions: 3, guest_id: , group_id: 
+2025-03-16 01:28:22 Duplicate submission detected: 村岡翔, syou51158@gmail.com
+2025-03-16 01:29:13 POST Data: Array
+(
+    [name] => 村岡翔
+    [email] => syou51158ym@gmail.com
+    [attending] => 1
+    [companions] => 3
+    [message] => がんば
+    [dietary] => なし
+)
+
+2025-03-16 01:29:13 Processed Data: name: 村岡翔, email: syou51158ym@gmail.com, attending: 1, companions: 3, guest_id: , group_id: 
+2025-03-16 01:29:13 Setting guest_id to NULL
+2025-03-16 01:29:13 SQL Parameters: Array
+(
+    [guest_id] => 
+    [name] => 村岡翔
+    [email] => syou51158ym@gmail.com
+    [attending] => 1
+    [companions] => 3
+    [message] => がんば
+    [dietary] => なし
+)
+
+2025-03-16 01:29:13 SQL Insert successful. Last Insert ID: 13
+2025-03-16 01:33:18 POST Data: Array
+(
+    [guest_id] => 6
+    [group_id] => muraoka
+    [name] => 村岡翔
+    [email] => syo.t.cook@gmail.com
+    [attending] => 1
+    [companions] => 10
+    [message] => おめでとう
+    [dietary] => なし
+)
+
+2025-03-16 01:33:18 Processed Data: name: 村岡翔, email: syo.t.cook@gmail.com, attending: 1, companions: 10, guest_id: 6, group_id: muraoka
+2025-03-16 01:33:18 SQL Parameters: Array
+(
+    [guest_id] => 6
+    [name] => 村岡翔
+    [email] => syo.t.cook@gmail.com
+    [attending] => 1
+    [companions] => 10
+    [message] => おめでとう
+    [dietary] => なし
+)
+
+2025-03-16 01:33:18 SQL Insert successful. Last Insert ID: 14
+2025-03-16 09:36:29 POST Data: Array
+(
+    [guest_id] => 7
+    [group_id] => shin.k
+    [name] => 小山真
+    [email] => shin.k@example.com
+    [attending] => 1
+    [companions] => 2
+    [message] => おおおおお！！！
+    [dietary] => うめ
+)
+
+2025-03-16 09:36:29 Processed Data: name: 小山真, email: shin.k@example.com, attending: 1, companions: 2, guest_id: 7, group_id: shin.k
+2025-03-16 09:36:29 SQL Parameters: Array
+(
+    [guest_id] => 7
+    [name] => 小山真
+    [email] => shin.k@example.com
+    [attending] => 1
+    [companions] => 2
+    [message] => おおおおお！！！
+    [dietary] => うめ
+)
+
+2025-03-16 09:36:29 SQL Insert successful. Last Insert ID: 15
+2025-03-16 09:52:14 POST Data: Array
+(
+    [guest_id] => 7
+    [group_id] => shin.k
+    [name] => 小山しん
+    [email] => shin@example2.com
+    [attending] => 1
+    [companions] => 1
+    [message] => あ
+    [dietary] => あ
+)
+
+2025-03-16 09:52:14 Processed Data: name: 小山しん, email: shin@example2.com, attending: 1, companions: 1, guest_id: 7, group_id: shin.k
+2025-03-16 09:52:14 SQL Parameters: Array
+(
+    [guest_id] => 7
+    [name] => 小山しん
+    [email] => shin@example2.com
+    [attending] => 1
+    [companions] => 1
+    [message] => あ
+    [dietary] => あ
+)
+
+2025-03-16 09:52:14 SQL Insert successful. Last Insert ID: 16
+2025-03-16 09:52:16 Notification sent for response ID: 16
+2025-03-16 09:57:23 POST Data: Array
+(
+    [guest_id] => 7
+    [group_id] => shin.k
+    [name] => 小山しん
+    [email] => shin@example3.com
+    [attending] => 1
+    [companions] => 1
+    [message] => い
+    [dietary] => p
+)
+
+2025-03-16 09:57:23 Processed Data: name: 小山しん, email: shin@example3.com, attending: 1, companions: 1, guest_id: 7, group_id: shin.k
+2025-03-16 09:57:23 SQL Parameters: Array
+(
+    [guest_id] => 7
+    [name] => 小山しん
+    [email] => shin@example3.com
+    [attending] => 1
+    [companions] => 1
+    [message] => い
+    [dietary] => p
+)
+
+2025-03-16 09:57:23 SQL Insert successful. Last Insert ID: 17
+2025-03-16 09:57:25 Notification sent for response ID: 17
+2025-03-16 11:21:40 POST Data: Array
+(
+    [guest_id] => 7
+    [group_id] => shin.k
+    [name] => 小山しん
+    [email] => shin@example4.com
+    [attending] => 1
+    [companions] => 5
+    [message] => w
+    [dietary] => w
+)
+
+2025-03-16 11:21:40 Processed Data: name: 小山しん, email: shin@example4.com, attending: 1, companions: 5, guest_id: 7, group_id: shin.k
+2025-03-16 11:21:41 SQL Parameters: Array
+(
+    [guest_id] => 7
+    [name] => 小山しん
+    [email] => shin@example4.com
+    [attending] => 1
+    [companions] => 5
+    [message] => w
+    [dietary] => w
+)
+
+2025-03-16 11:21:41 SQL Insert successful. Last Insert ID: 18
+2025-03-16 11:21:43 Notification sent for response ID: 18
+2025-03-16 11:41:18 POST Data: Array
+(
+    [guest_id] => 9
+    [group_id] => someya
+    [name] => そめやあやな
+    [email] => someya@example.com
+    [attending] => 1
+    [companions] => 2
+    [message] => あちこがんばれ
+    [dietary] => メンヘラ
+)
+
+2025-03-16 11:41:18 Processed Data: name: そめやあやな, email: someya@example.com, attending: 1, companions: 2, guest_id: 9, group_id: someya
+2025-03-16 11:41:18 SQL Parameters: Array
+(
+    [guest_id] => 9
+    [name] => そめやあやな
+    [email] => someya@example.com
+    [attending] => 1
+    [companions] => 2
+    [message] => あちこがんばれ
+    [dietary] => メンヘラ
+)
+
+2025-03-16 11:41:18 SQL Insert successful. Last Insert ID: 19
+2025-03-16 11:41:21 Notification sent for response ID: 19
+2025-03-21 04:40:41 POST Data: Array
+(
+    [guest_id] => 8
+    [group_id] => akane_isono
+    [name] => akanetest1
+    [email] => syou51158ym@gmail.com
+    [attending] => 1
+    [companions] => 8
+    [message] => おめでとう
+    [dietary] => 
+)
+
+2025-03-21 04:40:41 Processed Data: name: akanetest1, email: syou51158ym@gmail.com, attending: 1, companions: 8, guest_id: 8, group_id: akane_isono
+2025-03-21 04:40:41 SQL Parameters: Array
+(
+    [guest_id] => 8
+    [name] => akanetest1
+    [email] => syou51158ym@gmail.com
+    [attending] => 1
+    [companions] => 8
+    [message] => おめでとう
+    [dietary] => 
+)
+
+2025-03-21 04:40:41 SQL Insert successful. Last Insert ID: 20
+2025-03-21 04:40:43 Notification sent for response ID: 20
+2025-03-21 05:02:30 POST Data: Array
+(
+    [guest_id] => 8
+    [group_id] => akane_isono
+    [name] => あかね２
+    [email] => syou51158@gmail.com
+    [attending] => 1
+    [companions] => 3
+    [companion_name] => Array
+        (
+            [0] => りょうくん
+            [1] => 奈緒くん
+            [2] => あかね
+        )
+
+    [companion_age] => Array
+        (
+            [0] => adult
+            [1] => infant
+            [2] => infant
+        )
+
+    [companion_dietary] => Array
+        (
+            [0] => 卵
+            [1] => えびかに
+            [2] => 生卵
+        )
+
+    [message] => おめでとう
+    [dietary] => 本人は　えび
+)
+
+2025-03-21 05:02:30 Processed Data: name: あかね２, email: syou51158@gmail.com, attending: 1, companions: 3, guest_id: 8, group_id: akane_isono
+2025-03-21 05:02:30 SQL Parameters: Array
+(
+    [guest_id] => 8
+    [name] => あかね２
+    [email] => syou51158@gmail.com
+    [attending] => 1
+    [companions] => 3
+    [message] => おめでとう
+    [dietary] => 本人は　えび
+)
+
+2025-03-21 05:02:30 SQL Insert successful. Last Insert ID: 21
+2025-03-21 05:02:30 Companion Data: Array
+(
+    [names] => Array
+        (
+            [0] => りょうくん
+            [1] => 奈緒くん
+            [2] => あかね
+        )
+
+    [ages] => Array
+        (
+            [0] => adult
+            [1] => infant
+            [2] => infant
+        )
+
+    [dietaries] => Array
+        (
+            [0] => 卵
+            [1] => えびかに
+            [2] => 生卵
+        )
+
+)
+
+2025-03-21 05:02:30 Companion inserted: りょうくん
+2025-03-21 05:02:30 Companion inserted: 奈緒くん
+2025-03-21 05:02:30 Companion inserted: あかね
+2025-03-21 05:02:32 Notification sent for response ID: 21
+2025-03-21 06:18:21 POST Data: Array
+(
+    [guest_id] => 10
+    [group_id] => tashima-planer
+    [name] => 田嶋
+    [email] => syou51158ym@gmail.com
+    [attending] => 1
+    [companions] => 2
+    [companion_name] => Array
+        (
+            [0] => ターちゃん
+            [1] => じーちゃん
+        )
+
+    [companion_age] => Array
+        (
+            [0] => child
+            [1] => adult
+        )
+
+    [companion_dietary] => Array
+        (
+            [0] => えび
+            [1] => 
+        )
+
+    [message] => 
+    [dietary] => 
+)
+
+2025-03-21 06:18:21 Processed Data: name: 田嶋, email: syou51158ym@gmail.com, attending: 1, companions: 2, guest_id: 10, group_id: tashima-planer
+2025-03-21 06:18:21 SQL Parameters: Array
+(
+    [guest_id] => 10
+    [name] => 田嶋
+    [email] => syou51158ym@gmail.com
+    [attending] => 1
+    [companions] => 2
+    [message] => 
+    [dietary] => 
+)
+
+2025-03-21 06:18:21 SQL Insert successful. Last Insert ID: 22
+2025-03-21 06:18:21 Companion Data: Array
+(
+    [names] => Array
+        (
+            [0] => ターちゃん
+            [1] => じーちゃん
+        )
+
+    [ages] => Array
+        (
+            [0] => child
+            [1] => adult
+        )
+
+    [dietaries] => Array
+        (
+            [0] => えび
+            [1] => 
+        )
+
+)
+
+2025-03-21 06:18:21 Companion inserted: ターちゃん
+2025-03-21 06:18:21 Companion inserted: じーちゃん
+2025-03-21 06:18:21 Notification sent for response ID: 22

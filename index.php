@@ -1,0 +1,990 @@
+<?php
+// 設定ファイルを読み込み
+require_once 'config.php';
+
+// URLからグループIDを取得
+$group_id = isset($_GET['group']) ? htmlspecialchars($_GET['group']) : null;
+
+// ゲスト情報を初期化
+$guest_info = [
+    'group_name' => '親愛なるゲスト様',
+    'arrival_time' => '13:00',
+    'custom_message' => '',
+    'max_companions' => 5
+];
+
+// グループIDが存在する場合、データベースからゲスト情報を取得
+if ($group_id) {
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM guests WHERE group_id = :group_id LIMIT 1");
+        $stmt->execute(['group_id' => $group_id]);
+        $guest_data = $stmt->fetch();
+        
+        if ($guest_data) {
+            $guest_info = [
+                'id' => $guest_data['id'],
+                'group_name' => $guest_data['group_name'],
+                'arrival_time' => $guest_data['arrival_time'],
+                'custom_message' => $guest_data['custom_message'],
+                'max_companions' => $guest_data['max_companions']
+            ];
+        }
+    } catch (PDOException $e) {
+        if ($debug_mode) {
+            echo "データベースエラー: " . $e->getMessage();
+        }
+    }
+}
+
+// 付箋があるか確認
+$has_fusen = false;
+$fusens = [];
+if ($group_id && isset($guest_info['id'])) {
+    try {
+        // 付箋の存在確認
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) FROM guest_fusen 
+            WHERE guest_id = ?
+        ");
+        $stmt->execute([$guest_info['id']]);
+        $has_fusen = ($stmt->fetchColumn() > 0);
+        
+        // 付箋があれば詳細データを取得
+        if ($has_fusen) {
+            $stmt = $pdo->prepare("
+                SELECT gf.*, ft.type_name 
+                FROM guest_fusen gf
+                JOIN fusen_types ft ON gf.fusen_type_id = ft.id
+                WHERE gf.guest_id = ?
+                ORDER BY ft.sort_order, ft.type_name
+            ");
+            $stmt->execute([$guest_info['id']]);
+            $fusens = $stmt->fetchAll();
+        }
+    } catch (PDOException $e) {
+        // エラーが発生した場合は付箋なしとする
+        if ($debug_mode) {
+            echo "付箋データのカウントエラー: " . $e->getMessage();
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翔 & あかね - Wedding Invitation 2025.4.30</title>
+    
+    <!-- パフォーマンス最適化 -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    
+    <!-- リソースのプリロード -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="css/envelope.css" as="style" fetchpriority="high">
+    <link rel="preload" href="css/style.css" as="style" fetchpriority="high">
+    <link rel="preload" href="js/envelope.js" as="script">
+    
+    <!-- スタイルシートの読み込み -->
+    <link rel="stylesheet" href="css/envelope.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500&family=Reggae+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- スクリプトの遅延読み込み -->
+    <script src="js/envelope.js" defer></script>
+    <script src="js/main.js" defer></script>
+</head>
+<body>
+    <!-- 装飾エフェクト（常時表示） -->
+    <div class="decoration-effects">
+        <!-- 10個のランダムなハート -->
+        <?php for ($i = 1; $i <= 10; $i++): ?>
+        <div class="floating-heart" style="left: <?= rand(5, 95) ?>%; top: <?= rand(5, 95) ?>%; animation-delay: <?= $i * 0.5 ?>s;"></div>
+        <?php endfor; ?>
+        
+        <!-- 15個のランダムなキラキラ -->
+        <?php for ($i = 1; $i <= 15; $i++): ?>
+        <div class="floating-sparkle" style="left: <?= rand(5, 95) ?>%; top: <?= rand(5, 95) ?>%; animation-delay: <?= $i * 0.3 ?>s;"></div>
+        <?php endfor; ?>
+    </div>
+
+    <!-- 封筒演出 -->
+    <div class="envelope-container">
+        <div class="envelope-bg"></div>
+        <div class="floating-petals">
+            <div class="petal petal1"></div>
+            <div class="petal petal2"></div>
+            <div class="petal petal3"></div>
+            <div class="petal petal4"></div>
+            <div class="petal petal5"></div>
+        </div>
+        
+        <div class="envelope">
+            <div class="envelope-flap">
+                <div class="wax-seal">
+                    <div class="wax-seal-texture"></div>
+                    <div class="wax-seal-highlight"></div>
+                </div>
+            </div>
+            <div class="envelope-content">
+                <p class="tap-instruction">クリックして開く</p>
+            </div>
+        </div>
+        
+        <div class="celebration-effects">
+            <div class="heart heart1"></div>
+            <div class="heart heart2"></div>
+            <div class="heart heart3"></div>
+            <div class="heart heart4"></div>
+            <div class="heart heart5"></div>
+            
+            <div class="sparkle sparkle1"></div>
+            <div class="sparkle sparkle2"></div>
+            <div class="sparkle sparkle3"></div>
+            <div class="sparkle sparkle4"></div>
+            <div class="sparkle sparkle5"></div>
+        </div>
+    </div>
+
+    <!-- 選択画面 -->
+    <div class="choice-screen hide">
+        <!-- 選択画面用の装飾エフェクト -->
+        <div class="choice-decoration-effects">
+            <?php for ($i = 1; $i <= 5; $i++): ?>
+            <div class="floating-heart" style="left: <?= rand(5, 95) ?>%; top: <?= rand(5, 95) ?>%; width: <?= rand(10, 20) ?>px; height: <?= rand(10, 20) ?>px; opacity: 0.15; animation-delay: <?= $i * 0.7 ?>s;"></div>
+            <?php endfor; ?>
+            
+            <?php for ($i = 1; $i <= 8; $i++): ?>
+            <div class="floating-sparkle" style="left: <?= rand(5, 95) ?>%; top: <?= rand(5, 95) ?>%; width: <?= rand(8, 15) ?>px; height: <?= rand(8, 15) ?>px; opacity: 0.1; animation-delay: <?= $i * 0.4 ?>s;"></div>
+            <?php endfor; ?>
+        </div>
+        
+        <div class="choice-header">
+            <h2><?= htmlspecialchars($guest_info['group_name'] ?? '親愛なるゲスト様') ?>へ</h2>
+            <p>下記のいずれかをお選びください</p>
+        </div>
+        
+        <!-- 招待状カード -->
+        <a href="#invitation-content" class="choice-card choice-invitation-card" style="text-decoration: none; color: inherit;">
+            <div class="choice-card-icon">
+                <i class="fas fa-envelope-open-text"></i>
+            </div>
+            <div class="choice-card-content">
+                <h3>招待状</h3>
+                <p>結婚式のご案内と詳細情報</p>
+            </div>
+        </a>
+        
+        <?php
+        if ($has_fusen): 
+            foreach ($fusens as $index => $fusen):
+        ?>
+        <!-- 付箋カード -->
+        <a href="<?= ($group_id) ? 'fusen.php?group='.urlencode($group_id) : '#' ?>" 
+           data-url="<?= ($group_id) ? 'fusen.php?group='.urlencode($group_id) : '#' ?>" 
+           class="choice-card choice-fusen-card" style="text-decoration: none; color: inherit;">
+            <div class="choice-card-icon">
+                <i class="fas fa-sticky-note"></i>
+            </div>
+            <div class="choice-card-content">
+                <h3><?= htmlspecialchars($fusen['type_name']) ?></h3>
+                <p>重要なご案内があります</p>
+            </div>
+        </a>
+        <?php 
+            endforeach;
+        endif; 
+        ?>
+    </div>
+
+    <div class="invitation-content hide" id="invitation-content">
+        <!-- 招待状ページ用の装飾エフェクト -->
+        <div class="invitation-decoration-effects">
+            <?php for ($i = 1; $i <= 8; $i++): ?>
+            <div class="floating-heart" style="left: <?= rand(5, 95) ?>%; top: <?= rand(5, 95) ?>%; width: <?= rand(8, 15) ?>px; height: <?= rand(8, 15) ?>px; opacity: 0.1; animation-delay: <?= $i * 0.8 ?>s;"></div>
+            <?php endfor; ?>
+            
+            <?php for ($i = 1; $i <= 12; $i++): ?>
+            <div class="floating-sparkle" style="left: <?= rand(5, 95) ?>%; top: <?= rand(5, 95) ?>%; width: <?= rand(5, 12) ?>px; height: <?= rand(5, 12) ?>px; opacity: 0.08; animation-delay: <?= $i * 0.5 ?>s;"></div>
+            <?php endfor; ?>
+        </div>
+        
+        <div class="floating-leaves">
+            <div class="leaf leaf1"></div>
+            <div class="leaf leaf2"></div>
+            <div class="leaf leaf3"></div>
+            <div class="leaf leaf4"></div>
+            <div class="leaf leaf5"></div>
+            <div class="leaf leaf6"></div>
+            <div class="leaf leaf7"></div>
+            <div class="leaf leaf8"></div>
+        </div>
+
+        <div class="container">
+            <header class="main-header">
+                <div class="header-inner">
+                    <h1 class="title">翔 & あかね</h1>
+                    <div class="title-decoration">
+                        <span class="decoration-line"></span>
+                        <i class="fas fa-leaf"></i>
+                        <i class="fas fa-heart"></i>
+                        <i class="fas fa-leaf"></i>
+                        <span class="decoration-line"></span>
+                    </div>
+                    <p class="subtitle">Welcome to Our Wedding</p>
+                    <p class="date">2025.4.30</p>
+                    
+                    <?php if ($group_id): ?>
+                    <div class="personal-message">
+                        <p class="guest-name"><?= $guest_info['group_name'] ?>へ</p>
+                        <?php if ($guest_info['custom_message']): ?>
+                        <p class="personal-note"><?= nl2br($guest_info['custom_message']) ?></p>
+                        <?php endif; ?>
+                        
+                        <?php
+                        if ($has_fusen): 
+                        ?>
+                        <div class="fusen-link-container">
+                            <a href="<?= ($group_id) ? 'fusen.php?group='.urlencode($group_id) : '#' ?>" class="fusen-link">
+                                <i class="fas fa-sticky-note"></i> 付箋を確認する
+                            </a>
+                            <p class="fusen-note">※付箋には重要なご案内が記載されています。必ずご確認ください。</p>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </header>
+
+            <div class="video-container">
+                <div class="video-wrapper">
+                    <?php
+                    // メイン動画を取得
+                    $main_video = null;
+                    try {
+                        $stmt = $pdo->query("SELECT * FROM video_gallery WHERE is_main_video = 1 AND is_active = 1 LIMIT 1");
+                        $main_video = $stmt->fetch();
+                    } catch (PDOException $e) {
+                        // エラー処理（静かに失敗）
+                    }
+
+                    // サムネイル画像のパス
+                    $thumbnail_path = 'images/thumbnail.jpg'; // デフォルトのサムネイル
+                    if ($main_video && $main_video['thumbnail']) {
+                        $thumbnail_path = 'images/thumbnails/' . $main_video['thumbnail'];
+                    }
+
+                    // 動画のソースパス
+                    $video_src = 'videos/wedding-invitation.mp4'; // デフォルトの動画
+                    if ($main_video) {
+                        $video_src = 'videos/' . $main_video['filename'];
+                    }
+                    
+                    // 拡張子に基づいてMIMEタイプを判定する
+                    $file_extension = pathinfo($video_src, PATHINFO_EXTENSION);
+                    $mime_type = 'video/mp4'; // デフォルト
+                    
+                    switch (strtolower($file_extension)) {
+                        case 'mp4':
+                            $mime_type = 'video/mp4';
+                            break;
+                        case 'mov':
+                            $mime_type = 'video/quicktime';
+                            break;
+                        case 'webm':
+                            $mime_type = 'video/webm';
+                            break;
+                        case 'ogg':
+                        case 'ogv':
+                            $mime_type = 'video/ogg';
+                            break;
+                        case 'avi':
+                            $mime_type = 'video/x-msvideo';
+                            break;
+                        case 'wmv':
+                            $mime_type = 'video/x-ms-wmv';
+                            break;
+                        case 'mpg':
+                        case 'mpeg':
+                            $mime_type = 'video/mpeg';
+                            break;
+                        // その他の形式も必要に応じて追加
+                    }
+                    ?>
+                    <video id="wedding-video" controls poster="<?= $thumbnail_path ?>">
+                        <!-- プライマリソース - 判定されたMIMEタイプに基づく -->
+                        <source src="<?= $video_src ?>" type="<?= $mime_type ?>">
+                        
+                        <!-- 代替ソース - 主要なビデオフォーマット -->
+                        <source src="<?= $video_src ?>" type="video/mp4">
+                        <source src="<?= $video_src ?>" type="video/quicktime">
+                        <source src="<?= $video_src ?>" type="video/webm">
+                        <source src="<?= $video_src ?>" type="video/ogg">
+                        <source src="<?= $video_src ?>" type="video/x-msvideo">
+                        <source src="<?= $video_src ?>" type="video/x-ms-wmv">
+                        
+                        <!-- フォールバックメッセージ -->
+                        お使いのブラウザは動画の再生に対応していません。
+                    </video>
+                    <div class="video-overlay">
+                        <button class="play-button"><i class="fas fa-play"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <section class="timeline-section">
+                <div class="section-title">
+                    <h2>ふたりの物語</h2>
+                    <div class="title-underline"></div>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">
+                            <span>遠距離から始まったふたりの旅</span>
+                        </div>
+                        <div class="timeline-content">
+                            <p>滋賀と京都、神奈川と大分。<br>
+                            距離が離れているからこそ、一緒にいる時間を大切にしました。<br>
+                            車やバイクで旅行したり、横浜や九州を訪れたり、<br>
+                            楽しい思い出をたくさん作りました。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">
+                            <span>共に歩んだ4年間</span>
+                        </div>
+                        <div class="timeline-content">
+                            <p>みなとみらいで夜景を楽しんだり、<br>
+                            ユニバーサルスタジオやディズニーで笑いあったり、<br>
+                            愛猫「まりんちゃん」と運命的な出会いをしたり…。<br>
+                            お互いの気持ちに寄り添いながら、絆を深めました。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">
+                            <span>夫婦としての新たなスタート</span>
+                        </div>
+                        <div class="timeline-content">
+                            <p>4年間の交際を経て、2024年4月30日に入籍いたしました。<br>
+                            これからは夫婦として、お互いを支え合いながら、<br>
+                            新しい景色をたくさん見ていきたいと思います。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">
+                            <span>結婚式へのお誘い</span>
+                        </div>
+                        <div class="timeline-content">
+                            <p>2025年4月30日<br>
+                            大切な皆様と一緒に、新しい物語の始まりをお祝いできれば幸いです。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="wedding-info">
+                <div class="section-title">
+                    <h2>結婚式のご案内</h2>
+                    <div class="title-underline"></div>
+                </div>
+                
+                <?php
+                // venue_map.phpから会場情報取得機能を移植
+                function get_wedding_venue_info() {
+                    global $pdo;
+                    $venue_info = [
+                        'name' => '',
+                        'address' => '',
+                        'map_url' => '',
+                        'map_link' => ''
+                    ];
+                    
+                    try {
+                        $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM wedding_settings WHERE setting_key IN ('venue_name', 'venue_address', 'venue_map_url', 'venue_map_link')");
+                        $stmt->execute();
+                        
+                        while ($row = $stmt->fetch()) {
+                            switch ($row['setting_key']) {
+                                case 'venue_name':
+                                    $venue_info['name'] = $row['setting_value'];
+                                    break;
+                                case 'venue_address':
+                                    $venue_info['address'] = $row['setting_value'];
+                                    break;
+                                case 'venue_map_url':
+                                    // iframeタグが含まれている場合、src属性からURLを抽出
+                                    if (strpos($row['setting_value'], '<iframe') !== false) {
+                                        preg_match('/src=["\']([^"\']+)["\']/', $row['setting_value'], $matches);
+                                        $venue_info['map_url'] = isset($matches[1]) ? $matches[1] : '';
+                                    } else {
+                                        $venue_info['map_url'] = $row['setting_value'];
+                                    }
+                                    break;
+                                case 'venue_map_link':
+                                    // iframeタグが含まれている場合、href属性からURLを抽出
+                                    if (strpos($row['setting_value'], '<a') !== false) {
+                                        preg_match('/href=["\']([^"\']+)["\']/', $row['setting_value'], $matches);
+                                        $venue_info['map_link'] = isset($matches[1]) ? $matches[1] : '';
+                                    } else {
+                                        $venue_info['map_link'] = $row['setting_value'];
+                                    }
+                                    break;
+                            }
+                        }
+                    } catch (PDOException $e) {
+                        // エラー処理（静かに失敗）
+                    }
+                    
+                    return $venue_info;
+                }
+                
+                // 会場情報を取得
+                $venue_info = get_wedding_venue_info();
+                ?>
+                
+                <div class="info-card">
+                    <div class="info-item date-time">
+                        <div class="info-icon">
+                            <i class="far fa-calendar-alt"></i>
+                        </div>
+                        <div class="info-details">
+                            <h3>日時</h3>
+                            <p>2025年4月30日（水）</p>
+                            <?php if ($group_id): ?>
+                            <p class="arrival-time">ご集合: <?= $guest_info['arrival_time'] ?></p>
+                            <?php else: ?>
+                            <p>13:00〜</p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="info-item venue">
+                        <div class="info-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="info-details">
+                            <h3>会場</h3>
+                            <p><?= nl2br(htmlspecialchars($venue_info['name'])) ?></p>
+                            <p class="address"><?= nl2br(htmlspecialchars($venue_info['address'])) ?></p>
+                        </div>
+                    </div>
+                    <div class="info-item dress-code">
+                        <div class="info-icon">
+                            <i class="fas fa-tshirt"></i>
+                        </div>
+                        <div class="info-details">
+                            <h3>ドレスコード</h3>
+                            <p>自由 </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 交通・宿泊情報へのリンク -->
+                    <div class="info-item travel-accommodation">
+                        <div class="info-icon">
+                            <i class="fas fa-hotel"></i>
+                        </div>
+                        <div class="info-details">
+                            <h3>交通・宿泊</h3>
+                            <p>会場へのアクセスと宿泊施設</p>
+                            <a href="<?= $group_id ? "travel.php?group=" . urlencode($group_id) : "travel.php" ?>" class="info-link">
+                                詳細を見る <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Googleマップを表示 -->
+                    <?php if (!empty($venue_info['map_url'])): ?>
+                    <div class="map-container">
+                        <iframe 
+                            src="<?= htmlspecialchars($venue_info['map_url']) ?>" 
+                            width="100%" 
+                            height="400" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <!-- Google Mapボタン -->
+                    <?php if (!empty($venue_info['map_link'])): ?>
+                    <div class="map-link-container" style="text-align: center; margin-top: 15px;">
+                        <a href="<?= htmlspecialchars($venue_info['map_link']) ?>" target="_blank" class="map-link-button">
+                            <i class="fas fa-directions"></i> Google マップで見る
+                        </a>
+                    </div>
+                    
+                    <style>
+                    .map-link-button {
+                        display: inline-block;
+                        padding: 0.7rem 1.5rem;
+                        margin-top: 0.5rem;
+                        color: #fff;
+                        background-color: #4285F4;
+                        border-radius: 4px;
+                        text-decoration: none;
+                        transition: background-color 0.3s, transform 0.2s;
+                        font-weight: 500;
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                    }
+
+                    .map-link-button:hover {
+                        background-color: #3367D6;
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                    }
+                    
+                    .map-container {
+                        margin-top: 20px;
+                        border-radius: 8px;
+                        overflow: hidden;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    }
+                    </style>
+                    <?php endif; ?>
+                    
+                    <div class="rsvp-button-container">
+                        <a href="#rsvp" class="rsvp-button"><i class="fas fa-envelope"></i> ご出欠を回答する</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 結婚式タイムスケジュール -->
+            <section class="schedule-section">
+                <div class="section-title">
+                    <h2>当日のスケジュール</h2>
+                    <div class="title-underline"></div>
+                </div>
+                <div class="schedule-intro">
+                    <p>結婚式当日の流れをご案内します</p>
+                </div>
+                <div class="schedule-container">
+                    <?php
+                    try {
+                        // スケジュール情報を取得
+                        $stmt = $pdo->query("SELECT * FROM schedule ORDER BY event_time ASC");
+                        $events = $stmt->fetchAll();
+                        
+                        if (!empty($events)) {
+                            foreach ($events as $event) {
+                                echo '<div class="schedule-item">';
+                                echo '<div class="schedule-time">' . date("H:i", strtotime($event['event_time'])) . '</div>';
+                                echo '<div class="schedule-content">';
+                                echo '<h3>' . htmlspecialchars($event['event_name']) . '</h3>';
+                                echo '<p>' . nl2br(htmlspecialchars($event['event_description'])) . '</p>';
+                                echo '</div>';
+                                echo '</div>';
+                            }
+                        } else {
+                            echo '<p class="no-schedule">スケジュール情報は近日公開予定です。</p>';
+                        }
+                    } catch (PDOException $e) {
+                        if ($debug_mode) {
+                            echo "データベースエラー: " . $e->getMessage();
+                        } else {
+                            echo '<p class="no-schedule">スケジュール情報を読み込めませんでした。</p>';
+                        }
+                    }
+                    ?>
+                </div>
+            </section>
+
+            <!-- 備考・お願い -->
+            <section class="notes-section">
+                <div class="section-title">
+                    <h2>備考・お願い</h2>
+                    <div class="title-underline"></div>
+                </div>
+                <div class="notes-container">
+                    <?php
+                    try {
+                        // 備考・お願い情報を取得
+                        $stmt = $pdo->query("SELECT * FROM remarks ORDER BY display_order ASC");
+                        $remarks = $stmt->fetchAll();
+                        
+                        if (!empty($remarks)) {
+                            echo '<ul class="notes-list">';
+                            foreach ($remarks as $remark) {
+                                // グループ情報のプレースホルダーを置換
+                                $content = $remark['content'];
+                                
+                                if ($group_id && isset($guest_info)) {
+                                    // グループ名プレースホルダー
+                                    $content = str_replace('{group_name}', htmlspecialchars($guest_info['group_name']), $content);
+                                    
+                                    // グループ名 + 「の場合は」プレースホルダー
+                                    $content = str_replace('{group_name_case}', htmlspecialchars($guest_info['group_name']) . 'の場合は', $content);
+                                    
+                                    // 集合時間プレースホルダー
+                                    if (isset($guest_info['arrival_time']) && !empty($guest_info['arrival_time'])) {
+                                        $arrival_time = $guest_info['arrival_time'];
+                                        $content = str_replace('{arrival_time}', $arrival_time, $content);
+                                        
+                                        // 集合時間の10分前を計算
+                                        if (strpos($content, '{arrival_time_minus10}') !== false) {
+                                            $time_obj = new DateTime($arrival_time);
+                                            $time_obj->modify('-10 minutes');
+                                            $arrival_time_minus10 = $time_obj->format('H:i');
+                                            $content = str_replace('{arrival_time_minus10}', $arrival_time_minus10, $content);
+                                        }
+                                    }
+                                } else {
+                                    // グループ情報がない場合はデフォルト値
+                                    $content = str_replace('{arrival_time}', '11:30', $content);
+                                    $content = str_replace('{arrival_time_minus10}', '11:20', $content);
+                                    $content = str_replace('{group_name}', 'ゲスト', $content);
+                                    $content = str_replace('{group_name_case}', 'ゲストの場合は', $content);
+                                }
+                                
+                                echo '<li class="note-item">';
+                                echo '<i class="fas fa-leaf note-icon"></i>';
+                                echo '<div class="note-content">' . nl2br(htmlspecialchars($content)) . '</div>';
+                                echo '</li>';
+                            }
+                            echo '</ul>';
+                            
+                            // 新郎新婦情報
+                            echo '<div class="couple-info">';
+                            echo '<p>新郎: 村岡 翔</p>';
+                            echo '<p>新婦: 磯野 あかね</p>';
+                            echo '</div>';
+                        }
+                    } catch (PDOException $e) {
+                        if ($debug_mode) {
+                            echo "データベースエラー: " . $e->getMessage();
+                        }
+                    }
+                    ?>
+                </div>
+            </section>
+
+            <section id="rsvp" class="rsvp-section">
+                <div class="section-title">
+                    <h2>ご返信</h2>
+                    <div class="title-underline"></div>
+                </div>
+                <div class="rsvp-intro">
+                    <p>お手数ですが、<strong>2025年4月15日</strong>までにご返信をお願いいたします。</p>
+                </div>
+                <form id="rsvp-form" action="process_rsvp.php" method="post">
+                    <?php if ($group_id && isset($guest_info['id'])): ?>
+                    <input type="hidden" name="guest_id" value="<?= $guest_info['id'] ?>">
+                    <input type="hidden" name="group_id" value="<?= $group_id ?>">
+                    <?php endif; ?>
+                    <div class="form-group">
+                        <label for="name">お名前<span class="required">*</span></label>
+                        <input type="text" id="name" name="name" required>
+                        <div id="name-error" class="error-message-inline" style="display: none;">お名前を入力してください</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">メールアドレス<span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required>
+                        <div id="email-error" class="error-message-inline" style="display: none;">有効なメールアドレスを入力してください</div>
+                    </div>
+                    <div class="form-group">
+                        <label>ご出席<span class="required">*</span></label>
+                        <div class="radio-group">
+                            <input type="radio" id="attend-yes" name="attending" value="1" checked required>
+                            <label for="attend-yes">出席します</label>
+                            <input type="radio" id="attend-no" name="attending" value="0">
+                            <label for="attend-no">欠席します</label>
+                        </div>
+                    </div>
+                    <div class="form-group attendance-details">
+                        <label for="guests">同伴者人数</label>
+                        <select id="guests" name="companions">
+                            <option value="0">0名</option>
+                            <?php for ($i = 1; $i <= $guest_info['max_companions']; $i++): ?>
+                            <option value="<?= $i ?>"><?= $i ?>名</option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                    <div id="companions-container" style="display: none;">
+                        <div class="form-group">
+                            <h4>同伴者情報</h4>
+                            <p class="companions-note">座席表作成のため、同伴者様のお名前をご記入ください。</p>
+                        </div>
+                        <div id="companions-fields">
+                            <!-- 同伴者フィールドがJSで動的に追加されます -->
+                        </div>
+                    </div>
+                    <div class="form-group" id="message-group">
+                        <label for="message">お二人へのメッセージ</label>
+                        <textarea id="message" name="message" rows="4"></textarea>
+                    </div>
+                    <div class="form-group" id="dietary-group">
+                        <label for="dietary">アレルギー・食事制限等</label>
+                        <textarea id="dietary" name="dietary" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="submit-button"><i class="fas fa-paper-plane"></i> 送信する</button>
+                </form>
+                <div class="rsvp-decoration">
+                    <img src="images/leaf.png" alt="装飾の葉" class="rsvp-leaf">
+                </div>
+            </section>
+
+            <section class="countdown-section">
+                <div class="countdown-container">
+                    <h2>結婚式まであと</h2>
+                    <div class="countdown-timer" data-wedding-date="2025-04-30">
+                        <div class="countdown-item">
+                            <span id="countdown-days">--</span>
+                            <span class="countdown-label">Days</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="countdown-hours">--</span>
+                            <span class="countdown-label">Hours</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="countdown-minutes">--</span>
+                            <span class="countdown-label">Minutes</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="countdown-seconds">--</span>
+                            <span class="countdown-label">Seconds</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="gallery">
+                <div class="section-title">
+                    <h2>ふたりの思い出</h2>
+                    <div class="title-underline"></div>
+                </div>
+                <div class="gallery-intro">
+                    <p>二人の思い出の写真をシェアします</p>
+                </div>
+                <div class="photos">
+                    <?php
+                    try {
+                        // 承認済みの写真を取得
+                        $stmt = $pdo->query("SELECT * FROM photo_gallery WHERE is_approved = 1 ORDER BY upload_date DESC LIMIT 6");
+                        $gallery_photos = $stmt->fetchAll();
+                        
+                        if (!empty($gallery_photos)) {
+                            foreach ($gallery_photos as $index => $photo) {
+                                $main_class = ($index === 0) ? 'main-photo' : '';
+                                $loading = ($index <= 1) ? 'eager' : 'lazy'; // 最初の2枚は即時読み込み、それ以降は遅延読み込み
+                                echo '<div class="photo-item ' . $main_class . '">';
+                                if ($index <= 1) {
+                                    echo '<img src="uploads/photos/' . htmlspecialchars($photo['filename']) . '" alt="' . htmlspecialchars($photo['title']) . '" loading="' . $loading . '">';
+                                } else {
+                                    echo '<img class="lazy-load" data-src="uploads/photos/' . htmlspecialchars($photo['filename']) . '" alt="' . htmlspecialchars($photo['title']) . '" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy">';
+                                }
+                                echo '</div>';
+                            }
+                        } else {
+                            // データベースに写真がない場合はデフォルト写真を表示
+                            echo '<div class="photo-item main-photo">';
+                            echo '<img src="images/couple1.jpg" alt="翔とあかねの写真">';
+                            echo '</div>';
+                            echo '<div class="photo-item">';
+                            echo '<img src="images/placeholders/couple2.jpg" alt="翔とあかねの写真2" loading="lazy">';
+                            echo '</div>';
+                            echo '<div class="photo-item">';
+                            echo '<img class="lazy-load" data-src="images/placeholders/couple3.jpg" alt="翔とあかねの写真3" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy">';
+                            echo '</div>';
+                            echo '<div class="photo-item">';
+                            echo '<img class="lazy-load" data-src="images/placeholders/couple4.jpg" alt="翔とあかねの写真4" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy">';
+                            echo '</div>';
+                            echo '<div class="photo-item">';
+                            echo '<img class="lazy-load" data-src="images/placeholders/couple5.jpg" alt="翔とあかねの写真5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy">';
+                            echo '</div>';
+                            echo '<div class="photo-item">';
+                            echo '<img class="lazy-load" data-src="images/placeholders/couple6.jpg" alt="翔とあかねの写真6" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy">';
+                            echo '</div>';
+                        }
+                    } catch (PDOException $e) {
+                        if ($debug_mode) {
+                            echo "データベースエラー: " . $e->getMessage();
+                        } else {
+                            // エラーの場合もデフォルト写真を表示
+                            echo '<div class="photo-item main-photo">';
+                            echo '<img src="images/couple1.jpg" alt="翔とあかねの写真">';
+                            echo '</div>';
+                            echo '<div class="photo-item">';
+                            echo '<img src="images/placeholders/couple2.jpg" alt="翔とあかねの写真2" loading="lazy">';
+                            echo '</div>';
+                            // 追加の写真
+                        }
+                    }
+                    ?>
+                </div>
+            </section>
+
+            <section class="message-section">
+                <div class="section-title">
+                    <h2>新郎新婦からのメッセージ</h2>
+                    <div class="title-underline"></div>
+                </div>
+                <div class="message-card">
+                    <div class="message-icon">❝</div>
+                    <p class="message-text">私たちにとって大切な皆様に、人生の新しい門出をお祝いいただけることを心から嬉しく思います。当日は「森の中」をテーマに、自然に囲まれた温かい雰囲気の中で、皆様と素敵な時間を過ごせることを楽しみにしています。ぜひお気軽な服装でお越しください。</p>
+                    <p class="message-signature">翔 & あかね</p>
+                </div>
+            </section>
+
+            <!-- よくある質問（FAQ）セクション -->
+            <section class="faq-section">
+                <div class="section-title">
+                    <h2>よくある質問</h2>
+                    <div class="title-underline"></div>
+                </div>
+                <div class="faq-intro">
+                    <p>ゲストの皆様からよく寄せられる質問をまとめました</p>
+                </div>
+                <div class="faq-container">
+                    <?php
+                    try {
+                        // FAQを取得
+                        $stmt = $pdo->query("SELECT * FROM faq WHERE is_visible = 1 ORDER BY display_order ASC");
+                        $faqs = $stmt->fetchAll();
+                        
+                        if (!empty($faqs)) {
+                            foreach ($faqs as $faq) {
+                                echo '<div class="faq-item">';
+                                echo '<div class="faq-question">';
+                                echo '<h3><i class="fas fa-question-circle"></i> ' . htmlspecialchars($faq['question']) . '</h3>';
+                                echo '<span class="faq-toggle"><i class="fas fa-chevron-down"></i></span>';
+                                echo '</div>';
+                                echo '<div class="faq-answer">';
+                                echo '<p>' . nl2br(htmlspecialchars($faq['answer'])) . '</p>';
+                                echo '</div>';
+                                echo '</div>';
+                            }
+                        } else {
+                            echo '<p class="no-faqs">FAQ情報は近日公開予定です。</p>';
+                        }
+                    } catch (PDOException $e) {
+                        if ($debug_mode) {
+                            echo "データベースエラー: " . $e->getMessage();
+                        } else {
+                            echo '<p class="no-faqs">FAQ情報を読み込めませんでした。</p>';
+                        }
+                    }
+                    ?>
+                </div>
+            </section>
+
+            <!-- ゲストブックへのリンク -->
+            <div class="guestbook-link-container">
+                <a href="guestbook.php<?= $group_id ? '?group=' . urlencode($group_id) : '' ?>" class="guestbook-link-button">
+                    <i class="fas fa-book-open"></i> ゲストブックを見る・書く
+                </a>
+                <p class="guestbook-description">お二人へのお祝いメッセージを残したり、他のゲストからのメッセージを見ることができます。</p>
+            </div>
+        </div>
+
+        <!-- サイト名の説明を一番下に移動 -->
+        <div class="soprano-note-container">
+            <div class="soprano-note">
+                <div class="note-content">
+                    <div class="note-inner">
+                        <div class="sneeze-icon-wrapper">
+                            <span class="sneeze-icon">ハクション！</span>
+                            <div class="note-music">
+                                <i class="fas fa-music note1"></i>
+                                <i class="fas fa-music note2"></i>
+                                <i class="fas fa-music note3"></i>
+                            </div>
+                        </div>
+                        <div class="note-text">
+                            <p><small>※ちなみに「sopranohaction.fun」は、<strong>翔（しょう）</strong>の高音域のくしゃみ「ハクション！」と英語の"soprano"（ソプラノ）を組み合わせた造語です</small></p>
+                        </div>
+                    </div>
+                    <div class="note-decoration left"></div>
+                    <div class="note-decoration right"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-decoration">
+                <div class="leaf-decoration left"></div>
+                <div class="heart-container">
+                    <i class="fas fa-heart"></i>
+                    <i class="fas fa-heart"></i>
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="leaf-decoration right"></div>
+            </div>
+            <p>&copy; 2023 翔 & あかね - Our Wedding</p>
+            <p class="domain">sopranohaction.fun</p>
+        </footer>
+    </div>
+
+    <style>
+    .travel-accommodation-link {
+        margin: 25px 0;
+        text-align: center;
+        padding: 15px;
+        background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 8px;
+        border: 1px dashed var(--primary-color);
+    }
+
+    .travel-link-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: var(--primary-color);
+        color: white;
+        text-decoration: none;
+        border-radius: 30px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .travel-link-button:hover {
+        background-color: var(--accent-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .travel-link-button i {
+        margin-right: 5px;
+    }
+
+    .travel-link-description {
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    .info-item .info-link {
+        display: inline-block;
+        margin-top: 8px;
+        color: var(--accent-dark);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border-bottom: 1px dashed var(--accent-light);
+        padding-bottom: 2px;
+    }
+
+    .info-item .info-link:hover {
+        color: var(--accent-light);
+    }
+
+    .info-item .info-link i {
+        margin-left: 5px;
+        font-size: 0.8rem;
+        transition: transform 0.3s ease;
+    }
+
+    .info-item .info-link:hover i {
+        transform: translateX(3px);
+    }
+    </style>
+</body>
+</html> 

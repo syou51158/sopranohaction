@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>テスト送信フォーム</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { padding: 10px 15px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>テスト送信フォーム</h1>
+        <p>このフォームはメールアドレスが正しく送信されるかテストするためのものです。</p>
+        
+        <form action="process_rsvp.php" method="post">
+            <div class="form-group">
+                <label for="name">お名前:</label>
+                <input type="text" id="name" name="name" value="テスト太郎" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">メールアドレス:</label>
+                <input type="email" id="email" name="email" value="test@example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label>ご出席:</label>
+                <div>
+                    <label>
+                        <input type="radio" name="attending" value="1" checked> 出席
+                    </label>
+                    <label>
+                        <input type="radio" name="attending" value="0"> 欠席
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="companions">同伴者:</label>
+                <select id="companions" name="companions">
+                    <option value="0">0名</option>
+                    <option value="1">1名</option>
+                    <option value="2">2名</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">メッセージ:</label>
+                <textarea id="message" name="message">テストメッセージです</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="dietary">食事制限:</label>
+                <textarea id="dietary" name="dietary">なし</textarea>
+            </div>
+            
+            <button type="submit">送信する</button>
+        </form>
+    </div>
+</body>
+</html> 

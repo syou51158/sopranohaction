@@ -1,0 +1,467 @@
+/* 席次表管理スタイル */
+.seating-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* テーブルスタイル */
+.table-container {
+    border: 2px solid #3a3a3a;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 25px;
+    width: 240px;
+    background-color: #f8f9fa;
+    transition: all 0.3s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.table-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.table-name {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 12px;
+    font-size: 1.2em;
+    padding: 8px;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    color: #2c3e50;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.table-seats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.seat {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px 8px;
+    width: 100%;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.seat:hover {
+    background-color: #f0f0f0;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.seat.occupied {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.seat.occupied:hover {
+    background-color: #c3e6cb;
+}
+
+.seat.drop-active {
+    background-color: #ffeeba;
+    border: 2px dashed #ffc107;
+}
+
+.seat-number {
+    font-weight: bold;
+    display: inline-block;
+    width: 20px;
+    color: #6c757d;
+}
+
+.seat-guest {
+    padding: 5px;
+    font-size: 14px;
+    text-align: center;
+    flex-grow: 1;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: #000 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 10 !important;
+}
+
+.seat-guest.empty {
+    color: #aaa;
+    font-style: italic;
+}
+
+/* ゲストリストスタイル */
+.guests-container {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.guest-item {
+    cursor: move; /* ドラッグ可能を示す */
+    border-left: 5px solid #6c757d;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    background-color: #fff;
+    border-radius: 5px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.guest-item:hover {
+    background-color: #f0f0f0;
+    transform: translateX(5px);
+}
+
+.guest-item.respondent {
+    border-left-color: #007bff;
+}
+
+.guest-item.companion {
+    border-left-color: #28a745;
+}
+
+.guest-item.dragging {
+    opacity: 0.7;
+    transform: scale(0.95);
+}
+
+/* 座席ステータス表示 */
+.seating-status {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.status-card {
+    padding: 15px;
+    border-radius: 10px;
+    min-width: 150px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.status-card.seated {
+    background-color: #d1e7dd;
+    border: 1px solid #badbcc;
+}
+
+.status-card.unassigned {
+    background-color: #f8d7da;
+    border: 1px solid #f5c2c7;
+}
+
+.status-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.status-label {
+    font-size: 1rem;
+    color: #495057;
+}
+
+/* ツールチップとアクション */
+.table-actions {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    display: flex;
+    gap: 5px;
+}
+
+.action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+}
+
+.action-btn.edit {
+    background-color: #007bff;
+}
+
+.action-btn.view {
+    background-color: #28a745;
+}
+
+/* モーダルのカスタマイズ */
+.custom-modal .modal-content {
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.custom-modal .modal-header {
+    background-color: #f8f9fa;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.custom-modal .modal-footer {
+    background-color: #f8f9fa;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}
+
+.legend-color.empty {
+    background-color: #fff;
+    border: 1px solid #ccc;
+}
+
+.legend-color.occupied {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+.legend-color.respondent {
+    background-color: #cce5ff;
+    border: 1px solid #b8daff;
+}
+
+.legend-color.companion {
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    .seating-layout {
+        justify-content: center;
+    }
+    
+    .table-container {
+        width: 90%;
+    }
+}
+
+/* 会場レイアウト */
+.venue-layout {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.venue-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.venue-header h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.venue-date, .venue-place {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+/* 新郎新婦テーブル */
+.bridal-table-area {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 50px;
+}
+
+.bridal-table-container {
+    display: flex;
+    gap: 20px;
+    max-width: 600px;
+}
+
+.bridal-table {
+    border: 2px solid #000;
+    padding: 10px;
+    width: 200px;
+    background-color: #fff;
+}
+
+.bridal-table.groom {
+    border-color: #00008B;
+}
+
+.bridal-table.bride {
+    border-color: #FF69B4;
+}
+
+/* ゲストテーブル */
+.guest-tables-area {
+    margin-bottom: 30px;
+}
+
+.guest-tables-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.guest-table {
+    border: 2px solid #000;
+    padding: 10px;
+    background-color: #fff;
+}
+
+.table-name {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* 座席のスタイル */
+.table-seats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.seat {
+    border: 1px solid #000;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    height: 60px;
+}
+
+.seat:hover {
+    background-color: #f0f0f0;
+}
+
+.seat.occupied {
+    background-color: #e6f7ff;
+}
+
+.seat-layer {
+    font-size: 12px;
+    padding: 2px 5px;
+    border-bottom: 1px solid #ccc;
+    background-color: #f8f8f8;
+    color: #777;
+    text-align: center;
+    height: 22px;
+    position: relative;
+    z-index: 5;
+}
+
+.seat-guest {
+    padding: 5px;
+    font-size: 14px;
+    text-align: center;
+    flex-grow: 1;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: #000 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 10 !important;
+    position: relative;
+    background-color: #fff !important;
+}
+
+.seat-guest.empty {
+    color: #aaa;
+    font-style: italic;
+}
+
+/* 説明書き */
+.seating-instructions {
+    margin-top: 30px;
+    padding: 15px;
+    border-top: 1px solid #eee;
+}
+
+.seating-instructions ul {
+    list-style: none;
+    padding: 0;
+}
+
+.seating-instructions li {
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+/* スマートフォン用レスポンシブ対応 */
+@media (max-width: 768px) {
+    .guest-tables-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .bridal-table-container {
+        flex-direction: column;
+    }
+    
+    .bridal-table {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .guest-tables-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* デバッグ用のスタイル - 非表示にする */
+.debug-border {
+    border: none !important;
+    min-height: auto !important;
+}
+
+/* データ確認用 - マウスオーバーでデバッグ情報表示 */
+.seat:hover .debug-info {
+    display: none !important;
+} 

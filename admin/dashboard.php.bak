@@ -1,0 +1,541 @@
+<?php
+// セッションを開始
+session_start();
+
+// 設定ファイルを読み込み
+require_once '../config.php';
+
+// 認証チェック
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    header('Location: index.php');
+    exit;
+}
+
+// ゲストグループを取得
+$guests = [];
+try {
+    $stmt = $pdo->query("
+        SELECT g.*, gt.type_name 
+        FROM guests g
+        LEFT JOIN group_types gt ON g.group_type_id = gt.id
+        ORDER BY g.group_name
+    ");
+    $guests = $stmt->fetchAll();
+} catch (PDOException $e) {
+    $error = "ゲスト情報の取得に失敗しました。";
+    if ($debug_mode) {
+        $error .= " エラー: " . $e->getMessage();
+    }
+}
+
+// 出欠回答を取得
+$responses = [];
+try {
+    $stmt = $pdo->query("
+        SELECT r.*, g.group_name 
+        FROM responses r 
+        LEFT JOIN guests g ON r.guest_id = g.id 
+        ORDER BY r.created_at DESC
+    ");
+    $responses = $stmt->fetchAll();
+} catch (PDOException $e) {
+    $error = "回答情報の取得に失敗しました。";
+    if ($debug_mode) {
+        $error .= " エラー: " . $e->getMessage();
+    }
+}
+
+// 参加者・欠席者カウント
+$attending_count = 0;
+$not_attending_count = 0;
+
+foreach ($responses as $response) {
+    if ($response['attending']) {
+        $attending_count++;
+        // 同伴者も加算
+        $attending_count += $response['companions'];
+    } else {
+        $not_attending_count++;
+    }
+}
+
+// 新しいゲストグループの追加処理
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_guest') {
+    $group_name = isset($_POST['group_name']) ? htmlspecialchars($_POST['group_name']) : '';
+    $group_id = isset($_POST['group_id']) ? htmlspecialchars($_POST['group_id']) : '';
+    $arrival_time = isset($_POST['arrival_time']) ? htmlspecialchars($_POST['arrival_time']) : '';
+    $custom_message = isset($_POST['custom_message']) ? htmlspecialchars($_POST['custom_message']) : '';
+    $max_companions = isset($_POST['max_companions']) ? (int)$_POST['max_companions'] : 0;
+    $group_type_id = isset($_POST['group_type_id']) ? (int)$_POST['group_type_id'] : null;
+    
+    if (empty($group_name) || empty($group_id) || empty($arrival_time)) {
+        $add_error = "グループ名、グループID、到着時間は必須です。";
+    } else {
+        try {
+            $stmt = $pdo->prepare("
+                INSERT INTO guests 
+                (group_id, group_name, arrival_time, custom_message, max_companions, group_type_id) 
+                VALUES (:group_id, :group_name, :arrival_time, :custom_message, :max_companions, :group_type_id)
+            ");
+            
+            $stmt->execute([
+                'group_id' => $group_id,
+                'group_name' => $group_name,
+                'arrival_time' => $arrival_time,
+                'custom_message' => $custom_message,
+                'max_companions' => $max_companions,
+                'group_type_id' => $group_type_id
+            ]);
+            
+            // 成功メッセージを設定
+            $success = "新しいゲストグループを追加しました。";
+            
+            // ページをリロード
+            header('Location: dashboard.php');
+            exit;
+            
+        } catch (PDOException $e) {
+            $add_error = "ゲストの追加に失敗しました。";
+            if ($debug_mode) {
+                $add_error .= " エラー: " . $e->getMessage();
+            }
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理ダッシュボード - <?= $site_name ?></title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500&family=Reggae+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="admin-body">
+    <div class="admin-dashboard">
+        <header class="admin-dashboard-header">
+            <div class="admin-logo">
+                <h1><i class="fas fa-heart"></i> 結婚式管理システム</h1>
+            </div>
+            <div class="admin-user">
+                <span>ようこそ、<?= htmlspecialchars($_SESSION['admin_username']) ?> さん</span>
+                <a href="logout.php" class="admin-logout"><i class="fas fa-sign-out-alt"></i> ログアウト</a>
+            </div>
+        </header>
+        
+        <div class="admin-dashboard-content">
+            <?php include 'inc/sidebar.php'; ?>
+            
+            <div class="admin-main">
+                <div class="admin-content-wrapper">
+                    <section class="admin-section">
+                        <h2>出欠状況概要</h2>
+                        <div class="admin-stats">
+                            <div class="admin-stat-card">
+                                <div class="admin-stat-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="admin-stat-info">
+                                    <h3>参加予定</h3>
+                                    <p class="admin-stat-count"><?= $attending_count ?> 人</p>
+                                </div>
+                            </div>
+                            <div class="admin-stat-card">
+                                <div class="admin-stat-icon">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                                <div class="admin-stat-info">
+                                    <h3>欠席予定</h3>
+                                    <p class="admin-stat-count"><?= $not_attending_count ?> 人</p>
+                                </div>
+                            </div>
+                            <div class="admin-stat-card">
+                                <div class="admin-stat-icon">
+                                    <i class="fas fa-user-friends"></i>
+                                </div>
+                                <div class="admin-stat-info">
+                                    <h3>ゲストグループ</h3>
+                                    <p class="admin-stat-count"><?= count($guests) ?> グループ</p>
+                                </div>
+                            </div>
+                            <div class="admin-stat-card">
+                                <div class="admin-stat-icon">
+                                    <i class="fas fa-envelope-open-text"></i>
+                                </div>
+                                <div class="admin-stat-info">
+                                    <h3>回答数</h3>
+                                    <p class="admin-stat-count"><?= count($responses) ?> 件</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <section id="guests" class="admin-section">
+                        <h2>ゲストグループ一覧</h2>
+                        <div class="admin-table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>グループ名</th>
+                                        <th>グループID</th>
+                                        <th>集合時間</th>
+                                        <th>同伴者上限</th>
+                                        <th>グループタイプ</th>
+                                        <th>招待URL</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (empty($guests)): ?>
+                                    <tr>
+                                        <td colspan="8">ゲストグループがありません。</td>
+                                    </tr>
+                                    <?php else: ?>
+                                        <?php foreach ($guests as $guest): ?>
+                                        <tr>
+                                            <td><?= $guest['id'] ?></td>
+                                            <td><?= htmlspecialchars($guest['group_name']) ?></td>
+                                            <td><?= htmlspecialchars($guest['group_id']) ?></td>
+                                            <td><?= htmlspecialchars($guest['arrival_time']) ?></td>
+                                            <td><?= $guest['max_companions'] ?> 名</td>
+                                            <td><?= htmlspecialchars($guest['type_name'] ?? '未設定') ?></td>
+                                            <td>
+                                                <a href="../index.php?group=<?= urlencode($guest['group_id']) ?>" target="_blank">
+                                                    <?= $site_url ?>?group=<?= urlencode($guest['group_id']) ?>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="edit_guest.php?id=<?= $guest['id'] ?>" class="admin-btn admin-btn-edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="delete_guest.php?id=<?= $guest['id'] ?>" class="admin-btn admin-btn-delete" onclick="return confirm('本当に削除しますか？');">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                    
+                    <section id="responses" class="admin-section">
+                        <h2>回答一覧</h2>
+                        <div class="admin-table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>グループ</th>
+                                        <th>名前</th>
+                                        <th>出欠</th>
+                                        <th>同伴者</th>
+                                        <th>メッセージ</th>
+                                        <th>食事制限</th>
+                                        <th>回答日時</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (empty($responses)): ?>
+                                    <tr>
+                                        <td colspan="8">まだ回答がありません。</td>
+                                    </tr>
+                                    <?php else: ?>
+                                        <?php foreach ($responses as $response): ?>
+                                        <tr>
+                                            <td><?= $response['id'] ?></td>
+                                            <td><?= htmlspecialchars($response['group_name'] ?? '未指定') ?></td>
+                                            <td><?= htmlspecialchars($response['name']) ?></td>
+                                            <td><?= $response['attending'] ? '<span class="attending">出席</span>' : '<span class="not-attending">欠席</span>' ?></td>
+                                            <td><?= $response['companions'] ?> 名</td>
+                                            <td class="message-cell"><?= nl2br(htmlspecialchars($response['message'] ?? '')) ?></td>
+                                            <td><?= nl2br(htmlspecialchars($response['dietary'] ?? '')) ?></td>
+                                            <td><?= date('Y/m/d H:i', strtotime($response['created_at'])) ?></td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                    
+                    <section class="admin-section">
+                        <h2>最近の出欠回答</h2>
+                        <!-- テーブル内容 -->
+                    </section>
+                    
+                    <section class="admin-section">
+                        <h2>ゲストグループを追加</h2>
+                        
+                        <?php if (isset($add_error)): ?>
+                        <div class="admin-error">
+                            <?= $add_error ?>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php if (isset($success)): ?>
+                        <div class="admin-success">
+                            <?= $success ?>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <form class="admin-form" method="post" action="">
+                            <input type="hidden" name="action" value="add_guest">
+                            
+                            <div class="admin-form-row">
+                                <div class="admin-form-group">
+                                    <label for="group_name">グループ名 <span class="required">*</span></label>
+                                    <input type="text" id="group_name" name="group_name" required>
+                                </div>
+                                
+                                <div class="admin-form-group">
+                                    <label for="group_id">グループID <span class="required">*</span></label>
+                                    <input type="text" id="group_id" name="group_id" required>
+                                    <small>URLに使用される識別子（例: family-a, friend-b）</small>
+                                </div>
+                            </div>
+                            
+                            <div class="admin-form-row">
+                                <div class="admin-form-group">
+                                    <label for="arrival_time">集合時間 <span class="required">*</span></label>
+                                    <input type="text" id="arrival_time" name="arrival_time" required>
+                                    <small>例: 12:30</small>
+                                </div>
+                                
+                                <div class="admin-form-group">
+                                    <label for="max_companions">同伴者上限</label>
+                                    <input type="number" id="max_companions" name="max_companions" min="0" value="0">
+                                </div>
+                            </div>
+                            
+                            <div class="admin-form-group">
+                                <label for="group_type_id">グループタイプ</label>
+                                <select id="group_type_id" name="group_type_id">
+                                    <option value="">-- 選択してください --</option>
+                                    <?php
+                                    try {
+                                        $type_stmt = $pdo->query("SELECT * FROM group_types ORDER BY type_name");
+                                        $group_types = $type_stmt->fetchAll();
+                                        foreach ($group_types as $type) {
+                <section class="admin-section">
+                    <h2>出欠状況概要</h2>
+                    <div class="admin-stats">
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="admin-stat-info">
+                                <h3>参加予定</h3>
+                                <p class="admin-stat-count"><?= $attending_count ?> 人</p>
+                            </div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-icon">
+                                <i class="fas fa-times"></i>
+                            </div>
+                            <div class="admin-stat-info">
+                                <h3>欠席予定</h3>
+                                <p class="admin-stat-count"><?= $not_attending_count ?> 人</p>
+                            </div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-icon">
+                                <i class="fas fa-user-friends"></i>
+                            </div>
+                            <div class="admin-stat-info">
+                                <h3>ゲストグループ</h3>
+                                <p class="admin-stat-count"><?= count($guests) ?> グループ</p>
+                            </div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-icon">
+                                <i class="fas fa-envelope-open-text"></i>
+                            </div>
+                            <div class="admin-stat-info">
+                                <h3>回答数</h3>
+                                <p class="admin-stat-count"><?= count($responses) ?> 件</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="guests" class="admin-section">
+                    <h2>ゲストグループ一覧</h2>
+                    <div class="admin-table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>グループ名</th>
+                                    <th>グループID</th>
+                                    <th>集合時間</th>
+                                    <th>同伴者上限</th>
+                                    <th>グループタイプ</th>
+                                    <th>招待URL</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($guests)): ?>
+                                <tr>
+                                    <td colspan="8">ゲストグループがありません。</td>
+                                </tr>
+                                <?php else: ?>
+                                    <?php foreach ($guests as $guest): ?>
+                                    <tr>
+                                        <td><?= $guest['id'] ?></td>
+                                        <td><?= htmlspecialchars($guest['group_name']) ?></td>
+                                        <td><?= htmlspecialchars($guest['group_id']) ?></td>
+                                        <td><?= htmlspecialchars($guest['arrival_time']) ?></td>
+                                        <td><?= $guest['max_companions'] ?> 名</td>
+                                        <td><?= htmlspecialchars($guest['type_name'] ?? '未設定') ?></td>
+                                        <td>
+                                            <a href="../index.php?group=<?= urlencode($guest['group_id']) ?>" target="_blank">
+                                                <?= $site_url ?>?group=<?= urlencode($guest['group_id']) ?>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="edit_guest.php?id=<?= $guest['id'] ?>" class="admin-btn admin-btn-edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="delete_guest.php?id=<?= $guest['id'] ?>" class="admin-btn admin-btn-delete" onclick="return confirm('本当に削除しますか？');">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <section id="responses" class="admin-section">
+                    <h2>回答一覧</h2>
+                    <div class="admin-table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>グループ</th>
+                                    <th>名前</th>
+                                    <th>出欠</th>
+                                    <th>同伴者</th>
+                                    <th>メッセージ</th>
+                                    <th>食事制限</th>
+                                    <th>回答日時</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($responses)): ?>
+                                <tr>
+                                    <td colspan="8">まだ回答がありません。</td>
+                                </tr>
+                                <?php else: ?>
+                                    <?php foreach ($responses as $response): ?>
+                                    <tr>
+                                        <td><?= $response['id'] ?></td>
+                                        <td><?= htmlspecialchars($response['group_name'] ?? '未指定') ?></td>
+                                        <td><?= htmlspecialchars($response['name']) ?></td>
+                                        <td><?= $response['attending'] ? '<span class="attending">出席</span>' : '<span class="not-attending">欠席</span>' ?></td>
+                                        <td><?= $response['companions'] ?> 名</td>
+                                        <td class="message-cell"><?= nl2br(htmlspecialchars($response['message'] ?? '')) ?></td>
+                                        <td><?= nl2br(htmlspecialchars($response['dietary'] ?? '')) ?></td>
+                                        <td><?= date('Y/m/d H:i', strtotime($response['created_at'])) ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <section id="add-guest" class="admin-section">
+                    <h2>新しいゲストグループを追加</h2>
+                    
+                    <?php if (isset($add_error)): ?>
+                    <div class="admin-error">
+                        <?= $add_error ?>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <?php if (isset($success)): ?>
+                    <div class="admin-success">
+                        <?= $success ?>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <form class="admin-form" method="post" action="">
+                        <input type="hidden" name="action" value="add_guest">
+                        
+                        <div class="admin-form-row">
+                            <div class="admin-form-group">
+                                <label for="group_name">グループ名 <span class="required">*</span></label>
+                                <input type="text" id="group_name" name="group_name" required>
+                            </div>
+                            
+                            <div class="admin-form-group">
+                                <label for="group_id">グループID <span class="required">*</span></label>
+                                <input type="text" id="group_id" name="group_id" required>
+                                <small>URLに使用される識別子（例: family-a, friend-b）</small>
+                            </div>
+                        </div>
+                        
+                        <div class="admin-form-row">
+                            <div class="admin-form-group">
+                                <label for="arrival_time">集合時間 <span class="required">*</span></label>
+                                <input type="text" id="arrival_time" name="arrival_time" required>
+                                <small>例: 12:30</small>
+                            </div>
+                            
+                            <div class="admin-form-group">
+                                <label for="max_companions">同伴者上限</label>
+                                <input type="number" id="max_companions" name="max_companions" min="0" value="0">
+                            </div>
+                        </div>
+                        
+                        <div class="admin-form-group">
+                            <label for="group_type_id">グループタイプ</label>
+                            <select id="group_type_id" name="group_type_id">
+                                <option value="">-- 選択してください --</option>
+                                <?php
+                                try {
+                                    $type_stmt = $pdo->query("SELECT * FROM group_types ORDER BY type_name");
+                                    $group_types = $type_stmt->fetchAll();
+                                    foreach ($group_types as $type) {
+                                        echo '<option value="' . $type['id'] . '">' . htmlspecialchars($type['type_name']) . '</option>';
+                                    }
+                                } catch (PDOException $e) {
+                                    // エラー処理は省略
+                                }
+                                ?>
+                            </select>
+                            <small>ゲストの分類カテゴリ</small>
+                        </div>
+                        
+                        <div class="admin-form-group">
+                            <label for="custom_message">カスタムメッセージ</label>
+                            <textarea id="custom_message" name="custom_message" rows="4"></textarea>
+                            <small>このグループに表示する特別なメッセージ</small>
+                        </div>
+                        
+                        <div class="admin-form-actions">
+                            <button type="submit" class="admin-button">
+                                <i class="fas fa-plus"></i> ゲストグループを追加
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+            <?php include 'inc/footer.php'; ?>
+        </div>
+    </div>
+</body>
+</html> 
