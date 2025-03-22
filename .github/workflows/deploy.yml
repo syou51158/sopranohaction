@@ -29,10 +29,11 @@ jobs:
       # ステップ4: サーバーのホストキーを既知のホストに追加（セキュリティ強化）
       - name: Add SSH Known Hosts
         run: |
-          mkdir -p ~/.ssh
+          # ディレクトリが存在することを確認し、より安全な方法で作成
+          mkdir -p $HOME/.ssh
           # RSAより安全なアルゴリズムを優先して使用
-          ssh-keyscan -t ed25519,ecdsa,rsa ssh.lolipop.jp >> ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
+          ssh-keyscan -t ed25519,ecdsa,rsa ssh.lolipop.jp >> $HOME/.ssh/known_hosts
+          chmod 600 $HOME/.ssh/known_hosts
         # SSHの中間者攻撃を防ぐためにホストキーを検証し、パーミッションを適切に設定
 
       # ステップ5: 環境変数の設定（より安全な記述方式に変更）
