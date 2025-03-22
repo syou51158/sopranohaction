@@ -1,0 +1,51 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add SSH Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -t rsa ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT || '22' }}
+          DEPLOY_PATH: /var/www/html
+        run: |
+          # ファイルをサーバーにコピー（.envを除外）
+          rsync -avz --exclude='.git' --exclude='.github' --exclude='.env' \
+            --exclude='vendor' --exclude='node_modules' \
+            -e "ssh -p $SERVER_PORT" \
+            ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
+
+          # 必要に応じてサーバー側で追加コマンドを実行
+          ssh -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
+            composer install --no-dev --optimize-autoloader && \
+            chmod -R 755 . && \
+            find . -type d -exec chmod 755 {} \; && \
+            find . -type f -exec chmod 644 {} \;"
+
+      - name: Notify deployment status
+        if: ${{ always() }}
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ デプロイが成功しました！"
+          else
+            echo "❌ デプロイに失敗しました。ログを確認してください。"
+          fi 
