@@ -39,7 +39,7 @@ jobs:
           echo "SERVER_USER=deci.jp-trendcompany" >> $GITHUB_OUTPUT
           echo "SERVER_PORT=2222" >> $GITHUB_OUTPUT
           echo "DEPLOY_PATH=~/web/sopranohaction" >> $GITHUB_OUTPUT
-          echo "SITE_URL=https://deci.jp/sopranohaction" >> $GITHUB_OUTPUT
+          echo "SITE_URL=http://deci.jp-trendcompany.deci.jp/sopranohaction" >> $GITHUB_OUTPUT
         # 環境変数を明示的に設定し、後続のステップで参照可能に
 
       # ステップ5: ファイルをサーバーにデプロイ（rsyncコマンドを最適化）
