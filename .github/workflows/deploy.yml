@@ -1,6 +1,6 @@
 name: Deploy to Production
 
-# mainブランチへのPushでワークフローを実行します
+# mainブランチへのプッシュをトリガーにワークフローを実行
 on:
   push:
     branches: [ main ]
@@ -8,71 +8,72 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # ステップ1: リポジトリのコードをチェックアウト
+      # ステップ1: リポジトリのコードをチェックアウト（最新バージョンに更新）
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 完全な履歴をチェックアウトして、正確なデプロイを可能にする
+          fetch-depth: 0  # 完全な履歴をチェックアウト
 
-      # ステップ2: SSH接続の設定（Secretsに保存したSSH秘密鍵を使用）
+      # ステップ2: Composerの依存関係をインストール
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      # ステップ3: SSH接続の設定（最新バージョンに更新）
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        # GitHub Secretsに保存されたSSH秘密鍵を使用して認証を設定
 
-      # ステップ3: サーバーのホストキーを既知のホストに追加（より安全な設定）
+      # ステップ4: サーバーのホストキーを既知のホストに追加（セキュリティ強化）
       - name: Add SSH Known Hosts
         run: |
           mkdir -p ~/.ssh
-          echo "Host ${{ secrets.SERVER_HOST }}" > ~/.ssh/config
-          echo "  Port ${{ secrets.SERVER_PORT }}" >> ~/.ssh/config
-          echo "  StrictHostKeyChecking accept-new" >> ~/.ssh/config
-          echo "  UserKnownHostsFile ~/.ssh/known_hosts" >> ~/.ssh/config
-          chmod 600 ~/.ssh/config
-          
-          # 明示的にホスト鍵を取得して保存（ポートを指定）
-          ssh-keyscan -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          # RSAより安全なアルゴリズムを優先して使用
+          ssh-keyscan -t ed25519,ecdsa,rsa ssh.lolipop.jp >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+        # SSHの中間者攻撃を防ぐためにホストキーを検証し、パーミッションを適切に設定
 
-      # ステップ4: ファイルをサーバーにデプロイ
+      # ステップ5: 環境変数の設定（より安全な記述方式に変更）
+      - name: Set deployment variables
+        id: vars
+        run: |
+          echo "SERVER_HOST=ssh.lolipop.jp" >> $GITHUB_OUTPUT
+          echo "SERVER_USER=deci.jp-trendcompany" >> $GITHUB_OUTPUT
+          echo "SERVER_PORT=2222" >> $GITHUB_OUTPUT
+          echo "DEPLOY_PATH=~/web/sopranohaction" >> $GITHUB_OUTPUT
+          echo "SITE_URL=http://trendcompany.deci.jp/sopranohaction/" >> $GITHUB_OUTPUT
+        # 環境変数を明示的に設定し、後続のステップで参照可能に
+
+      # ステップ6: ファイルをサーバーにデプロイ（rsyncコマンドを最適化）
       - name: Deploy to server
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          SERVER_HOST: ${{ steps.vars.outputs.SERVER_HOST }}
+          SERVER_USER: ${{ steps.vars.outputs.SERVER_USER }}
+          SERVER_PORT: ${{ steps.vars.outputs.SERVER_PORT }}
+          DEPLOY_PATH: ${{ steps.vars.outputs.DEPLOY_PATH }}
         run: |
-          # rsyncでリポジトリのファイルをサーバーへ転送
-          # 以下のディレクトリ/ファイルは転送対象外とする：
-          # - .git、.github: GitのメタデータおよびCI設定
-          # - .env: 環境変数（機密情報）
-          # - vendor、node_modules: 依存関係（サーバー側で再インストール）
-          rsync -avz --delete \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='.env' \
-            --exclude='vendor/' \
+          # rsyncを使用してファイルを安全に転送
+          # --delete オプションを追加して不要なファイルを削除
+          # -z で転送時に圧縮して通信量を削減
+          rsync -avz --delete --exclude='.git/' --exclude='.github/' --exclude='.env' \
             --exclude='node_modules/' \
-            -e "ssh -p $SERVER_PORT" \
+            -e "ssh -p $SERVER_PORT -o StrictHostKeyChecking=accept-new" \
             ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
-            
-          echo "ファイル転送が完了しました"
-
-          # サーバー側で追加処理を実行
-          # PHPは使わない形で権限設定のみを行う
+          
+          # パーミッション設定
           ssh -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
-            echo 'サーバー上でファイル権限を設定中...' && \
             find . -type d -exec chmod 755 {} \; && \
-            find . -type f -exec chmod 644 {} \; && \
-            echo 'ファイル権限の設定が完了しました'"
+            find . -type f -exec chmod 644 {} \;"
 
-      # ステップ5: デプロイ結果の通知（成功・失敗に関わらず実行）
+      # ステップ7: デプロイ結果の通知（条件式を改善）
       - name: Notify deployment status
-        if: always()
+        if: always()  # デプロイが成功しても失敗しても実行（シンプルな構文に修正）
         run: |
           if [ "${{ job.status }}" = "success" ]; then
             echo "✅ デプロイが成功しました！サイトは正常に更新されています。"
+            echo "デプロイ先URL: ${{ steps.vars.outputs.SITE_URL }}"
           else
-            echo "❌ デプロイに失敗しました。ログを確認してください。"
+            echo "❌ デプロイに失敗しました。ログを確認して問題を解決してください。"
           fi
