@@ -22,14 +22,12 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # ステップ3: サーバーのホストキーを既知のホストに追加
+      # ステップ3: サーバーのホストキーを既知のホストに追加（StrictHostKeyCheckingを無効に変更）
       - name: Add SSH Known Hosts
         run: |
           mkdir -p ~/.ssh
-          # 複数の鍵タイプ（ed25519, ecdsa, rsa）を優先して取得し、指定のポートで接続
-          ssh-keyscan -t ed25519,ecdsa,rsa -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-        # これにより、SSH接続時の中間者攻撃を防ぎます
+          echo "StrictHostKeyChecking no" > ~/.ssh/config
+          chmod 600 ~/.ssh/config
 
       # ステップ4: ファイルをサーバーにデプロイ
       - name: Deploy to server
@@ -50,7 +48,7 @@ jobs:
             --exclude='.env' \
             --exclude='vendor/' \
             --exclude='node_modules/' \
-            -e "ssh -p $SERVER_PORT -o StrictHostKeyChecking=accept-new" \
+            -e "ssh -p $SERVER_PORT -o StrictHostKeyChecking=no" \
             ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
 
           # サーバー側で追加処理を実行：必要に応じてcomposerのインストールとパーミッション設定
@@ -59,6 +57,19 @@ jobs:
               composer install --no-dev --optimize-autoloader; \
             else \
               echo 'Composer not found. Skipping composer install.'; \
+            fi && \
+            if [ -x /usr/local/bin/php8.3 ]; then \
+              PHP_CMD=/usr/local/bin/php8.3; \
+            elif [ -x /usr/local/bin/php ]; then \
+              PHP_CMD=/usr/local/bin/php; \
+            elif [ -x /usr/bin/php ]; then \
+              PHP_CMD=/usr/bin/php; \
+            else \
+              echo 'PHP not found. Skipping PHP operations.'; \
+              PHP_CMD=''; \
+            fi && \
+            if [ ! -z \"\$PHP_CMD\" ]; then \
+              echo \"Using PHP at \$PHP_CMD\"; \
             fi && \
             find . -type d -exec chmod 755 {} \; && \
             find . -type f -exec chmod 644 {} \;"
