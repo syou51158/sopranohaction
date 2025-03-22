@@ -19,58 +19,56 @@ jobs:
       - name: Install Composer Dependencies
         run: composer install --no-dev --optimize-autoloader
 
-      # ステップ3: SSH接続の設定（最新バージョンに更新）
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-        # GitHub Secretsに保存されたSSH秘密鍵を使用して認証を設定
-
-      # ステップ4: サーバーのホストキーを既知のホストに追加（セキュリティ強化）
-      - name: Add SSH Known Hosts
+      # ステップ3: SSH設定を直接実行（単純化）
+      - name: Setup SSH connection
         run: |
-          # ディレクトリが存在することを確認し、より安全な方法で作成
+          # 秘密鍵ファイルを作成
           mkdir -p $HOME/.ssh
-          # RSAより安全なアルゴリズムを優先して使用
-          ssh-keyscan -t ed25519,ecdsa,rsa ssh.lolipop.jp >> $HOME/.ssh/known_hosts
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > $HOME/.ssh/id_rsa
+          chmod 600 $HOME/.ssh/id_rsa
+          
+          # ホスト情報を追加
+          ssh-keyscan -p 2222 -t ed25519,ecdsa,rsa ssh.lolipop.jp >> $HOME/.ssh/known_hosts
           chmod 600 $HOME/.ssh/known_hosts
-        # SSHの中間者攻撃を防ぐためにホストキーを検証し、パーミッションを適切に設定
+          
+          # SSH設定ファイルを作成
+          cat > $HOME/.ssh/config << EOF
+          Host lolipop
+            HostName ssh.lolipop.jp
+            User deci.jp-trendcompany
+            Port 2222
+            IdentityFile $HOME/.ssh/id_rsa
+            StrictHostKeyChecking accept-new
+          EOF
+          
+          chmod 600 $HOME/.ssh/config
 
-      # ステップ5: 環境変数の設定（より安全な記述方式に変更）
+      # ステップ4: 環境変数の設定
       - name: Set deployment variables
         id: vars
         run: |
-          echo "SERVER_HOST=ssh.lolipop.jp" >> $GITHUB_OUTPUT
-          echo "SERVER_USER=deci.jp-trendcompany" >> $GITHUB_OUTPUT
-          echo "SERVER_PORT=2222" >> $GITHUB_OUTPUT
           echo "DEPLOY_PATH=~/web/sopranohaction" >> $GITHUB_OUTPUT
           echo "SITE_URL=http://trendcompany.deci.jp/sopranohaction/" >> $GITHUB_OUTPUT
-        # 環境変数を明示的に設定し、後続のステップで参照可能に
 
-      # ステップ6: ファイルをサーバーにデプロイ（rsyncコマンドを最適化）
+      # ステップ5: ファイルをサーバーにデプロイ
       - name: Deploy to server
         env:
-          SERVER_HOST: ${{ steps.vars.outputs.SERVER_HOST }}
-          SERVER_USER: ${{ steps.vars.outputs.SERVER_USER }}
-          SERVER_PORT: ${{ steps.vars.outputs.SERVER_PORT }}
           DEPLOY_PATH: ${{ steps.vars.outputs.DEPLOY_PATH }}
         run: |
           # rsyncを使用してファイルを安全に転送
-          # --delete オプションを追加して不要なファイルを削除
-          # -z で転送時に圧縮して通信量を削減
           rsync -avz --delete --exclude='.git/' --exclude='.github/' --exclude='.env' \
             --exclude='node_modules/' \
-            -e "ssh -p $SERVER_PORT -o StrictHostKeyChecking=accept-new" \
-            ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
+            -e "ssh -F $HOME/.ssh/config" \
+            ./ lolipop:$DEPLOY_PATH
           
           # パーミッション設定
-          ssh -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
+          ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
             find . -type d -exec chmod 755 {} \; && \
             find . -type f -exec chmod 644 {} \;"
 
-      # ステップ7: デプロイ結果の通知（条件式を改善）
+      # ステップ6: デプロイ結果の通知
       - name: Notify deployment status
-        if: always()  # デプロイが成功しても失敗しても実行（シンプルな構文に修正）
+        if: always()
         run: |
           if [ "${{ job.status }}" = "success" ]; then
             echo "✅ デプロイが成功しました！サイトは正常に更新されています。"
