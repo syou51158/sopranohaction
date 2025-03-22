@@ -55,7 +55,7 @@ if ($is_local) {
     $db_name = getenv('DB_NAME') ?: 'LAA1530328-wedding';
     $db_user = getenv('DB_USER') ?: 'LAA1530328';
     $db_pass = getenv('DB_PASSWORD') ?: 'syou108810';
-    $site_url = "http://sopranohaction.fun/";  // 本番環境のURL
+    $site_url = "https://sopranohaction.fun/";  // 本番環境のURL（HTTPSに変更）
     $site_email = "info-wedding@sopranohaction.fun";  // 送信元メールアドレス
     $debug_mode = getenv('APP_DEBUG') === 'true';
     define('DEBUG_MODE', $debug_mode);

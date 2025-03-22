@@ -32,13 +32,17 @@ ErrorDocument 404 /error.php
     AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/json
 </IfModule>
 
-# mod_rewriteの設定
+# HTTPからHTTPSへのリダイレクト設定
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
+    # HTTPSへのリダイレクト
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    
     # www無しのURLにリダイレクト
     RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
-    RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+    RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
     
     # 管理ディレクトリへのアクセス制限（IPベース）
     RewriteCond %{REQUEST_URI} ^/admin/ [NC]
