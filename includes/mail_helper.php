@@ -107,5 +107,4 @@ function send_system_mail($to, $subject, $message) {
         $site_email,
         '結婚式管理システム'
     );
-}
-?> 
+} 
