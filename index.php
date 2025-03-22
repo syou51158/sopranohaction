@@ -68,6 +68,87 @@ if ($group_id && isset($guest_info['id'])) {
         }
     }
 }
+
+// venue_map.phpから会場情報取得機能を移植
+function get_wedding_venue_info() {
+    global $pdo;
+    $venue_info = [
+        'name' => '',
+        'address' => '',
+        'map_url' => '',
+        'map_link' => ''
+    ];
+    
+    try {
+        $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM wedding_settings WHERE setting_key IN ('venue_name', 'venue_address', 'venue_map_url', 'venue_map_link')");
+        $stmt->execute();
+        
+        while ($row = $stmt->fetch()) {
+            switch ($row['setting_key']) {
+                case 'venue_name':
+                    $venue_info['name'] = $row['setting_value'];
+                    break;
+                case 'venue_address':
+                    $venue_info['address'] = $row['setting_value'];
+                    break;
+                case 'venue_map_url':
+                    // iframeタグが含まれている場合、src属性からURLを抽出
+                    if (strpos($row['setting_value'], '<iframe') !== false) {
+                        preg_match('/src=["\']([^"\']+)["\']/', $row['setting_value'], $matches);
+                        $venue_info['map_url'] = isset($matches[1]) ? $matches[1] : '';
+                    } else {
+                        $venue_info['map_url'] = $row['setting_value'];
+                    }
+                    break;
+                case 'venue_map_link':
+                    // iframeタグが含まれている場合、href属性からURLを抽出
+                    if (strpos($row['setting_value'], '<a') !== false) {
+                        preg_match('/href=["\']([^"\']+)["\']/', $row['setting_value'], $matches);
+                        $venue_info['map_link'] = isset($matches[1]) ? $matches[1] : '';
+                    } else {
+                        $venue_info['map_link'] = $row['setting_value'];
+                    }
+                    break;
+            }
+        }
+    } catch (PDOException $e) {
+        // エラー処理（静かに失敗）
+    }
+    
+    return $venue_info;
+}
+
+// 結婚式の日時情報を取得する関数
+function get_wedding_datetime() {
+    global $pdo;
+    $datetime_info = [
+        'date' => '2024年4月30日',
+        'time' => '12:00'
+    ];
+    
+    try {
+        $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM wedding_settings WHERE setting_key IN ('wedding_date', 'wedding_time')");
+        $stmt->execute();
+        
+        while ($row = $stmt->fetch()) {
+            if ($row['setting_key'] == 'wedding_date') {
+                $datetime_info['date'] = $row['setting_value'];
+            } elseif ($row['setting_key'] == 'wedding_time') {
+                $datetime_info['time'] = $row['setting_value'];
+            }
+        }
+    } catch (PDOException $e) {
+        // エラー処理（静かに失敗）
+    }
+    
+    return $datetime_info;
+}
+
+// 会場情報を取得
+$venue_info = get_wedding_venue_info();
+
+// 結婚式の日時情報を取得
+$datetime_info = get_wedding_datetime();
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -401,60 +482,6 @@ if ($group_id && isset($guest_info['id'])) {
                     <div class="title-underline"></div>
                 </div>
                 
-                <?php
-                // venue_map.phpから会場情報取得機能を移植
-                function get_wedding_venue_info() {
-                    global $pdo;
-                    $venue_info = [
-                        'name' => '',
-                        'address' => '',
-                        'map_url' => '',
-                        'map_link' => ''
-                    ];
-                    
-                    try {
-                        $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM wedding_settings WHERE setting_key IN ('venue_name', 'venue_address', 'venue_map_url', 'venue_map_link')");
-                        $stmt->execute();
-                        
-                        while ($row = $stmt->fetch()) {
-                            switch ($row['setting_key']) {
-                                case 'venue_name':
-                                    $venue_info['name'] = $row['setting_value'];
-                                    break;
-                                case 'venue_address':
-                                    $venue_info['address'] = $row['setting_value'];
-                                    break;
-                                case 'venue_map_url':
-                                    // iframeタグが含まれている場合、src属性からURLを抽出
-                                    if (strpos($row['setting_value'], '<iframe') !== false) {
-                                        preg_match('/src=["\']([^"\']+)["\']/', $row['setting_value'], $matches);
-                                        $venue_info['map_url'] = isset($matches[1]) ? $matches[1] : '';
-                                    } else {
-                                        $venue_info['map_url'] = $row['setting_value'];
-                                    }
-                                    break;
-                                case 'venue_map_link':
-                                    // iframeタグが含まれている場合、href属性からURLを抽出
-                                    if (strpos($row['setting_value'], '<a') !== false) {
-                                        preg_match('/href=["\']([^"\']+)["\']/', $row['setting_value'], $matches);
-                                        $venue_info['map_link'] = isset($matches[1]) ? $matches[1] : '';
-                                    } else {
-                                        $venue_info['map_link'] = $row['setting_value'];
-                                    }
-                                    break;
-                            }
-                        }
-                    } catch (PDOException $e) {
-                        // エラー処理（静かに失敗）
-                    }
-                    
-                    return $venue_info;
-                }
-                
-                // 会場情報を取得
-                $venue_info = get_wedding_venue_info();
-                ?>
-                
                 <div class="info-card">
                     <div class="info-item date-time">
                         <div class="info-icon">
@@ -462,11 +489,11 @@ if ($group_id && isset($guest_info['id'])) {
                         </div>
                         <div class="info-details">
                             <h3>日時</h3>
-                            <p>2025年4月30日（水）</p>
+                            <p><?= $datetime_info['date'] ?></p>
                             <?php if ($group_id): ?>
                             <p class="arrival-time">ご集合: <?= $guest_info['arrival_time'] ?></p>
                             <?php else: ?>
-                            <p>13:00〜</p>
+                            <p><?= $datetime_info['time'] ?>〜</p>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -739,7 +766,7 @@ if ($group_id && isset($guest_info['id'])) {
             <section class="countdown-section">
                 <div class="countdown-container">
                     <h2>結婚式まであと</h2>
-                    <div class="countdown-timer" data-wedding-date="2025-04-30">
+                    <div class="countdown-timer" data-wedding-date="<?= date('Y-m-d', strtotime(str_replace(['年', '月', '日'], ['-', '-', ''], $datetime_info['date']))) ?>" data-wedding-time="<?= $datetime_info['time'] ?>">
                         <div class="countdown-item">
                             <span id="countdown-days">--</span>
                             <span class="countdown-label">Days</span>

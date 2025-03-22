@@ -1431,22 +1431,28 @@ body::before {
     }
     
     .countdown-timer {
-        gap: 10px;
+        gap: 5px;
+        flex-wrap: nowrap;
         justify-content: center;
+        width: 100%;
     }
     
     .countdown-item {
-        min-width: 65px;
-        margin: 5px;
+        min-width: 23%;
+        margin: 0 1px;
+        padding: 0;
     }
     
     .countdown-item span:first-child {
-        font-size: 1.8rem;
-        padding: 10px;
+        font-size: 1.4rem;
+        padding: 10px 5px;
+        width: 100%;
+        box-sizing: border-box;
     }
     
     .countdown-label {
-        font-size: 0.8rem;
+        font-size: 0.7rem;
+        margin-top: 5px;
     }
 }
 
@@ -3548,13 +3554,26 @@ footer p {
     
     /* カウントダウンタイマーのスマホ対応 */
     .countdown-timer {
-        flex-wrap: wrap;
-        justify-content: center;
+        flex-wrap: nowrap;
+        gap: 5px;
+        width: 100%;
     }
     
     .countdown-item {
-        width: 45%;
-        margin: 5px;
+        min-width: 23%;
+        margin: 0 3px;
+    }
+    
+    .countdown-item span:first-child {
+        font-size: 1.4rem;
+        padding: 10px 5px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .countdown-label {
+        font-size: 0.7rem;
+        margin-top: 5px;
     }
     
     /* タイムラインの調整 */

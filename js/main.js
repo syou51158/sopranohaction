@@ -213,7 +213,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateCountdown() {
         const countdownElement = document.querySelector('.countdown-timer');
         const weddingDateAttr = countdownElement ? countdownElement.getAttribute('data-wedding-date') : '2025-04-30';
-        const weddingDate = new Date(`${weddingDateAttr}T13:00:00+09:00`).getTime();
+        const weddingTimeAttr = countdownElement ? countdownElement.getAttribute('data-wedding-time') : '13:00';
+        const [timeHours, timeMinutes] = weddingTimeAttr.split(':');
+        const weddingDate = new Date(`${weddingDateAttr}T${timeHours}:${timeMinutes}:00+09:00`).getTime();
         const now = new Date().getTime();
         const timeLeft = weddingDate - now;
         
