@@ -30,3 +30,11 @@ vendor/
 # OS生成ファイル
 .DS_Store
 Thumbs.db 
+
+# ロリポップサーバー用
+.htaccess必要な時
+admin/.htaccess必要な時
+.env.production
+
+
+
