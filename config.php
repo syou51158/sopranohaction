@@ -1,6 +1,30 @@
 <?php
+// .envファイルの読み込み試行
+$env_file = __DIR__ . '/.env';
+if (file_exists($env_file)) {
+    $lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        // コメント行をスキップ
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+        
+        // 環境変数の設定
+        if (strpos($line, '=') !== false) {
+            list($name, $value) = explode('=', $line, 2);
+            $name = trim($name);
+            $value = trim($value);
+            
+            // 環境変数として設定
+            putenv("$name=$value");
+            $_ENV[$name] = $value;
+            $_SERVER[$name] = $value;
+        }
+    }
+}
+
 // ホスト環境を自動判定（ローカルかサーバーか）
-$is_local = true; // ローカル環境では常にtrue
+$is_local = getenv('APP_ENV') !== 'production';
 
 // データベース接続情報
 if ($is_local) {
@@ -16,15 +40,15 @@ if ($is_local) {
     $mail_debug = false;     // メールデバッグ出力は無効
     define('MAIL_DEBUG', false); // メールデバッグ出力定数
 } else {
-    // 本番環境用設定
-    $db_host = 'mysql307.phy.lolipop.lan';  // サーバーのホスト名
-    $db_name = 'LAA1530328-wedding';        // データベース名
-    $db_user = 'LAA1530328';                // データベースユーザー名
-    $db_pass = 'syou108810';                // データベースパスワード
+    // 本番環境用設定（.envから読み込み）
+    $db_host = getenv('DB_HOST') ?: 'mysql307.phy.lolipop.lan';
+    $db_name = getenv('DB_NAME') ?: 'LAA1530328-wedding';
+    $db_user = getenv('DB_USER') ?: 'LAA1530328';
+    $db_pass = getenv('DB_PASSWORD') ?: 'syou108810';
     $site_url = "http://sopranohaction.fun/";  // 本番環境のURL
     $site_email = "info-wedding@sopranohaction.fun";  // 送信元メールアドレス
-    $debug_mode = false;     // 本番環境ではデバッグモード無効
-    define('DEBUG_MODE', false);  // デバッグモード定数
+    $debug_mode = getenv('APP_DEBUG') === 'true';
+    define('DEBUG_MODE', $debug_mode);
     $mail_debug = false;     // メールデバッグ出力は無効
     define('MAIL_DEBUG', false); // メールデバッグ出力定数
 }

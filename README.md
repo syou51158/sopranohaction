@@ -119,6 +119,33 @@ wedding/
 - **Font Awesome** - アイコン
 - **Google Fonts** - Web フォント（M PLUS Rounded 1c、Noto Sans JP、Noto Serif JP、Reggae One）
 
----
+## 環境設定
 
-**注意**: 実際の結婚式の日時と場所は仮のものです。制作時に正確な情報に更新してください。 
+このプロジェクトは `.env` ファイルを使用して環境変数を管理しています。
+
+### セットアップ手順
+
+1. `.env.example` ファイルを `.env` にコピーします：
+   ```
+   cp .env.example .env
+   ```
+
+2. `.env` ファイルを開き、プロジェクトの環境に合わせて設定値を変更します：
+   ```
+   # データベース設定
+   DB_HOST=データベースホスト
+   DB_PORT=ポート番号
+   DB_NAME=データベース名
+   DB_USER=データベースユーザー
+   DB_PASSWORD=パスワード
+   
+   # アプリケーション環境設定
+   APP_ENV=production または development
+   APP_DEBUG=true または false
+   
+   # アプリケーションの秘密鍵
+   APP_SECRET_KEY=安全なランダム文字列
+   ```
+
+3. セキュリティ上の理由から、`.env` ファイルはGitにコミットしないでください。
+echo "GitHub Actions Test Deploy" >> README.md

@@ -1,0 +1,25 @@
+# 環境設定ファイル
+.env
+.env.backup
+
+# ログファイル
+logs/
+
+# アップロード済みのファイル（必要に応じて）
+uploads/
+
+# キャッシュ等
+vendor/
+/node_modules
+.phpunit.result.cache
+
+# IDEとエディタの設定ファイル
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*.swo
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db 
