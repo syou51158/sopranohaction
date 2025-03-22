@@ -160,7 +160,6 @@ body::before {
     z-index: -1;
 }
 
-/* Container のレスポンシブ対応 */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -168,213 +167,7 @@ body::before {
     flex: 1;
     display: flex;
     flex-direction: column;
-    width: 100%;
-    box-sizing: border-box;
-    overflow-x: hidden;
-    position: relative;
 }
-
-/* スマホ向けのメディアクエリ追加 */
-@media (max-width: 480px) {
-    .container {
-        padding: 10px 10px;
-        margin: 0;
-        width: 100%;
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-    
-    body {
-        overflow-x: hidden;
-        width: 100%;
-        max-width: 100%;
-    }
-    
-    .invitation-content {
-        overflow-x: hidden;
-        width: 100%;
-        max-width: 100%;
-    }
-    
-    /* コンテナ内部要素のスマホ対応 */
-    .main-header {
-        width: 100%;
-        max-width: 100%;
-        padding: 30px 10px;
-        margin-left: 0;
-        margin-right: 0;
-        box-sizing: border-box;
-    }
-    
-    .main-header .title {
-        font-size: 1.8rem;
-    }
-    
-    .main-header .subtitle {
-        font-size: 0.9rem;
-    }
-    
-    .date {
-        font-size: 1.2rem;
-    }
-    
-    .section-title h2 {
-        font-size: 1.5rem;
-    }
-    
-    .personal-message {
-        padding: 10px;
-    }
-    
-    .video-container {
-        width: 100%;
-        max-width: 100%;
-        border-radius: 8px;
-        margin-bottom: 40px;
-        padding: 0;
-        box-sizing: border-box;
-    }
-    
-    .video-wrapper {
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-    
-    #wedding-video {
-        width: 100%;
-        height: 100%;
-        box-sizing: border-box;
-    }
-    
-    .video-overlay {
-        width: 100%;
-        height: 100%;
-        box-sizing: border-box;
-    }
-    
-    .play-button {
-        width: 60px;
-        height: 60px;
-    }
-    
-    .info-card {
-        padding: 15px;
-    }
-    
-    .info-item {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 10px 0;
-    }
-    
-    .info-icon {
-        margin-bottom: 10px;
-        margin-right: 0;
-    }
-    
-    .countdown-item span:first-child {
-        font-size: 1.2rem;
-    }
-    
-    .photos {
-        grid-template-columns: 1fr;
-    }
-    
-    .photo-item img {
-        width: 100%;
-        height: auto;
-    }
-    
-    .message-card {
-        padding: 15px;
-    }
-    
-    .message-text {
-        font-size: 0.9rem;
-    }
-    
-    .schedule-item {
-        padding: 10px;
-    }
-    
-    .faq-question h3 {
-        font-size: 0.9rem;
-    }
-    
-    #rsvp-form {
-        padding: 15px;
-    }
-    
-    .form-group {
-        margin-bottom: 15px;
-    }
-    
-    .radio-group {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .radio-group label {
-        margin-bottom: 8px;
-    }
-}
-
-/* タブレット向けのメディアクエリ */
-@media (min-width: 481px) and (max-width: 768px) {
-    .container {
-        padding: 20px;
-    }
-    
-    .main-header .title {
-        font-size: 2.2rem;
-    }
-    
-    .photos {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* スマホとタブレット共通の調整 */
-@media (max-width: 768px) {
-    .info-card {
-        display: block;
-    }
-    
-    .rsvp-button-container {
-        text-align: center;
-        margin-top: 20px;
-    }
-    
-    .guestbook-link-container {
-        padding: 15px;
-    }
-    
-    .timeline::before {
-        left: 30px;
-    }
-    
-    .timeline-item {
-        flex-direction: column;
-        margin-left: 30px;
-    }
-    
-    .timeline-date {
-        margin-bottom: 10px;
-        text-align: left;
-    }
-    
-    .timeline-dot {
-        left: 30px;
-    }
-    
-    .timeline-content {
-        width: 100%;
-    }
-}
-
-/* 既存のメディアクエリと衝突しないよう、一部のメディアクエリを上書き */
-
 
 /* 封筒演出 - 高級感のある新デザイン */
 
@@ -877,7 +670,6 @@ body::before {
     overflow: hidden;
     box-shadow: 0 10px 30px var(--shadow-color);
     position: relative;
-    box-sizing: border-box;
 }
 
 .video-wrapper {
@@ -885,7 +677,6 @@ body::before {
     width: 100%;
     padding-top: 56.25%; /* 16:9のアスペクト比 */
     background-color: #000;
-    box-sizing: border-box;
 }
 
 #wedding-video {
@@ -897,7 +688,6 @@ body::before {
     display: block;
     object-fit: cover;
     background-color: var(--background-light);
-    box-sizing: border-box;
 }
 
 .video-overlay {
@@ -1055,11 +845,6 @@ body::before {
     box-shadow: 0 10px 30px var(--shadow-color);
     position: relative;
     overflow: hidden;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding-left: 10px;
-    padding-right: 10px;
 }
 
 .timeline {
@@ -1215,12 +1000,6 @@ body::before {
 /* 結婚式情報 */
 .wedding-info {
     margin-bottom: 70px;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding-left: 10px;
-    padding-right: 10px;
-    overflow-x: hidden;
 }
 
 .info-card {
@@ -1352,12 +1131,6 @@ body::before {
 /* カウントダウン */
 .countdown-section {
     margin-bottom: 70px;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding-left: 10px;
-    padding-right: 10px;
-    overflow-x: hidden;
 }
 
 .countdown-container {
@@ -1369,9 +1142,6 @@ body::before {
     border-radius: 15px;
     text-align: center;
     box-shadow: 0 10px 30px var(--shadow-color);
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
 }
 
 .countdown-container h2 {
@@ -1385,7 +1155,6 @@ body::before {
     display: flex;
     justify-content: center;
     gap: 25px;
-    flex-wrap: wrap;
 }
 
 .countdown-item {
@@ -1420,45 +1189,9 @@ body::before {
     margin-top: 10px;
 }
 
-@media (max-width: 480px) {
-    .countdown-container {
-        padding: 30px 15px;
-    }
-    
-    .countdown-container h2 {
-        font-size: 1.5rem;
-        margin-bottom: 20px;
-    }
-    
-    .countdown-timer {
-        gap: 10px;
-        justify-content: center;
-    }
-    
-    .countdown-item {
-        min-width: 65px;
-        margin: 5px;
-    }
-    
-    .countdown-item span:first-child {
-        font-size: 1.8rem;
-        padding: 10px;
-    }
-    
-    .countdown-label {
-        font-size: 0.8rem;
-    }
-}
-
 /* ギャラリー */
 .gallery {
     margin-bottom: 70px;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding-left: 10px;
-    padding-right: 10px;
-    overflow-x: hidden;
 }
 
 .gallery-intro {
@@ -1476,11 +1209,6 @@ body::before {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, 250px);
     gap: 20px;
-    width: 100%;
-    max-width: 100%;
-    padding: 0;
-    box-sizing: border-box;
-    overflow-x: hidden;
 }
 
 .photo-item {
@@ -1489,11 +1217,6 @@ body::before {
     box-shadow: 0 10px 25px var(--shadow-color);
     transition: all 0.3s ease;
     position: relative;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    margin-bottom: 10px;
-    box-sizing: border-box;
 }
 
 .photo-item:hover {
@@ -1532,8 +1255,6 @@ body::before {
 .main-photo {
     grid-column: span 2;
     grid-row: span 2;
-    width: 100%;
-    max-width: 100%;
 }
 
 /* RSVP フォーム */
@@ -1545,12 +1266,6 @@ body::before {
     box-shadow: 0 10px 30px var(--shadow-color);
     position: relative;
     overflow: hidden;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding-left: 10px;
-    padding-right: 10px;
-    overflow-x: hidden;
 }
 
 .rsvp-intro {
@@ -1696,12 +1411,6 @@ body::before {
 /* メッセージセクション */
 .message-section {
     margin-bottom: 70px;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding-left: 10px;
-    padding-right: 10px;
-    overflow-x: hidden;
 }
 
 .message-card {
@@ -2691,12 +2400,6 @@ footer p {
     margin: 40px auto;
     max-width: 900px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding-left: 10px;
-    padding-right: 10px;
-    overflow-x: hidden;
 }
 
 .schedule-intro {
@@ -2788,12 +2491,6 @@ footer p {
     margin: 40px auto;
     max-width: 900px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding-left: 10px;
-    padding-right: 10px;
-    overflow: visible; /* overflow-xをvisibleに変更 */
 }
 
 .faq-intro {
@@ -2811,9 +2508,8 @@ footer p {
 .faq-item {
     margin-bottom: 15px;
     border-radius: 8px;
-    overflow: visible; /* hiddenからvisibleに変更 */
+    overflow: hidden;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    position: relative;
 }
 
 .faq-question {
@@ -2824,24 +2520,6 @@ footer p {
     justify-content: space-between;
     align-items: center;
     transition: background-color 0.3s;
-    z-index: 2;
-    position: relative;
-}
-
-.faq-toggle {
-    transition: transform 0.3s;
-    position: relative;
-    z-index: 2;
-}
-
-.faq-answer {
-    background-color: white;
-    padding: 0;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s ease-out, padding 0.3s;
-    position: relative;
-    z-index: 1;
 }
 
 .faq-question:hover {
@@ -2860,8 +2538,20 @@ footer p {
     color: #b8c1a2;
 }
 
+.faq-toggle {
+    transition: transform 0.3s;
+}
+
 .faq-item.active .faq-toggle i {
     transform: rotate(180deg);
+}
+
+.faq-answer {
+    background-color: white;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out, padding 0.3s;
 }
 
 .faq-item.active .faq-answer {
@@ -2917,12 +2607,6 @@ footer p {
     margin: 40px auto;
     max-width: 900px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding-left: 10px;
-    padding-right: 10px;
-    overflow-x: hidden;
 }
 
 .notes-container {
@@ -3496,96 +3180,4 @@ footer p {
     }
     
     /* 席次表管理ページの場合は独自処理（seating.cssで定義） */
-}
-
-/* 写真ギャラリーのレスポンシブ対応を強化 */
-@media (max-width: 480px) {
-    .photos {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 10px;
-        width: 100%;
-        max-width: 100%;
-        padding: 0;
-        box-sizing: border-box;
-        overflow-x: hidden;
-    }
-    
-    .photo-item {
-        width: 100%;
-        max-width: 100%;
-        height: auto;
-        margin-bottom: 10px;
-        box-sizing: border-box;
-    }
-    
-    .photo-item img {
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-    }
-    
-    .main-photo {
-        grid-column: 1;
-    }
-    
-    /* フォーム要素のスマホ対応 */
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        width: 100%;
-        max-width: 100%;
-        padding: 8px;
-    }
-    
-    /* RSVPボタンのスマホ対応 */
-    .rsvp-button {
-        display: block;
-        width: 100%;
-        text-align: center;
-        padding: 12px 0;
-    }
-    
-    /* カウントダウンタイマーのスマホ対応 */
-    .countdown-timer {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .countdown-item {
-        width: 45%;
-        margin: 5px;
-    }
-    
-    /* タイムラインの調整 */
-    .timeline-section {
-        padding: 30px 0;
-    }
-    
-    /* FAQセクションの調整 */
-    .faq-answer {
-        padding: 10px;
-    }
-    
-    /* フッターの調整 */
-    footer {
-        padding: 20px 10px;
-    }
-    
-    /* スケジュールセクションの調整 */
-    .schedule-time {
-        font-size: 1rem;
-        padding: 5px 10px;
-    }
-    
-    .schedule-content h3 {
-        font-size: 1rem;
-    }
-}
-
-/* エンベロープ部分に影響しないようにするための追加スタイル */
-.envelope-container {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
 }

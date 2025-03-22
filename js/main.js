@@ -586,8 +586,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // 初期ロード時にも実行
     setTimeout(animateOnScroll, 500);
     
-    // 葉っぱが舞うエフェクト - すでにCSSで実装されているため削除
-    
     // テキストリンクのホバーエフェクト
     const textLinks = document.querySelectorAll('a:not(.rsvp-button)');
     textLinks.forEach(link => {
@@ -598,21 +596,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         link.addEventListener('mouseleave', function() {
             this.style.color = '';
-        });
-    });
-    
-    // FAQの開閉処理
-    // FAQ質問クリック時の動作
-    const faqQuestions = document.querySelectorAll('.faq-question');
-    
-    console.log('FAQの質問要素数:', faqQuestions.length); // デバッグ情報
-    
-    faqQuestions.forEach(question => {
-        question.addEventListener('click', function() {
-            console.log('FAQがクリックされました'); // デバッグ情報
-            // 親要素（faq-item）にactiveクラスをトグル
-            this.parentElement.classList.toggle('active');
-            console.log('activeクラスをトグルしました:', this.parentElement.classList.contains('active')); // デバッグ情報
         });
     });
     
@@ -775,15 +758,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const faqItems = document.querySelectorAll('.faq-item');
     faqItems.forEach(item => {
         const question = item.querySelector('.faq-question');
-        question.addEventListener('click', function() {
+        question.addEventListener('click', function(e) {
+            e.stopPropagation(); // イベントの伝播を停止
+            
             // 現在開いている項目を閉じる
             const currentActive = document.querySelector('.faq-item.active');
             if (currentActive && currentActive !== item) {
                 currentActive.classList.remove('active');
+                const currentAnswer = currentActive.querySelector('.faq-answer');
+                currentAnswer.style.padding = '0';
+                currentAnswer.style.maxHeight = '0';
             }
             
             // クリックした項目を開閉
             item.classList.toggle('active');
+            
+            // アクティブクラスの状態に応じて高さを調整
+            const answer = item.querySelector('.faq-answer');
+            if (item.classList.contains('active')) {
+                // アクティブになった場合、回答を表示
+                answer.style.padding = '15px';
+                answer.style.maxHeight = answer.scrollHeight + 30 + 'px'; // 余裕を持たせる
+            } else {
+                // 非アクティブになった場合、回答を隠す
+                answer.style.padding = '0';
+                answer.style.maxHeight = '0';
+            }
         });
     });
     
