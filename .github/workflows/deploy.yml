@@ -22,12 +22,18 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # ステップ3: サーバーのホストキーを既知のホストに追加（StrictHostKeyCheckingを無効に変更）
+      # ステップ3: サーバーのホストキーを既知のホストに追加（より安全な設定）
       - name: Add SSH Known Hosts
         run: |
           mkdir -p ~/.ssh
-          echo "StrictHostKeyChecking no" > ~/.ssh/config
+          echo "Host ${{ secrets.SERVER_HOST }}" > ~/.ssh/config
+          echo "  Port ${{ secrets.SERVER_PORT }}" >> ~/.ssh/config
+          echo "  StrictHostKeyChecking accept-new" >> ~/.ssh/config
+          echo "  UserKnownHostsFile ~/.ssh/known_hosts" >> ~/.ssh/config
           chmod 600 ~/.ssh/config
+          
+          # 明示的にホスト鍵を取得して保存（ポートを指定）
+          ssh-keyscan -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
       # ステップ4: ファイルをサーバーにデプロイ
       - name: Deploy to server
@@ -48,31 +54,18 @@ jobs:
             --exclude='.env' \
             --exclude='vendor/' \
             --exclude='node_modules/' \
-            -e "ssh -p $SERVER_PORT -o StrictHostKeyChecking=no" \
+            -e "ssh -p $SERVER_PORT" \
             ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
+            
+          echo "ファイル転送が完了しました"
 
-          # サーバー側で追加処理を実行：必要に応じてcomposerのインストールとパーミッション設定
+          # サーバー側で追加処理を実行
+          # PHPは使わない形で権限設定のみを行う
           ssh -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
-            if command -v composer >/dev/null 2>&1; then \
-              composer install --no-dev --optimize-autoloader; \
-            else \
-              echo 'Composer not found. Skipping composer install.'; \
-            fi && \
-            if [ -x /usr/local/bin/php8.3 ]; then \
-              PHP_CMD=/usr/local/bin/php8.3; \
-            elif [ -x /usr/local/bin/php ]; then \
-              PHP_CMD=/usr/local/bin/php; \
-            elif [ -x /usr/bin/php ]; then \
-              PHP_CMD=/usr/bin/php; \
-            else \
-              echo 'PHP not found. Skipping PHP operations.'; \
-              PHP_CMD=''; \
-            fi && \
-            if [ ! -z \"\$PHP_CMD\" ]; then \
-              echo \"Using PHP at \$PHP_CMD\"; \
-            fi && \
+            echo 'サーバー上でファイル権限を設定中...' && \
             find . -type d -exec chmod 755 {} \; && \
-            find . -type f -exec chmod 644 {} \;"
+            find . -type f -exec chmod 644 {} \; && \
+            echo 'ファイル権限の設定が完了しました'"
 
       # ステップ5: デプロイ結果の通知（成功・失敗に関わらず実行）
       - name: Notify deployment status
