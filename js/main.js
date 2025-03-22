@@ -626,6 +626,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
+        }, {
+            rootMargin: '50px 0px',
+            threshold: 0.01
         });
         
         lazyImages.forEach(image => {
@@ -667,37 +670,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 初回実行
         lazyLoad();
-    }
-    
-    // 遅延読み込みの最適化
-    function lazyLoad() {
-        const lazyImages = document.querySelectorAll('img.lazy-load');
-        // Intersection Observerをサポートしているブラウザの場合
-        if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver(function(entries, observer) {
-                entries.forEach(function(entry) {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.src = img.dataset.src;
-                        img.classList.add('loaded');
-                        imageObserver.unobserve(img);
-                    }
-                });
-            }, {
-                rootMargin: '50px 0px',
-                threshold: 0.01
-            });
-
-            lazyImages.forEach(function(img) {
-                imageObserver.observe(img);
-            });
-        } else {
-            // フォールバック: すべての画像を読み込む
-            lazyImages.forEach(function(img) {
-                img.src = img.dataset.src;
-                img.classList.add('loaded');
-            });
-        }
     }
     
     // モバイル端末向けのビデオ最適化

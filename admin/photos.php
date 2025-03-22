@@ -1,7 +1,18 @@
 <?php
 require_once "../config.php"; session_start();
 if (!isset($_SESSION["admin_logged_in"]) || $_SESSION["admin_logged_in"] !== true) { header("Location: index.php"); exit; }
-$success = ""; $error = ""; $upload_dir = "../uploads/photos/"; if (!file_exists($upload_dir)) { mkdir($upload_dir, 0777, true); }
+$success = ""; $error = ""; $upload_dir = "../uploads/photos/"; 
+
+// アップロードディレクトリの準備
+if (!file_exists($upload_dir)) { 
+    mkdir($upload_dir, 0755, true); 
+    chmod($upload_dir, 0755); // 確実にパーミッションを設定
+} else {
+    // すでに存在する場合もパーミッションを確認・設定
+    if (!is_writable($upload_dir)) {
+        chmod($upload_dir, 0755);
+    }
+}
 
 // 写真のアップロード処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -34,6 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     
                     // ファイルを移動
                     if (move_uploaded_file($file['tmp_name'], $target_file)) {
+                        // パーミッション設定を追加（ロリポップサーバー対応）
+                        chmod($target_file, 0644);
+                        
                         try {
                             $stmt = $pdo->prepare("
                                 INSERT INTO photo_gallery 

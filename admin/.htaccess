@@ -1,0 +1,40 @@
+# BEGIN Lolipop [ http://lolipop.jp/manual/user/ftpaccess/ ]
+<Limit ALL>
+Order Allow,Deny
+Allow from 219.94.166.54
+Allow from 150.95.250.235
+Allow from 54.64.161.18
+Allow from 54.92.36.247
+Allow from 122.219.43.14
+Allow from 122.219.43.6
+Allow from 122.219.40.14
+Allow from 210.131.150.101
+Allow from 210.131.150.102
+Allow from 60.99.187.66
+Allow from 60.139.162.159
+Deny from all
+</Limit>
+# END Lolipop
+
+# PHPの設定
+<IfModule mod_php8.c>
+    # PHPメモリ制限を増やす - 管理画面用
+    php_value memory_limit 512M
+    # アップロードファイルサイズ上限
+    php_value upload_max_filesize 20M
+    php_value post_max_size 20M
+</IfModule>
+
+# キャッシュ無効化（管理画面）
+<IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+</IfModule>
+
+# セキュリティヘッダー
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Frame-Options "SAMEORIGIN"
+</IfModule> 

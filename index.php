@@ -805,11 +805,12 @@ $datetime_info = get_wedding_datetime();
                             foreach ($gallery_photos as $index => $photo) {
                                 $main_class = ($index === 0) ? 'main-photo' : '';
                                 $loading = ($index <= 1) ? 'eager' : 'lazy'; // 最初の2枚は即時読み込み、それ以降は遅延読み込み
+                                $timestamp = time(); // キャッシュ回避用タイムスタンプ
                                 echo '<div class="photo-item ' . $main_class . '">';
                                 if ($index <= 1) {
-                                    echo '<img src="uploads/photos/' . htmlspecialchars($photo['filename']) . '" alt="' . htmlspecialchars($photo['title']) . '" loading="' . $loading . '" width="300" height="200">';
+                                    echo '<img src="uploads/photos/' . htmlspecialchars($photo['filename']) . '?v=' . $timestamp . '" alt="' . htmlspecialchars($photo['title']) . '" loading="' . $loading . '" width="300" height="200">';
                                 } else {
-                                    echo '<img class="lazy-load" data-src="uploads/photos/' . htmlspecialchars($photo['filename']) . '" alt="' . htmlspecialchars($photo['title']) . '" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy" width="300" height="200">';
+                                    echo '<img class="lazy-load" data-src="uploads/photos/' . htmlspecialchars($photo['filename']) . '?v=' . $timestamp . '" alt="' . htmlspecialchars($photo['title']) . '" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy" width="300" height="200">';
                                 }
                                 echo '</div>';
                             }

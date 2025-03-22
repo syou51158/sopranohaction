@@ -144,4 +144,31 @@ $menu_items = [
             <li class="admin-sidebar-divider"></li>
         </ul>
     </nav>
+</div>
+
+<div class="admin-tools">
+    <a href="../dashboard.php" class="admin-tool<?= basename($_SERVER['PHP_SELF']) === 'dashboard.php' ? ' active' : '' ?>">
+        <i class="fas fa-chart-line"></i> ダッシュボード
+    </a>
+    <a href="../guest-list.php" class="admin-tool<?= basename($_SERVER['PHP_SELF']) === 'guest-list.php' ? ' active' : '' ?>">
+        <i class="fas fa-users"></i> ゲスト管理
+    </a>
+    <a href="../table-layout.php" class="admin-tool<?= basename($_SERVER['PHP_SELF']) === 'table-layout.php' ? ' active' : '' ?>">
+        <i class="fas fa-th"></i> 席次表
+    </a>
+    <a href="../photos.php" class="admin-tool<?= basename($_SERVER['PHP_SELF']) === 'photos.php' ? ' active' : '' ?>">
+        <i class="fas fa-images"></i> 写真管理
+    </a>
+    <a href="../message.php" class="admin-tool<?= basename($_SERVER['PHP_SELF']) === 'message.php' ? ' active' : '' ?>">
+        <i class="fas fa-envelope"></i> メッセージ編集
+    </a>
+    <a href="../travel.php" class="admin-tool<?= basename($_SERVER['PHP_SELF']) === 'travel.php' ? ' active' : '' ?>">
+        <i class="fas fa-plane"></i> 交通・宿泊情報
+    </a>
+    <a href="../inc/fix_permissions.php" class="admin-tool<?= basename($_SERVER['PHP_SELF']) === 'fix_permissions.php' ? ' active' : '' ?>">
+        <i class="fas fa-tools"></i> パーミッション修正
+    </a>
+    <a href="../settings.php" class="admin-tool<?= basename($_SERVER['PHP_SELF']) === 'settings.php' ? ' active' : '' ?>">
+        <i class="fas fa-cog"></i> 設定
+    </a>
 </div> 
