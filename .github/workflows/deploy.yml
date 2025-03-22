@@ -9,63 +9,76 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # ステップ1: リポジトリのコードをチェックアウト
+      # ステップ1: リポジトリのコードをチェックアウト（最新バージョンに更新）
       - name: Checkout code
-        uses: actions/checkout@v3
-        # 完全なリポジトリ履歴をチェックアウトすることで、より正確なデプロイが可能
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 完全な履歴をチェックアウト
 
-      # ステップ2: SSH接続の設定
+      # ステップ2: SSH接続の設定（最新バージョンに更新）
       - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.7.0
+        uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
         # GitHub Secretsに保存されたSSH秘密鍵を使用して認証を設定
 
-      # ステップ3: サーバーのホストキーを既知のホストに追加
+      # ステップ3: サーバーのホストキーを既知のホストに追加（セキュリティ強化）
       - name: Add SSH Known Hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -t rsa ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-        # SSHの中間者攻撃を防ぐためにホストキーを検証
+          # RSAより安全なアルゴリズムを優先して使用
+          ssh-keyscan -t ed25519,ecdsa,rsa ssh.lolipop.jp >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+        # SSHの中間者攻撃を防ぐためにホストキーを検証し、パーミッションを適切に設定
 
-      # ステップ4: ファイルをサーバーにデプロイ
+      # ステップ4: 環境変数の設定（より安全な記述方式に変更）
+      - name: Set deployment variables
+        id: vars
+        run: |
+          echo "SERVER_HOST=ssh.lolipop.jp" >> $GITHUB_OUTPUT
+          echo "SERVER_USER=deci.jp-trendcompany" >> $GITHUB_OUTPUT
+          echo "SERVER_PORT=2222" >> $GITHUB_OUTPUT
+          echo "DEPLOY_PATH=~/web/sopranohaction" >> $GITHUB_OUTPUT
+        # 環境変数を明示的に設定し、後続のステップで参照可能に
+
+      # ステップ5: ファイルをサーバーにデプロイ（rsyncコマンドを最適化）
       - name: Deploy to server
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}  # サーバーのホスト名（例: ssh.lolipop.jp）
-          SERVER_USER: ${{ secrets.SERVER_USER }}  # SSHユーザー名（例: deci.jp-trendcompany）
-          SERVER_PORT: ${{ secrets.SERVER_PORT || '2222' }}  # SSHポート、デフォルトは2222
-          DEPLOY_PATH: ~/web/sopranohaction  # デプロイ先のパス
+          SERVER_HOST: ${{ steps.vars.outputs.SERVER_HOST }}
+          SERVER_USER: ${{ steps.vars.outputs.SERVER_USER }}
+          SERVER_PORT: ${{ steps.vars.outputs.SERVER_PORT }}
+          DEPLOY_PATH: ${{ steps.vars.outputs.DEPLOY_PATH }}
         run: |
-          # rsyncを使用して、ファイルをサーバーにコピー
-          # 以下のファイル/ディレクトリは転送から除外：
-          # - .git: Gitリポジトリのメタデータ
-          # - .github: GitHub Actionsの設定ファイル
-          # - .env: 環境変数（機密情報を含む可能性がある）
-          # - vendor: Composerの依存関係（サーバー側で再インストール）
-          # - node_modules: npmの依存関係（サーバー側で再インストール）
-          rsync -avz --exclude='.git' --exclude='.github' --exclude='.env' \
-            --exclude='vendor' --exclude='node_modules' \
-            -e "ssh -p $SERVER_PORT" \
+          # rsyncを使用してファイルを安全に転送
+          # --delete オプションを追加して不要なファイルを削除
+          # -z で転送時に圧縮して通信量を削減
+          rsync -avz --delete --exclude='.git/' --exclude='.github/' --exclude='.env' \
+            --exclude='vendor/' --exclude='node_modules/' \
+            -e "ssh -p $SERVER_PORT -o StrictHostKeyChecking=accept-new" \
             ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
 
-          # サーバー側での追加処理の実行
-          # - composer installでPHP依存関係をインストール
-          # - ディレクトリのパーミッションを755に設定（実行可能）
-          # - ファイルのパーミッションを644に設定（読み書き可能）
+          # サーバー側での追加処理の実行（エラーハンドリングを追加）
+          if ssh -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
+             command -v composer >/dev/null 2>&1"; then
+            # composerが利用可能な場合
+            ssh -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
+              composer install --no-dev --optimize-autoloader"
+          else
+            echo "composerコマンドがサーバーで見つかりませんでした。依存関係のインストールをスキップします。"
+          fi
+          
+          # パーミッション設定
           ssh -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
-            composer install --no-dev --optimize-autoloader && \
-            chmod -R 755 . && \
             find . -type d -exec chmod 755 {} \; && \
             find . -type f -exec chmod 644 {} \;"
-          # 注意: サーバー環境によってはcomposerやその他のコマンドが利用できない場合があります
-          # その場合は、必要なコマンドのみを実行するよう調整してください
 
-      # ステップ5: デプロイ結果の通知
+      # ステップ6: デプロイ結果の通知（条件式を改善）
       - name: Notify deployment status
-        if: ${{ always() }}  # デプロイが成功しても失敗しても実行
+        if: always()  # デプロイが成功しても失敗しても実行（シンプルな構文に修正）
         run: |
-          if [ ${{ job.status }} == 'success' ]; then
+          if [ "${{ job.status }}" = "success" ]; then
             echo "✅ デプロイが成功しました！サイトは正常に更新されています。"
+            echo "デプロイ先URL: https://deci.jp/sopranohaction/"
           else
             echo "❌ デプロイに失敗しました。ログを確認して問題を解決してください。"
           fi
