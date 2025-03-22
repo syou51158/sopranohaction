@@ -33,7 +33,42 @@ jobs:
           chmod 600 ~/.ssh/known_hosts
         # これにより、SSH接続時の中間者攻撃を防ぎます
 
-      # ステップ4: ファイルをサーバーにデプロイ
+      # ステップ4: サーバー環境の検証
+      - name: Verify server environment
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+        run: |
+          echo "🔍 サーバー環境を検証しています..."
+          
+          # PHPがインストールされているか確認
+          PHP_CHECK=$(ssh -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "command -v php || command -v /usr/bin/php || command -v /usr/local/bin/php || echo 'NOT_FOUND'")
+          
+          if [ "$PHP_CHECK" = "NOT_FOUND" ]; then
+            echo "❌ エラー: サーバーにPHPがインストールされていないか、PATHに含まれていません。"
+            echo "💡 以下の方法でPHPをインストールしてください："
+            echo "   - シェアードホスティングの場合: ホスティング会社にPHPを有効化するよう依頼"
+            echo "   - VPSやクラウドサーバーの場合: sudo apt-get install php などでインストール"
+            echo "   - 既にインストール済みの場合: PHPのパスを確認し、PATHに追加してください"
+            exit 1
+          else
+            echo "✅ PHPが見つかりました: $PHP_CHECK"
+            ssh -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "$PHP_CHECK -v"
+          fi
+          
+          # ファイルをデプロイするディレクトリが存在するか確認
+          DEPLOY_PATH_CHECK=$(ssh -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "if [ -d '${{ secrets.DEPLOY_PATH }}' ]; then echo 'EXISTS'; else echo 'NOT_FOUND'; fi")
+          
+          if [ "$DEPLOY_PATH_CHECK" = "NOT_FOUND" ]; then
+            echo "❌ エラー: デプロイパス '${{ secrets.DEPLOY_PATH }}' が存在しません。"
+            echo "💡 デプロイパスを作成するか、正しいパスを指定してください。"
+            exit 1
+          else
+            echo "✅ デプロイパスが確認できました: ${{ secrets.DEPLOY_PATH }}"
+          fi
+
+      # ステップ5: ファイルをサーバーにデプロイ
       - name: Deploy to server
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
@@ -41,11 +76,8 @@ jobs:
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
+          echo "🚀 ファイルをサーバーに転送しています..."
           # rsyncでリポジトリのファイルをサーバーへ転送
-          # 以下のディレクトリ/ファイルは転送対象外とする：
-          # - .git、.github: GitのメタデータおよびCI設定
-          # - .env: 環境変数（機密情報）
-          # - vendor、node_modules: 依存関係（サーバー側で再インストール）
           rsync -avz --delete \
             --exclude='.git/' \
             --exclude='.github/' \
@@ -54,47 +86,59 @@ jobs:
             --exclude='node_modules/' \
             -e "ssh -p $SERVER_PORT -o StrictHostKeyChecking=no" \
             ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
-
-          # サーバー上のPHPパスを確認
-          echo "サーバー上のPHPパスを確認しています..."
-          ssh -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "which php || echo 'PHPコマンドが見つかりません'"
           
-          # サーバー側で追加処理を実行：必要に応じてcomposerのインストールとパーミッション設定
+          echo "✅ ファイル転送が完了しました"
+
+      # ステップ6: デプロイ後の設定
+      - name: Post-deployment setup
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          echo "🔧 デプロイ後の設定を実行しています..."
+          
+          # PHPパスを取得
+          PHP_PATH=$(ssh -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "command -v php || command -v /usr/bin/php || command -v /usr/local/bin/php")
+          
+          # サーバー側で追加処理を実行
           ssh -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
-            # PHPを絶対パスで指定するか、あるいはPATHが通っている場所にあればそのまま使用
-            if command -v /usr/bin/php >/dev/null 2>&1; then \
-              PHP_CMD='/usr/bin/php'; \
-            elif command -v /usr/local/bin/php >/dev/null 2>&1; then \
-              PHP_CMD='/usr/local/bin/php'; \
-            elif command -v php >/dev/null 2>&1; then \
-              PHP_CMD='php'; \
+            echo '📂 現在のディレクトリ:' && pwd && \
+            \
+            echo '🐘 PHPバージョン:' && \
+            $PHP_PATH -v && \
+            \
+            if [ -f 'composer.json' ]; then \
+              if command -v composer >/dev/null 2>&1; then \
+                echo '🎼 Composerパッケージをインストールしています...' && \
+                composer install --no-dev --optimize-autoloader; \
+              else \
+                echo '⚠️ Composerが見つかりません。composer.jsonがありますが、依存関係はインストールされません。'; \
+                echo '💡 サーバーにComposerをインストールするか、ローカルでvendorディレクトリを生成してアップロードしてください。'; \
+              fi \
             else \
-              echo '警告: PHPが見つかりません。スクリプトの実行をスキップします。'; \
-              PHP_CMD='echo PHPコマンドが利用できません:'; \
+              echo '📝 composer.jsonが見つかりません。Composerの処理をスキップします。'; \
             fi && \
             \
-            echo 'PHPバージョン:' && \
-            \$PHP_CMD -v || echo 'PHPバージョンの確認に失敗しました' && \
-            \
-            if [ -f 'composer.json' ] && command -v composer >/dev/null 2>&1; then \
-              echo 'Composerパッケージをインストールしています...' && \
-              composer install --no-dev --optimize-autoloader; \
-            else \
-              echo 'Composerが見つかりません、またはcomposer.jsonがありません。Composerのインストールをスキップします。'; \
-            fi && \
-            \
-            echo 'ファイルのパーミッションを設定しています...' && \
+            echo '🔒 ファイルのパーミッションを設定しています...' && \
             find . -type d -exec chmod 755 {} \; && \
             find . -type f -exec chmod 644 {} \; && \
             \
-            echo 'デプロイ完了！'"
+            echo '✅ デプロイ後の設定が完了しました！'"
 
-      # ステップ5: デプロイ結果の通知（成功・失敗に関わらず実行）
+      # ステップ7: デプロイ結果の通知
       - name: Notify deployment status
         if: always()
         run: |
           if [ "${{ job.status }}" = "success" ]; then
             echo "✅ デプロイが成功しました！サイトは正常に更新されています。"
+            echo "   サイトURL: http://${{ secrets.SERVER_HOST }}"
           else
-            echo "❌ デプロイに失敗しました。ログを確認してください。"
+            echo "❌ デプロイに失敗しました。"
+            echo "   原因を確認してください："
+            echo "   1. サーバーにPHPがインストールされているか"
+            echo "   2. SSHキーが正しく設定されているか"
+            echo "   3. デプロイパスが存在するか"
+            echo "   4. ユーザーに書き込み権限があるか"
           fi
