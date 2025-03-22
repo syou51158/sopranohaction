@@ -57,7 +57,8 @@ jobs:
         run: |
           # rsyncを使用してファイルを安全に転送
           rsync -avz --delete --exclude='.git/' --exclude='.github/' --exclude='.env' \
-            --exclude='node_modules/' --exclude='uploads/' \
+            --exclude='node_modules/' --exclude='uploads/' --exclude='.htaccess' \
+            --exclude='admin/.htaccess' \
             -e "ssh -F $HOME/.ssh/config" \
             ./ lolipop:$DEPLOY_PATH
           
@@ -71,6 +72,21 @@ jobs:
             mkdir -p uploads/photos && \
             chmod -R 755 uploads && \
             find uploads -type f -exec chmod 644 {} \;"
+            
+          # 重要なファイルのバックアップと復元（.htaccessなど）
+          ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
+            if [ ! -f .htaccess.bak ] && [ -f .htaccess ]; then \
+              cp .htaccess .htaccess.bak; \
+            fi && \
+            if [ -f .htaccess.bak ] && [ ! -f .htaccess ]; then \
+              cp .htaccess.bak .htaccess; \
+            fi && \
+            if [ ! -f admin/.htaccess.bak ] && [ -f admin/.htaccess ]; then \
+              cp admin/.htaccess admin/.htaccess.bak; \
+            fi && \
+            if [ -f admin/.htaccess.bak ] && [ ! -f admin/.htaccess ]; then \
+              cp admin/.htaccess.bak admin/.htaccess; \
+            fi"
 
       # ステップ6: デプロイ結果の通知
       - name: Notify deployment status
