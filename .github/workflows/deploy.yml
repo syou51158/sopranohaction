@@ -1,5 +1,6 @@
 name: Deploy to Production
 
+# mainブランチへのプッシュをトリガーにワークフローを実行
 on:
   push:
     branches: [ main ]
@@ -8,44 +9,64 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      # ステップ1: リポジトリのコードをチェックアウト
       - name: Checkout code
         uses: actions/checkout@v3
+        # 完全なリポジトリ履歴をチェックアウトすることで、より正確なデプロイが可能
 
+      # ステップ2: SSH接続の設定
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        # GitHub Secretsに保存されたSSH秘密鍵を使用して認証を設定
 
+      # ステップ3: サーバーのホストキーを既知のホストに追加
       - name: Add SSH Known Hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -t rsa ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        # SSHの中間者攻撃を防ぐためにホストキーを検証
 
+      # ステップ4: ファイルをサーバーにデプロイ
       - name: Deploy to server
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT || '22' }}
-          DEPLOY_PATH: /var/www/html
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}  # サーバーのホスト名（例: ssh.lolipop.jp）
+          SERVER_USER: ${{ secrets.SERVER_USER }}  # SSHユーザー名（例: deci.jp-trendcompany）
+          SERVER_PORT: ${{ secrets.SERVER_PORT || '2222' }}  # SSHポート、デフォルトは2222
+          DEPLOY_PATH: ~/web/sopranohaction  # デプロイ先のパス
         run: |
-          # ファイルをサーバーにコピー（.envを除外）
+          # rsyncを使用して、ファイルをサーバーにコピー
+          # 以下のファイル/ディレクトリは転送から除外：
+          # - .git: Gitリポジトリのメタデータ
+          # - .github: GitHub Actionsの設定ファイル
+          # - .env: 環境変数（機密情報を含む可能性がある）
+          # - vendor: Composerの依存関係（サーバー側で再インストール）
+          # - node_modules: npmの依存関係（サーバー側で再インストール）
           rsync -avz --exclude='.git' --exclude='.github' --exclude='.env' \
             --exclude='vendor' --exclude='node_modules' \
             -e "ssh -p $SERVER_PORT" \
             ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
 
-          # 必要に応じてサーバー側で追加コマンドを実行
+          # サーバー側での追加処理の実行
+          # - composer installでPHP依存関係をインストール
+          # - ディレクトリのパーミッションを755に設定（実行可能）
+          # - ファイルのパーミッションを644に設定（読み書き可能）
           ssh -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
             composer install --no-dev --optimize-autoloader && \
             chmod -R 755 . && \
             find . -type d -exec chmod 755 {} \; && \
             find . -type f -exec chmod 644 {} \;"
+          # 注意: サーバー環境によってはcomposerやその他のコマンドが利用できない場合があります
+          # その場合は、必要なコマンドのみを実行するよう調整してください
 
+      # ステップ5: デプロイ結果の通知
       - name: Notify deployment status
-        if: ${{ always() }}
+        if: ${{ always() }}  # デプロイが成功しても失敗しても実行
         run: |
           if [ ${{ job.status }} == 'success' ]; then
-            echo "✅ デプロイが成功しました！"
+            echo "✅ デプロイが成功しました！サイトは正常に更新されています。"
           else
-            echo "❌ デプロイに失敗しました。ログを確認してください。"
-          fi 
+            echo "❌ デプロイに失敗しました。ログを確認して問題を解決してください。"
+          fi
+          # 必要に応じて、Slackやメールなどへの通知を追加することも可能 
