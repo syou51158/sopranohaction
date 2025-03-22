@@ -14,56 +14,47 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 完全な履歴をチェックアウトして、正確なデプロイを可能にする
+          fetch-depth: 0
 
-      # ステップ2: SSH接続の設定（Secretsに保存したSSH秘密鍵を使用）
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.8.0
+      # ステップ2: SCPアクションでファイルをアップロード
+      - name: Deploy to Lolipop via SCP
+        uses: appleboy/scp-action@master
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          port: ${{ secrets.SERVER_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "./"
+          target: ${{ secrets.DEPLOY_PATH }}
+          overwrite: true
+          strip_components: 1
+          rm: true
+          exclude: |
+            .git
+            .github
+            .env
+            vendor
+            node_modules
 
-      # ステップ3: サーバーのホストキーを既知のホストに追加
-      - name: Add SSH Known Hosts
-        run: |
-          mkdir -p ~/.ssh
-          # 複数の鍵タイプ（ed25519, ecdsa, rsa）を優先して取得し、指定のポートで接続
-          ssh-keyscan -t ed25519,ecdsa,rsa -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-        # これにより、SSH接続時の中間者攻撃を防ぎます
+      # ステップ3: サーバー上で追加コマンドを実行
+      - name: Run commands on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          port: ${{ secrets.SERVER_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            # もし composer.json があれば、依存関係をインストール
+            if [ -f composer.json ]; then
+              composer install --no-dev --optimize-autoloader
+            fi
+            # パーミッション設定
+            find . -type d -exec chmod 755 {} \;
+            find . -type f -exec chmod 644 {} \;
 
-      # ステップ4: ファイルをサーバーにデプロイ
-      - name: Deploy to server
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-        run: |
-          # rsyncでリポジトリのファイルをサーバーへ転送
-          # 以下のディレクトリ/ファイルは転送対象外とする：
-          # - .git、.github: GitのメタデータおよびCI設定
-          # - .env: 環境変数（機密情報）
-          # - vendor、node_modules: 依存関係（サーバー側で再インストール）
-          rsync -avz --delete \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='.env' \
-            --exclude='vendor/' \
-            --exclude='node_modules/' \
-            -e "ssh -p $SERVER_PORT -o StrictHostKeyChecking=accept-new" \
-            ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
-
-          # サーバー側で追加処理を実行：必要に応じてcomposerのインストールとパーミッション設定
-          ssh -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
-            if command -v composer >/dev/null 2>&1; then \
-              composer install --no-dev --optimize-autoloader; \
-            else \
-              echo 'Composer not found. Skipping composer install.'; \
-            fi && \
-            find . -type d -exec chmod 755 {} \; && \
-            find . -type f -exec chmod 644 {} \;"
-
-      # ステップ5: デプロイ結果の通知（成功・失敗に関わらず実行）
+      # ステップ4: デプロイ結果の通知
       - name: Notify deployment status
         if: always()
         run: |
