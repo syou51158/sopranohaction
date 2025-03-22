@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // タップ指示を追加（デバイスによって変更）
-        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
         const instructionText = isTouchDevice ? 'タップして開く' : 'クリックして開く';
         
         const envelopeContent = envelope.querySelector('.envelope-content');
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 封筒の3D効果
     function setupEnvelope3DEffect() {
         // タッチデバイスでなければ3D効果を適用
-        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
         if (!isTouchDevice) {
             envelope.addEventListener('mousemove', function(e) {
                 if (this.classList.contains('opening')) return;
@@ -534,4 +534,82 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 1000);
     });
+
+    // 封筒を開く処理
+    function openEnvelope(e) {
+        // すでに開封中または開封済みの場合は処理しない
+        if (envelope.classList.contains('opening') || openedEnvelope) {
+            return;
+        }
+        
+        // タップ/クリックイベントのデフォルト動作を停止
+        e.preventDefault();
+        
+        // 念のためのダブルタップ防止
+        openedEnvelope = true;
+        
+        console.log('封筒を開きます...');
+        
+        // 封筒を開く前にスタイルを調整
+        envelope.style.transform = 'none'; // 3D効果をリセット
+        
+        // スマホでのパフォーマンスを考慮して短い遅延で開封アニメーション実行
+        setTimeout(() => {
+            envelope.classList.add('opening');
+            
+            // アニメーション完了後の処理をJavaScript側で管理
+            setTimeout(() => {
+                completeEnvelopeOpen();
+            }, 1500); // スマホではアニメーション時間を短くする
+        }, 10);
+    }
+
+    // タッチデバイスの検出を改善
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
+    
+    // イベントリスナの追加（タッチデバイスとそれ以外で分ける）
+    function addEnvelopeEventListeners() {
+        if (isTouchDevice) {
+            console.log('タッチデバイスが検出されました');
+            
+            // タッチデバイス用のイベントリスナ
+            envelope.addEventListener('touchstart', handleTouchStart, { passive: false });
+            envelope.addEventListener('touchend', handleTouchEnd, { passive: false });
+            
+            // iOS Safariでのイベント処理を改善
+            document.addEventListener('gesturestart', function(e) {
+                e.preventDefault(); // ピンチズームを防止
+            }, { passive: false });
+        } else {
+            console.log('通常のクリックデバイスです');
+            // 非タッチデバイス用
+            envelope.addEventListener('click', openEnvelope);
+            
+            // マウスオーバー効果
+            setupEnvelope3DEffect();
+        }
+    }
+    
+    // タッチイベント用変数
+    let touchStartTime = 0;
+    let touchEndTime = 0;
+    const maxTouchDuration = 300; // タップと判定する最大時間（ミリ秒）
+    
+    // タッチ開始イベントハンドラ
+    function handleTouchStart(e) {
+        // タップ判定用の時間記録
+        touchStartTime = new Date().getTime();
+    }
+    
+    // タッチ終了イベントハンドラ
+    function handleTouchEnd(e) {
+        // タップ時間を計測
+        touchEndTime = new Date().getTime();
+        const touchDuration = touchEndTime - touchStartTime;
+        
+        // 短いタップと判定された場合に封筒を開く
+        if (touchDuration < maxTouchDuration) {
+            openEnvelope(e);
+        }
+    }
 }); 

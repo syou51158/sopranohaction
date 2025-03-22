@@ -24,16 +24,26 @@ if (file_exists($env_file)) {
 }
 
 // ホスト環境を自動判定（ローカルかサーバーか）
-$is_local = getenv('APP_ENV') !== 'production';
+$app_env = getenv('APP_ENV') ?: 'local'; // 環境変数がなければデフォルトはlocal
+$is_local = ($app_env === 'local' || $app_env === 'development');
+
+// 診断情報（デバッグ用）
+if (isset($_GET['debug_env']) && $_GET['debug_env'] === '1') {
+    echo '<pre>';
+    echo "環境変数APP_ENV: " . $app_env . "\n";
+    echo "ローカル環境判定: " . ($is_local ? 'true' : 'false') . "\n";
+    echo "SERVER_NAME: " . ($_SERVER['SERVER_NAME'] ?? 'undefined') . "\n";
+    echo '</pre>';
+}
 
 // データベース接続情報
 if ($is_local) {
     // ローカル環境用設定
-    $db_host = '127.0.0.1';  // ローカルIPアドレス
-    $db_name = 'wedding';    // ローカルデータベース名
-    $db_user = 'root';       // XAMPPデフォルトユーザー
-    $db_pass = '';           // XAMPPデフォルトパスワード（空）
-    $site_url = "http://localhost/wedding/";  // ローカル環境のURL
+    $db_host = getenv('DB_HOST') ?: '127.0.0.1';  // ローカルIPアドレス
+    $db_name = getenv('DB_NAME') ?: 'wedding';    // ローカルデータベース名
+    $db_user = getenv('DB_USER') ?: 'root';       // XAMPPデフォルトユーザー
+    $db_pass = getenv('DB_PASSWORD') ?: '';       // XAMPPデフォルトパスワード（空）
+    $site_url = "http://localhost/wedding/";      // ローカル環境のURL
     $site_email = "info-wedding@sopranohaction.fun";  // 送信元メールアドレス
     $debug_mode = true;      // デバッグモード有効
     define('DEBUG_MODE', true);  // デバッグモード定数

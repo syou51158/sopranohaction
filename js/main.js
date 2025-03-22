@@ -3,8 +3,73 @@ document.addEventListener('DOMContentLoaded', function() {
     const invitationContent = document.querySelector('.invitation-content');
     const choiceScreen = document.querySelector('.choice-screen');
     
+    // モバイルデバイス検出を強化
+    const isMobile = {
+        Android: function() {
+            return navigator.userAgent.match(/Android/i);
+        },
+        iOS: function() {
+            return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+        },
+        Windows: function() {
+            return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
+        },
+        any: function() {
+            return (isMobile.Android() || isMobile.iOS() || isMobile.Windows());
+        }
+    };
+    
+    // モバイル端末かどうかを検出
+    const isMobileDevice = isMobile.any();
+    
+    // エフェクト数をモバイルの場合は減らす
+    if (isMobileDevice) {
+        console.log('モバイルデバイスを検出しました');
+        
+        // 画像の遅延読み込みを最適化
+        const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        observer.unobserve(img);
+                    }
+                });
+            }, { rootMargin: '50px' });
+            
+            lazyImages.forEach(img => imageObserver.observe(img));
+        }
+        
+        // モバイルでのタッチイベント最適化
+        document.addEventListener('touchstart', function() {}, {passive: true});
+        
+        // アニメーション効果を軽減
+        document.documentElement.classList.add('mobile-device');
+        
+        // iOS Safariでのスクロール問題対策
+        document.body.addEventListener('touchmove', function(e) {
+            if (document.body.classList.contains('no-scroll')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        // モバイルでは半分のエフェクトのみ表示
+        const allEffects = document.querySelectorAll('.floating-heart, .floating-sparkle');
+        for (let i = 0; i < allEffects.length; i++) {
+            if (i % 2 !== 0) {
+                allEffects[i].style.display = 'none';
+            }
+        }
+    }
+    
     // クリック/タップエフェクト - 全ページ共通
+    // モバイルではエフェクトを軽量化
     document.addEventListener('click', function(e) {
+        // モバイル端末では5回に1回だけエフェクトを表示（負荷軽減）
+        if (isMobileDevice && Math.random() > 0.2) return;
+        
         const clickEffect = document.createElement('div');
         clickEffect.classList.add('click-effect');
         
@@ -12,8 +77,8 @@ document.addEventListener('DOMContentLoaded', function() {
         clickEffect.style.left = e.pageX + 'px';
         clickEffect.style.top = e.pageY + 'px';
         
-        // サイズをランダムに
-        const size = 50 + Math.random() * 100;
+        // サイズをランダムに（モバイルではやや小さめに）
+        const size = isMobileDevice ? (30 + Math.random() * 60) : (50 + Math.random() * 100);
         clickEffect.style.width = size + 'px';
         clickEffect.style.height = size + 'px';
         clickEffect.style.marginLeft = -size / 2 + 'px';
@@ -38,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (document.body.contains(clickEffect)) {
                 document.body.removeChild(clickEffect);
             }
-        }, 1000);
+        }, isMobileDevice ? 700 : 1000); // モバイルでは短縮
     });
     
     // 削除: 封筒関連のコード
@@ -428,20 +493,28 @@ document.addEventListener('DOMContentLoaded', function() {
         anchor.addEventListener('click', function(e) {
             e.preventDefault();
             
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
+            let targetId = this.getAttribute('href');
+            if (targetId === '#') return;
             
-            if (targetElement) {
-                // スクロール位置の計算
-                const headerOffset = 60;
-                const elementPosition = targetElement.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
+            let targetElement = document.querySelector(targetId);
+            if (!targetElement) return;
+            
+            // モバイルナビゲーションを閉じる
+            if (document.body.classList.contains('mobile-nav-active')) {
+                document.body.classList.remove('mobile-nav-active');
+                document.body.classList.remove('no-scroll');
+                const mobileNav = document.getElementById('mobile-nav-toggle');
+                if (mobileNav) mobileNav.classList.remove('active');
             }
+            
+            // スムーススクロール実行
+            const yOffset = -60; // ヘッダー高さ分オフセット
+            const y = targetElement.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            
+            window.scrollTo({
+                top: y,
+                behavior: 'smooth'
+            });
         });
     });
     
@@ -609,5 +682,155 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 初回実行
         lazyLoad();
+    }
+    
+    // 遅延読み込みの最適化
+    function lazyLoad() {
+        const lazyImages = document.querySelectorAll('img.lazy-load');
+        // Intersection Observerをサポートしているブラウザの場合
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.add('loaded');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '50px 0px',
+                threshold: 0.01
+            });
+
+            lazyImages.forEach(function(img) {
+                imageObserver.observe(img);
+            });
+        } else {
+            // フォールバック: すべての画像を読み込む
+            lazyImages.forEach(function(img) {
+                img.src = img.dataset.src;
+                img.classList.add('loaded');
+            });
+        }
+    }
+    
+    // モバイル端末向けのビデオ最適化
+    const weddingVideo = document.getElementById('wedding-video');
+    if (weddingVideo) {
+        // 動画再生コントロール
+        const playButton = document.querySelector('.play-button');
+        const videoOverlay = document.querySelector('.video-overlay');
+        
+        if (playButton && videoOverlay) {
+            playButton.addEventListener('click', function() {
+                weddingVideo.play();
+                videoOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    videoOverlay.style.display = 'none';
+                }, 500);
+            });
+            
+            // モバイルの場合、自動再生を防ぐ
+            weddingVideo.addEventListener('play', function() {
+                videoOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    videoOverlay.style.display = 'none';
+                }, 500);
+            });
+            
+            // 動画終了時にオーバーレイを再表示
+            weddingVideo.addEventListener('ended', function() {
+                videoOverlay.style.display = 'flex';
+                setTimeout(() => {
+                    videoOverlay.style.opacity = '1';
+                }, 10);
+            });
+        }
+    }
+    
+    // モバイルでのスムーズスクロール
+    const allLinks = document.querySelectorAll('a[href^="#"]');
+    allLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href !== "#") {
+                e.preventDefault();
+                const targetElement = document.querySelector(href);
+                if (targetElement) {
+                    // スムーズスクロール（モバイルでは少し早めに）
+                    const duration = isMobileDevice ? 500 : 800;
+                    const offsetTop = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                    
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        });
+    });
+    
+    // FAQ項目のアコーディオン機能
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', function() {
+            // 現在開いている項目を閉じる
+            const currentActive = document.querySelector('.faq-item.active');
+            if (currentActive && currentActive !== item) {
+                currentActive.classList.remove('active');
+            }
+            
+            // クリックした項目を開閉
+            item.classList.toggle('active');
+        });
+    });
+    
+    // 必要な関数を呼び出し
+    lazyLoad();
+    updateCountdown();
+    initFormHandlers();
+    
+    // スクロール時のアニメーション
+    window.addEventListener('scroll', function() {
+        // モバイルの場合はスクロールイベントの頻度を制限
+        if (!isMobileDevice || !window.scrollThrottleTimeout) {
+            window.scrollThrottleTimeout = setTimeout(function() {
+                animateOnScroll();
+                window.scrollThrottleTimeout = null;
+            }, isMobileDevice ? 100 : 50);
+        }
+    });
+    
+    // ページ読み込み時に一度実行
+    animateOnScroll();
+    
+    // ナビゲーションの動作改善
+    const mobileNav = document.getElementById('mobile-nav-toggle');
+    if (mobileNav) {
+        mobileNav.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.body.classList.toggle('mobile-nav-active');
+            
+            // モバイルメニュー展開時はスクロール防止
+            if (document.body.classList.contains('mobile-nav-active')) {
+                document.body.classList.add('no-scroll');
+            } else {
+                document.body.classList.remove('no-scroll');
+            }
+            
+            this.classList.toggle('active');
+        });
+        
+        // メニュー項目クリック時の処理改善
+        const navLinks = document.querySelectorAll('.mobile-nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                document.body.classList.remove('mobile-nav-active');
+                document.body.classList.remove('no-scroll');
+                mobileNav.classList.remove('active');
+            });
+        });
     }
 }); 

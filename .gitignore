@@ -1,6 +1,13 @@
 # 環境設定ファイル
 .env
 .env.backup
+.env.local
+.env.production
+.env.staging
+.env.development
+
+#メモ
+memo/
 
 # ログファイル
 logs/

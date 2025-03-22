@@ -97,6 +97,11 @@ if ($group_id && isset($guest_info['id'])) {
     <!-- スクリプトの遅延読み込み -->
     <script src="js/envelope.js" defer></script>
     <script src="js/main.js" defer></script>
+    
+    <!-- モバイル最適化 -->
+    <meta name="theme-color" content="#f8f4e6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body>
     <!-- 装飾エフェクト（常時表示） -->
@@ -315,7 +320,7 @@ if ($group_id && isset($guest_info['id'])) {
                         // その他の形式も必要に応じて追加
                     }
                     ?>
-                    <video id="wedding-video" controls poster="<?= $thumbnail_path ?>">
+                    <video id="wedding-video" controls poster="<?= $thumbnail_path ?>" preload="none" playsinline>
                         <!-- プライマリソース - 判定されたMIMEタイプに基づく -->
                         <source src="<?= $video_src ?>" type="<?= $mime_type ?>">
                         
@@ -776,31 +781,31 @@ if ($group_id && isset($guest_info['id'])) {
                                 $loading = ($index <= 1) ? 'eager' : 'lazy'; // 最初の2枚は即時読み込み、それ以降は遅延読み込み
                                 echo '<div class="photo-item ' . $main_class . '">';
                                 if ($index <= 1) {
-                                    echo '<img src="uploads/photos/' . htmlspecialchars($photo['filename']) . '" alt="' . htmlspecialchars($photo['title']) . '" loading="' . $loading . '">';
+                                    echo '<img src="uploads/photos/' . htmlspecialchars($photo['filename']) . '" alt="' . htmlspecialchars($photo['title']) . '" loading="' . $loading . '" width="300" height="200">';
                                 } else {
-                                    echo '<img class="lazy-load" data-src="uploads/photos/' . htmlspecialchars($photo['filename']) . '" alt="' . htmlspecialchars($photo['title']) . '" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy">';
+                                    echo '<img class="lazy-load" data-src="uploads/photos/' . htmlspecialchars($photo['filename']) . '" alt="' . htmlspecialchars($photo['title']) . '" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy" width="300" height="200">';
                                 }
                                 echo '</div>';
                             }
                         } else {
                             // データベースに写真がない場合はデフォルト写真を表示
                             echo '<div class="photo-item main-photo">';
-                            echo '<img src="images/couple1.jpg" alt="翔とあかねの写真">';
+                            echo '<img src="images/couple1.jpg" alt="翔とあかねの写真" width="300" height="200">';
                             echo '</div>';
                             echo '<div class="photo-item">';
-                            echo '<img src="images/placeholders/couple2.jpg" alt="翔とあかねの写真2" loading="lazy">';
+                            echo '<img src="images/placeholders/couple2.jpg" alt="翔とあかねの写真2" loading="lazy" width="300" height="200">';
                             echo '</div>';
                             echo '<div class="photo-item">';
-                            echo '<img class="lazy-load" data-src="images/placeholders/couple3.jpg" alt="翔とあかねの写真3" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy">';
+                            echo '<img class="lazy-load" data-src="images/placeholders/couple3.jpg" alt="翔とあかねの写真3" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy" width="300" height="200">';
                             echo '</div>';
                             echo '<div class="photo-item">';
-                            echo '<img class="lazy-load" data-src="images/placeholders/couple4.jpg" alt="翔とあかねの写真4" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy">';
+                            echo '<img class="lazy-load" data-src="images/placeholders/couple4.jpg" alt="翔とあかねの写真4" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy" width="300" height="200">';
                             echo '</div>';
                             echo '<div class="photo-item">';
-                            echo '<img class="lazy-load" data-src="images/placeholders/couple5.jpg" alt="翔とあかねの写真5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy">';
+                            echo '<img class="lazy-load" data-src="images/placeholders/couple5.jpg" alt="翔とあかねの写真5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy" width="300" height="200">';
                             echo '</div>';
                             echo '<div class="photo-item">';
-                            echo '<img class="lazy-load" data-src="images/placeholders/couple6.jpg" alt="翔とあかねの写真6" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy">';
+                            echo '<img class="lazy-load" data-src="images/placeholders/couple6.jpg" alt="翔とあかねの写真6" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" loading="lazy" width="300" height="200">';
                             echo '</div>';
                         }
                     } catch (PDOException $e) {
@@ -809,10 +814,10 @@ if ($group_id && isset($guest_info['id'])) {
                         } else {
                             // エラーの場合もデフォルト写真を表示
                             echo '<div class="photo-item main-photo">';
-                            echo '<img src="images/couple1.jpg" alt="翔とあかねの写真">';
+                            echo '<img src="images/couple1.jpg" alt="翔とあかねの写真" width="300" height="200">';
                             echo '</div>';
                             echo '<div class="photo-item">';
-                            echo '<img src="images/placeholders/couple2.jpg" alt="翔とあかねの写真2" loading="lazy">';
+                            echo '<img src="images/placeholders/couple2.jpg" alt="翔とあかねの写真2" loading="lazy" width="300" height="200">';
                             echo '</div>';
                             // 追加の写真
                         }

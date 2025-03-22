@@ -406,16 +406,38 @@ include 'inc/header.php';
                                             $table_id = key($bride_table);
                                             $table = current($bride_table);
                                             for ($i = 1; $i <= $table['capacity']; $i++): 
+                                                // 座席データを取得
+                                                $seat_data = getSeatData($table_id, $i, $assignments);
+                                                
+                                                // 肩書と名前を取得
+                                                $seat_title = isset($seat_data['layer_text']) ? htmlspecialchars($seat_data['layer_text']) : '肩書';
+                                                
+                                                // 同伴者かどうかでデータの取得元を変える
+                                                $seat_name = '';
+                                                if (!empty($seat_data)) {
+                                                    if ($seat_data['is_companion'] == 1 && isset($companion_data[$seat_data['companion_id']])) {
+                                                        $seat_name = htmlspecialchars($companion_data[$seat_data['companion_id']]['name']);
+                                                    } elseif (isset($response_data[$seat_data['response_id']])) {
+                                                        $seat_name = htmlspecialchars($response_data[$seat_data['response_id']]['name']);
+                                                    }
+                                                }
+                                                
+                                                if (empty($seat_name)) {
+                                                    $seat_name = 'お名前';
+                                                }
+                                                
+                                                $is_occupied = !empty($seat_data);
+                                                $is_empty_class = !$is_occupied ? 'empty' : '';
                                         ?>
-                                        <div class="seat <?php echo $table['seats'][$i] ? 'occupied' : ''; ?>" 
+                                        <div class="seat <?php echo $is_occupied ? 'occupied' : ''; ?>" 
                                              data-seat-number="<?php echo $i; ?>"
                                              data-table-id="<?php echo $table_id; ?>"
-                                             data-assignment-id="<?php echo $table['seats'][$i]['id'] ?? ''; ?>">
+                                             data-assignment-id="<?php echo $seat_data['id'] ?? ''; ?>">
                                             <div class="seat-layer">
-                                                <?php echo $table['seats'][$i] ? htmlspecialchars($table['seats'][$i]['title'] ?? '肩書') : '肩書'; ?>
+                                                <?php echo $seat_title; ?>
                                             </div>
-                                            <div class="seat-guest <?php echo !$table['seats'][$i] ? 'empty' : ''; ?>">
-                                                <?php echo $table['seats'][$i] ? htmlspecialchars($table['seats'][$i]['name']) : 'お名前'; ?>
+                                            <div class="seat-guest <?php echo $is_empty_class; ?>">
+                                                <?php echo $seat_name; ?>
                                             </div>
                                         </div>
                                         <?php endfor; } ?>
@@ -443,16 +465,39 @@ include 'inc/header.php';
                                 <div class="guest-table" data-table-id="<?php echo $table_id; ?>">
                                     <div class="table-name"><?php echo htmlspecialchars($table['table_name']); ?></div>
                                     <div class="table-seats">
-                                        <?php for ($i = 1; $i <= $table['capacity']; $i++): ?>
-                                        <div class="seat <?php echo $table['seats'][$i] ? 'occupied' : ''; ?>" 
+                                        <?php for ($i = 1; $i <= $table['capacity']; $i++): 
+                                            // 座席データを取得
+                                            $seat_data = getSeatData($table_id, $i, $assignments);
+                                            
+                                            // 肩書と名前を取得
+                                            $seat_title = isset($seat_data['layer_text']) ? htmlspecialchars($seat_data['layer_text']) : '肩書';
+                                            
+                                            // 同伴者かどうかでデータの取得元を変える
+                                            $seat_name = '';
+                                            if (!empty($seat_data)) {
+                                                if ($seat_data['is_companion'] == 1 && isset($companion_data[$seat_data['companion_id']])) {
+                                                    $seat_name = htmlspecialchars($companion_data[$seat_data['companion_id']]['name']);
+                                                } elseif (isset($response_data[$seat_data['response_id']])) {
+                                                    $seat_name = htmlspecialchars($response_data[$seat_data['response_id']]['name']);
+                                                }
+                                            }
+                                            
+                                            if (empty($seat_name)) {
+                                                $seat_name = 'お名前';
+                                            }
+                                            
+                                            $is_occupied = !empty($seat_data);
+                                            $is_empty_class = !$is_occupied ? 'empty' : '';
+                                        ?>
+                                        <div class="seat <?php echo $is_occupied ? 'occupied' : ''; ?>" 
                                              data-seat-number="<?php echo $i; ?>"
                                              data-table-id="<?php echo $table_id; ?>"
-                                             data-assignment-id="<?php echo $table['seats'][$i]['id'] ?? ''; ?>">
+                                             data-assignment-id="<?php echo $seat_data['id'] ?? ''; ?>">
                                             <div class="seat-layer">
-                                                <?php echo $table['seats'][$i] ? htmlspecialchars($table['seats'][$i]['title'] ?? '肩書') : '肩書'; ?>
+                                                <?php echo $seat_title; ?>
                                             </div>
-                                            <div class="seat-guest <?php echo !$table['seats'][$i] ? 'empty' : ''; ?>">
-                                                <?php echo $table['seats'][$i] ? htmlspecialchars($table['seats'][$i]['name']) : 'お名前'; ?>
+                                            <div class="seat-guest <?php echo $is_empty_class; ?>">
+                                                <?php echo $seat_name; ?>
                                             </div>
                                         </div>
                                         <?php endfor; ?>
@@ -564,8 +609,8 @@ include 'inc/header.php';
                     <input type="hidden" name="is_companion" id="modal_is_companion" value="0">
                     
                     <div class="form-group">
-                        <label for="guest_id">ゲストを選択:</label>
-                        <select class="form-control" name="guest_select" id="guest_select" required>
+                        <label for="guest_select">ゲストを選択:</label>
+                        <select class="form-control select2-dropdown" name="guest_select" id="guest_select" required>
                             <option value="">-- ゲストを選択 --</option>
                             <?php foreach ($unassigned_people as $person): ?>
                                 <option value="<?php echo $person['person_id']; ?>" 
@@ -588,6 +633,12 @@ include 'inc/header.php';
                     
                     <div class="seat-info mt-3 text-center">
                         <p>テーブル <span id="modal_table_name"></span> - 座席番号 <span id="modal_seat_number_display"></span></p>
+                    </div>
+                    
+                    <div class="selected-guest-info mt-3 d-none">
+                        <div class="alert alert-info">
+                            <strong>選択中のゲスト: </strong><span id="selected_guest_name"></span>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -636,6 +687,31 @@ include 'inc/header.php';
 <!-- 外部JavaScriptファイルを読み込み -->
 <script src="js/seating.js"></script>
 
+<!-- Select2ライブラリの読み込み -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-theme@0.1.0-beta.10/dist/select2-bootstrap.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<!-- 追加のスタイル -->
+<style>
+.select2-container--bootstrap .select2-results__option--highlighted[aria-selected] {
+    background-color: #007bff;
+    color: white;
+}
+
+.select2-container--bootstrap .select2-selection--single {
+    height: 38px;
+    padding: 8px 12px;
+    font-size: 1rem;
+}
+
+.selected-guest-info {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 5px;
+}
+</style>
+
 <script>
 // コンソールデバッグ用関数
 function debugLog(message, data) {
@@ -654,6 +730,15 @@ $(document).ready(function() {
             assignmentId: $(this).data('assignment-id')
         });
     });
+    
+    // Select2の初期化
+    if ($.fn.select2) {
+        $('.select2-dropdown').select2({
+            dropdownParent: $('#assignSeatModal'),
+            width: '100%',
+            theme: 'bootstrap'
+        });
+    }
     
     // 座席をクリックした時の処理
     $('.seat').on('click', function(e) {
@@ -731,6 +816,7 @@ $(document).ready(function() {
         const selectedOption = $(this).find('option:selected');
         const isCompanion = selectedOption.data('is-companion');
         const personId = selectedOption.val();
+        const guestName = selectedOption.text();
         
         $('#modal_is_companion').val(isCompanion);
         
@@ -742,6 +828,14 @@ $(document).ready(function() {
             $('#modal_response_id').val(personId);
             $('#modal_companion_id').val('');
             debugLog('回答者を選択', { responseId: personId });
+        }
+        
+        // 選択したゲスト情報を表示
+        if (personId) {
+            $('#selected_guest_name').text(guestName);
+            $('.selected-guest-info').removeClass('d-none');
+        } else {
+            $('.selected-guest-info').addClass('d-none');
         }
     });
     
@@ -789,6 +883,10 @@ function showAssignSeatModal(seatElement) {
     $('#modal_seat_number').val(seatNumber);
     $('#modal_table_name').text(tableName);
     $('#modal_seat_number_display').text(seatNumber);
+    
+    // ゲスト選択をリセット
+    $('#guest_select').val('').trigger('change');
+    $('.selected-guest-info').addClass('d-none');
     
     $('#assignSeatModal').modal('show');
 }
