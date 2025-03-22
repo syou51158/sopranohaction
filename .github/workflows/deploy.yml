@@ -1,11 +1,9 @@
 name: Deploy to Production
 
-# mainブランチへのPushでワークフローを実行
+# mainブランチへのPushでワークフローを実行します
 on:
   push:
     branches: [ main ]
-  # 手動で実行することも可能にします
-  workflow_dispatch:
 
 jobs:
   deploy:
@@ -28,45 +26,12 @@ jobs:
       - name: Add SSH Known Hosts
         run: |
           mkdir -p ~/.ssh
-          # ポート指定でホストキーを取得し、known_hostsに追加
+          # 複数の鍵タイプ（ed25519, ecdsa, rsa）を優先して取得し、指定のポートで接続
           ssh-keyscan -t ed25519,ecdsa,rsa -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
-        # SSH接続時の中間者攻撃を防ぎます
+        # これにより、SSH接続時の中間者攻撃を防ぎます
 
-      # ステップ4: サーバー環境の検証 (php8.3を含めてチェック)
-      - name: Verify server environment
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-        run: |
-          echo "🔍 サーバー環境を検証しています..."
-          
-          # PHPがインストールされているか確認 (php8.3を含めて探す)
-          PHP_CHECK=$(ssh -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST \
-            "command -v php8.3 || command -v /usr/local/bin/php8.3 || command -v php || command -v /usr/bin/php || command -v /usr/local/bin/php || echo 'NOT_FOUND'")
-
-          if [ "$PHP_CHECK" = "NOT_FOUND" ]; then
-            echo "❌ エラー: サーバーにPHPがインストールされていないか、PATHに含まれていません。"
-            echo "💡 ロリポップなどの共有サーバーでは、php8.3コマンドを使う必要がある場合があります。"
-            exit 1
-          else
-            echo "✅ PHPが見つかりました: $PHP_CHECK"
-            ssh -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "$PHP_CHECK -v"
-          fi
-          
-          # ファイルをデプロイするディレクトリが存在するか確認
-          DEPLOY_PATH_CHECK=$(ssh -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "if [ -d '${{ secrets.DEPLOY_PATH }}' ]; then echo 'EXISTS'; else echo 'NOT_FOUND'; fi")
-          
-          if [ "$DEPLOY_PATH_CHECK" = "NOT_FOUND" ]; then
-            echo "❌ エラー: デプロイパス '${{ secrets.DEPLOY_PATH }}' が存在しません。"
-            echo "💡 デプロイパスを作成するか、正しいパスを指定してください。"
-            exit 1
-          else
-            echo "✅ デプロイパスが確認できました: ${{ secrets.DEPLOY_PATH }}"
-          fi
-
-      # ステップ5: ファイルをサーバーにデプロイ (rsync使用)
+      # ステップ4: ファイルをサーバーにデプロイ
       - name: Deploy to server
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
@@ -74,67 +39,36 @@ jobs:
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          echo "🚀 ファイルをサーバーに転送しています..."
+          # rsyncでリポジトリのファイルをサーバーへ転送
+          # 以下のディレクトリ/ファイルは転送対象外とする：
+          # - .git、.github: GitのメタデータおよびCI設定
+          # - .env: 環境変数（機密情報）
+          # - vendor、node_modules: 依存関係（サーバー側で再インストール）
           rsync -avz --delete \
             --exclude='.git/' \
             --exclude='.github/' \
             --exclude='.env' \
             --exclude='vendor/' \
             --exclude='node_modules/' \
-            -e "ssh -p $SERVER_PORT -o StrictHostKeyChecking=no" \
+            -e "ssh -p $SERVER_PORT -o StrictHostKeyChecking=accept-new" \
             ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
-          
-          echo "✅ ファイル転送が完了しました"
 
-      # ステップ6: デプロイ後の設定 (php8.3含めて探す)
-      - name: Post-deployment setup
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-        run: |
-          echo "🔧 デプロイ後の設定を実行しています..."
-          
-          # PHPパスを取得 (php8.3も含めてチェック)
-          PHP_PATH=$(ssh -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST \
-            "command -v php8.3 || command -v /usr/local/bin/php8.3 || command -v php || command -v /usr/bin/php || command -v /usr/local/bin/php")
-
-          ssh -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
-            echo '📂 現在のディレクトリ:' && pwd && \
-            \
-            echo '🐘 PHPバージョン:' && \
-            $PHP_PATH -v && \
-            \
-            if [ -f 'composer.json' ]; then \
-              if command -v composer >/dev/null 2>&1; then \
-                echo '🎼 Composerパッケージをインストールしています...' && \
-                composer install --no-dev --optimize-autoloader; \
-              else \
-                echo '⚠️ Composerが見つかりません。composer.jsonがありますが、依存関係はインストールされません。'; \
-                echo '💡 サーバーにComposerをインストールするか、ローカルでvendorディレクトリを生成してアップロードしてください。'; \
-              fi \
+          # サーバー側で追加処理を実行：必要に応じてcomposerのインストールとパーミッション設定
+          ssh -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
+            if command -v composer >/dev/null 2>&1; then \
+              composer install --no-dev --optimize-autoloader; \
             else \
-              echo '📝 composer.jsonが見つかりません。Composerの処理をスキップします。'; \
+              echo 'Composer not found. Skipping composer install.'; \
             fi && \
-            \
-            echo '🔒 ファイルのパーミッションを設定しています...' && \
             find . -type d -exec chmod 755 {} \; && \
-            find . -type f -exec chmod 644 {} \; && \
-            \
-            echo '✅ デプロイ後の設定が完了しました！'"
+            find . -type f -exec chmod 644 {} \;"
 
-      # ステップ7: デプロイ結果の通知
+      # ステップ5: デプロイ結果の通知（成功・失敗に関わらず実行）
       - name: Notify deployment status
         if: always()
         run: |
           if [ "${{ job.status }}" = "success" ]; then
             echo "✅ デプロイが成功しました！サイトは正常に更新されています。"
-            echo "   サイトURL: http://${{ secrets.SERVER_HOST }}"
           else
-            echo "❌ デプロイに失敗しました。"
-            echo "   原因を確認してください："
-            echo "   1. サーバーにPHPがインストールされているか (php8.3 など)"
-            echo "   2. SSHキーが正しく設定されているか"
-            echo "   3. デプロイパスが存在するか"
-            echo "   4. ユーザーに書き込み権限があるか"
+            echo "❌ デプロイに失敗しました。ログを確認してください。"
+          fi
