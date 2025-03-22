@@ -39,6 +39,7 @@ jobs:
           echo "SERVER_USER=deci.jp-trendcompany" >> $GITHUB_OUTPUT
           echo "SERVER_PORT=2222" >> $GITHUB_OUTPUT
           echo "DEPLOY_PATH=~/web/sopranohaction" >> $GITHUB_OUTPUT
+          echo "SITE_URL=https://deci.jp/sopranohaction" >> $GITHUB_OUTPUT
         # 環境変数を明示的に設定し、後続のステップで参照可能に
 
       # ステップ5: ファイルをサーバーにデプロイ（rsyncコマンドを最適化）
@@ -78,7 +79,7 @@ jobs:
         run: |
           if [ "${{ job.status }}" = "success" ]; then
             echo "✅ デプロイが成功しました！サイトは正常に更新されています。"
-            echo "デプロイ先URL: https://deci.jp/sopranohaction/"
+            echo "デプロイ先URL: ${{ steps.vars.outputs.SITE_URL }}"
           else
             echo "❌ デプロイに失敗しました。ログを確認して問題を解決してください。"
           fi
