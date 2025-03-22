@@ -57,7 +57,7 @@ jobs:
         run: |
           # rsyncを使用してファイルを安全に転送
           rsync -avz --delete --exclude='.git/' --exclude='.github/' --exclude='.env' \
-            --exclude='node_modules/' \
+            --exclude='node_modules/' --exclude='uploads/' \
             -e "ssh -F $HOME/.ssh/config" \
             ./ lolipop:$DEPLOY_PATH
           
@@ -65,6 +65,12 @@ jobs:
           ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
             find . -type d -exec chmod 755 {} \; && \
             find . -type f -exec chmod 644 {} \;"
+            
+          # アップロードディレクトリの確認と設定
+          ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
+            mkdir -p uploads/photos && \
+            chmod -R 755 uploads && \
+            find uploads -type f -exec chmod 644 {} \;"
 
       # ステップ6: デプロイ結果の通知
       - name: Notify deployment status
