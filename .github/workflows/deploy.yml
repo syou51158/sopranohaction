@@ -38,7 +38,7 @@ jobs:
             User deci.jp-trendcompany
             Port 2222
             IdentityFile $HOME/.ssh/id_rsa
-            StrictHostKeyChecking accept-new
+            StrictHostKeyChecking no
           EOF
           
           chmod 600 $HOME/.ssh/config
