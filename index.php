@@ -883,13 +883,18 @@ $datetime_info = get_wedding_datetime();
                         
                         if (!empty($faqs)) {
                             foreach ($faqs as $faq) {
+                                // グループIDがある場合、FAQのリンクにグループIDを含める
+                                if ($group_id) {
+                                    $faq['answer'] = str_replace('href="travel.php"', 'href="travel.php?group=' . urlencode($group_id) . '"', $faq['answer']);
+                                }
+                                
                                 echo '<div class="faq-item">';
                                 echo '<div class="faq-question">';
                                 echo '<h3><i class="fas fa-question-circle"></i> ' . htmlspecialchars($faq['question']) . '</h3>';
                                 echo '<span class="faq-toggle"><i class="fas fa-chevron-down"></i></span>';
                                 echo '</div>';
                                 echo '<div class="faq-answer">';
-                                echo '<p>' . nl2br(htmlspecialchars($faq['answer'])) . '</p>';
+                                echo '<p>' . nl2br($faq['answer']) . '</p>';
                                 echo '</div>';
                                 echo '</div>';
                             }

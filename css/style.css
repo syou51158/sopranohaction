@@ -2788,18 +2788,11 @@ footer p {
 
 /* FAQセクションのスタイル */
 .faq-section {
+    padding: 3rem 1rem;
     background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 12px;
-    padding: 30px;
-    margin: 40px auto;
-    max-width: 900px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding-left: 10px;
-    padding-right: 10px;
-    overflow: visible; /* overflow-xをvisibleに変更 */
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 3rem;
 }
 
 .faq-intro {
@@ -2876,16 +2869,27 @@ footer p {
 }
 
 .faq-answer p {
-    margin: 0;
-    color: #666;
+    margin-bottom: 10px;
     line-height: 1.6;
 }
 
+.faq-link {
+    color: var(--accent-dark);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--accent-light);
+    transition: all 0.3s ease;
+    padding-bottom: 1px;
+}
+
+.faq-link:hover {
+    color: var(--accent-light);
+    border-bottom: 1px solid var(--accent-light);
+}
+
 .no-faqs {
+    padding: 2rem;
     text-align: center;
     color: #888;
-    font-style: italic;
-    padding: 20px;
 }
 
 /* レスポンシブデザインの調整 */
