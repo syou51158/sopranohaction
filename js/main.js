@@ -638,7 +638,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // IntersectionObserverがサポートされていない場合のフォールバック
         let lazyLoadThrottleTimeout;
         
-        function lazyLoad() {
+        // 遅延読み込み関数をここで定義して実行
+        const lazyLoadFallback = function() {
             if (lazyLoadThrottleTimeout) {
                 clearTimeout(lazyLoadThrottleTimeout);
             }
@@ -657,19 +658,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 if (lazyImages.length === 0) {
-                    document.removeEventListener('scroll', lazyLoad);
-                    window.removeEventListener('resize', lazyLoad);
-                    window.removeEventListener('orientationChange', lazyLoad);
+                    document.removeEventListener('scroll', lazyLoadFallback);
+                    window.removeEventListener('resize', lazyLoadFallback);
+                    window.removeEventListener('orientationChange', lazyLoadFallback);
                 }
             }, 20);
-        }
+        };
         
-        document.addEventListener('scroll', lazyLoad);
-        window.addEventListener('resize', lazyLoad);
-        window.addEventListener('orientationChange', lazyLoad);
+        document.addEventListener('scroll', lazyLoadFallback);
+        window.addEventListener('resize', lazyLoadFallback);
+        window.addEventListener('orientationChange', lazyLoadFallback);
         
         // 初回実行
-        lazyLoad();
+        lazyLoadFallback();
     }
     
     // モバイル端末向けのビデオ最適化
@@ -762,9 +763,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // 必要な関数を呼び出し
-    lazyLoad();
+    // lazyLoad(); - このスコープからは見えないため削除
     updateCountdown();
-    initFormHandlers();
     
     // スクロール時のアニメーション
     window.addEventListener('scroll', function() {

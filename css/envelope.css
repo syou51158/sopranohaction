@@ -194,10 +194,10 @@
 /* 封筒内部のパターン */
 .envelope-inner {
     position: absolute;
-    top: 20px;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
+    top: 7px;
+    left: 7px;
+    right: 7px;
+    bottom: 7px;
     z-index: 2;
     overflow: hidden;
     background: var(--envelope-light-gold);
@@ -534,50 +534,61 @@
 
 .choice-header h2 {
     font-family: 'Noto Serif JP', serif;
-    font-size: 16px; /* フォントサイズを小さく */
-    color: var(--envelope-dark);
-    margin-bottom: 30px; /* マージンを増加して下に移動 */
-    position: relative;
-    z-index: 201; /* フラップの上に表示されるようにz-indexを設定 */
-    line-height: 1.2; /* 行間を調整 */
-}
-
-.choice-header p {
-    font-size: 12px; /* フォントサイズを小さく */
-    color: var(--envelope-accent);
+    font-size: 18px; /* フォントサイズを少し大きく */
+    color: #8a6d3b; /* 上品なゴールドカラーに変更 */
+    margin-bottom: 20px; /* マージンを調整 */
     position: relative;
     z-index: 201; /* フラップの上に表示されるようにz-indexを設定 */
     line-height: 1.4; /* 行間を調整 */
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}
+
+.choice-header p {
+    font-size: 14px; /* フォントサイズを調整 */
+    color: #5d4037; /* 深みのある茶色に変更 */
+    position: relative;
+    z-index: 201; /* フラップの上に表示されるようにz-indexを設定 */
+    line-height: 1.5; /* 行間を調整 */
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    letter-spacing: 0.3px;
 }
 
 /* スマートフォン表示用スタイル */
 @media (max-width: 480px) {
     .choice-header {
-        margin-bottom: 20px !important; /* マージンをさらに減少 */
+        margin-bottom: 30px !important; /* マージンを調整 */
     }
 
     .choice-header h2 {
-        font-size: 10px !important; /* フォントサイズをさらに小さく */
-        margin-bottom: 10px !important; /* マージンを減少 */
-        line-height: 1.05 !important; /* 行間をさらに調整 */
+        font-size: 16px !important; /* フォントサイズを調整 */
+        margin-bottom: 12px !important; /* マージンを調整 */
+        line-height: 1.3 !important; /* 行間を調整 */
     }
 
     .choice-header p {
-        font-size: 8px !important; /* フォントサイズをさらに小さく */
-        line-height: 1.1 !important; /* 行間を調整 */
+        font-size: 12px !important; /* フォントサイズを調整 */
+        line-height: 1.3 !important; /* 行間を調整 */
     }
 }
 
 /* より大きなスマホサイズ用 */
 @media (max-width: 767px) {
     .choice-header h2 {
-        color: red !important; /* 色を変えて確認するため */
-        font-size: 14px !important;
+        color: #8a6d3b !important; /* 上品なゴールドカラー */
+        font-size: 16px !important;
+        font-weight: 400 !important;
+        letter-spacing: 0.5px !important;
+        text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5) !important;
     }
     
     .choice-header p {
-        color: blue !important; /* 色を変えて確認するため */
-        font-size: 12px !important;
+        color: #5d4037 !important; /* 深みのある茶色 */
+        font-size: 13px !important;
+        font-weight: 300 !important;
+        letter-spacing: 0.3px !important;
+        text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3) !important;
     }
 }
 

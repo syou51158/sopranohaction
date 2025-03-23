@@ -2911,7 +2911,7 @@ footer p {
         width: 30px;
         height: 30px;
         line-height: 30px;
-        font-size: 0.8rem;
+        font-size: 0.7rem;
     }
     
     .faq-question h3 {
@@ -3044,12 +3044,12 @@ footer p {
     position: relative;
     max-width: 800px;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 50px 25px; /* 余白を調整 */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: var(--cream);
+    background-color: #fdfbf6; /* 背景色を少し明るく、上品な色合いに */
     z-index: 100;
     flex: 1;
 }
@@ -3062,10 +3062,64 @@ footer p {
     width: 100%;
     height: 100%;
     background-image: url('../images/leaves-bg.png');
-    background-size: 300px;
+    background-size: 250px; /* 背景模様を少し小さく */
     background-repeat: repeat;
-    opacity: 0.05;
+    opacity: 0.04; /* 背景模様をさらに薄く */
     z-index: -1;
+}
+
+/* 選択画面用の装飾エフェクト */
+.choice-decoration-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+/* カード内のコンテンツスタイル調整 */
+.choice-card-content h3 {
+    font-family: 'Noto Serif JP', sans-serif;
+    margin: 0 0 8px 0;
+    font-size: 1.3rem; /* 1.4remから1.3remに調整 */
+    color: #5d4037; /* 色を統一 */
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.choice-card-content p {
+    margin: 0;
+    color: #7d6e63; /* グレーからより暖かい色調に */
+    font-size: 0.95rem; /* フォントサイズを微調整 */
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+}
+
+/* スマホ用のさらなる調整 */
+@media (max-width: 480px) {
+    .choice-screen {
+        padding: 40px 20px;
+    }
+    
+    .choice-header h2 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+    
+    .choice-header p {
+        font-size: 0.9rem;
+    }
+    
+    .choice-card-content h3 {
+        font-size: 1.1rem;
+    }
+    
+    .choice-card-content p {
+        font-size: 0.85rem;
+    }
 }
 
 .invitation-content {
@@ -3103,26 +3157,24 @@ footer p {
     margin-bottom: 30px;
 }
 
-.choice-header h2 {
-    font-family: 'M PLUS Rounded 1c', cursive;
-    color: #d35400;
-    margin-bottom: 10px;
-    font-size: 2.5rem;
+
+.choice-invitation-card .choice-card-icon i {
+    color: #5d4037; /* 青(#3498db)から深みのある茶色に変更 */
 }
 
-.choice-header p {
-    color: #666;
-    font-size: 1.2rem;
+.choice-fusen-card .choice-card-icon i {
+    color: #8a6d3b; /* オレンジから上品なゴールドに変更 */
 }
 
 .choice-card {
     display: flex;
     align-items: center;
-    background: #fff;
+    background: #fcfaf5; /* 白(#fff)からわずかに暖かい色合いに */
     padding: 20px;
     margin-bottom: 20px;
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px; /* 10pxから8pxに微調整 */
+    box-shadow: 0 3px 10px rgba(139, 110, 75, 0.1); /* 影の色を調整 */
+    border: 1px solid rgba(138, 109, 59, 0.1); /* 上品な境界線を追加 */
     cursor: pointer;
     width: 100%;
     max-width: 500px;
@@ -3139,32 +3191,35 @@ footer p {
 
 .choice-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 20px rgba(139, 110, 75, 0.15); /* 影を少し強く、大きく */
+    border-color: rgba(138, 109, 59, 0.2); /* ホバー時の境界線を少し濃く */
 }
 
 .choice-card-icon {
-    background-color: #f5f5f5;
-    width: 70px;
-    height: 70px;
+    background-color: #f8f4e6; /* #f5f5f5からより暖かい色合いに */
+    width: 65px; /* 70pxから65pxに微調整 */
+    height: 65px; /* 70pxから65pxに微調整 */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 20px;
     flex-shrink: 0;
+    border: 1px solid rgba(138, 109, 59, 0.1); /* 洗練された境界線を追加 */
 }
 
-.choice-card-icon i {
-    font-size: 30px;
-    color: #e67e22;
-}
-
-.choice-invitation-card .choice-card-icon i {
-    color: #3498db;
-}
-
-.choice-fusen-card .choice-card-icon i {
-    color: #e67e22;
+@media (max-width: 600px) {
+    .choice-card {
+        padding: 15px;
+        border-radius: 6px; /* スマホサイズでは少し小さく */
+        margin-bottom: 15px; /* 間隔も少し縮小 */
+    }
+    
+    .choice-card-icon {
+        width: 45px; /* 50pxから45pxに微調整 */
+        height: 45px; /* 50pxから45pxに微調整 */
+        margin-right: 15px;
+    }
 }
 
 .choice-card-content {
@@ -3208,7 +3263,12 @@ footer p {
 /* レスポンシブ対応 */
 @media (max-width: 600px) {
     .choice-header h2 {
-        font-size: 2rem;
+        font-size: 1.7rem; /* 2remから1.7remに調整 */
+        letter-spacing: 0.5px;
+    }
+    
+    .choice-header p {
+        font-size: 1rem;
     }
     
     .choice-card {
@@ -3227,6 +3287,12 @@ footer p {
     
     .choice-card-content h3 {
         font-size: 1.2rem;
+        font-family: 'Noto Serif JP', sans-serif;
+        color: #5d4037; /* 色を統一 */
+    }
+    
+    .choice-card-content p {
+        color: #7d6e63; /* 色を調整 */
     }
 }
 
@@ -3585,21 +3651,14 @@ footer p {
         padding: 30px 0;
     }
     
-    /* FAQセクションの調整 */
-    .faq-answer {
-        padding: 10px;
-    }
+   
     
     /* フッターの調整 */
     footer {
         padding: 20px 10px;
     }
     
-    /* スケジュールセクションの調整 */
-    .schedule-time {
-        font-size: 1rem;
-        padding: 5px 10px;
-    }
+  
     
     .schedule-content h3 {
         font-size: 1rem;
