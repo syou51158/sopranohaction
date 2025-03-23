@@ -31,10 +31,14 @@ vendor/
 .DS_Store
 Thumbs.db 
 
-# ロリポップサーバー用
-.htaccess必要な時
-admin/.htaccess必要な時
-.env.production
+# サーバー環境固有のファイル
+# .htaccessファイルは環境固有の設定を含むため追跡しない
+.htaccess
+admin/.htaccess
+# .htpasswdファイルはパスワード情報を含むため追跡しない
+.htpasswd
+# テンプレートファイルは追跡する（コメントアウト）
+# admin/.htaccess.template
 
 
 
