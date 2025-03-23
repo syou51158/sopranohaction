@@ -107,11 +107,13 @@ jobs:
             if [ -f admin/.htaccess.template ]; then \
               # envsubstがない場合に備えてsedでも置換
               if command -v envsubst >/dev/null 2>&1; then \
-                export ADMIN_ACCESS_CONTROL=\"restricted\"; \
+                export ADMIN_ACCESS_CONTROL=\"open\"; \
                 envsubst < admin/.htaccess.template > admin/.htaccess; \
               else \
-                # 単純に条件を有効にする（固定で制限モード）
-                sed '/RewriteCond %{ENV:ADMIN_ACCESS_CONTROL} =restricted/d' admin/.htaccess.template > admin/.htaccess; \
+                # 単純に条件を有効にする（基本認証のみモード）
+                sed -e '/RewriteCond %{ENV:ADMIN_ACCESS_CONTROL} =restricted/d' \
+                    -e '/RewriteCond %{ENV:ADMIN_ACCESS_CONTROL} !=open/d' \
+                    admin/.htaccess.template > admin/.htaccess; \
               fi; \
               chmod 644 admin/.htaccess; \
             fi"
