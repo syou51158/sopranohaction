@@ -47,7 +47,7 @@ jobs:
       - name: Set deployment variables
         id: vars
         run: |
-          echo "DEPLOY_PATH=~/web/sopranohaction" >> $GITHUB_OUTPUT
+          echo "DEPLOY_PATH=/home/users/1/deci.jp-trendcompany/web/sopranohaction" >> $GITHUB_OUTPUT
           echo "SITE_URL=http://trendcompany.deci.jp/sopranohaction/" >> $GITHUB_OUTPUT
 
       # ステップ5: ファイルをサーバーにデプロイ
