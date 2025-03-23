@@ -82,6 +82,20 @@ jobs:
               cp .htaccess.bak .htaccess; \
             fi"
             
+          # ルートディレクトリ用.htaccessの処理（テンプレートから生成）
+          ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
+            if [ -f .htaccess.template ]; then \
+              # envsubstがない場合に備えてsedでも置換
+              if command -v envsubst >/dev/null 2>&1; then \
+                export SITE_ENVIRONMENT=\"production\"; \
+                envsubst < .htaccess.template > .htaccess; \
+              else \
+                # 環境変数の置換（SITE_ENVIRONMENT=productionに設定）
+                sed 's/%{ENV:SITE_ENVIRONMENT} =production//g' .htaccess.template > .htaccess; \
+              fi; \
+              chmod 644 .htaccess; \
+            fi"
+            
           # 管理画面用.htaccessの処理（テンプレートから生成）
           ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
             # .htpasswdファイルがなければ作成（パスワード: wedding2025）
