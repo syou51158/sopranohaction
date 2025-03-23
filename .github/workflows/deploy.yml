@@ -98,11 +98,6 @@ jobs:
             
           # 管理画面用.htaccessの処理（テンプレートから生成）
           ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
-            # .htpasswdファイルがなければ作成（パスワード: wedding2025）
-            if [ ! -f .htpasswd ]; then \
-              echo 'admin:$apr1$knrmpF2r$2TZHowbwRakcVTy2Lrccn.' > .htpasswd; \
-              chmod 644 .htpasswd; \
-            fi && \
             # 環境変数を設定して管理者.htaccessを生成
             if [ -f admin/.htaccess.template ]; then \
               # envsubstがない場合に備えてsedでも置換
@@ -110,9 +105,8 @@ jobs:
                 export ADMIN_ACCESS_CONTROL=\"open\"; \
                 envsubst < admin/.htaccess.template > admin/.htaccess; \
               else \
-                # 単純に条件を有効にする（基本認証のみモード）
-                sed -e '/RewriteCond %{ENV:ADMIN_ACCESS_CONTROL} =restricted/d' \
-                    -e '/RewriteCond %{ENV:ADMIN_ACCESS_CONTROL} !=open/d' \
+                # 単純に条件を有効にする（IP制限なしモード）
+                sed '/RewriteCond %{ENV:ADMIN_ACCESS_CONTROL} =restricted/d' \
                     admin/.htaccess.template > admin/.htaccess; \
               fi; \
               chmod 644 admin/.htaccess; \
