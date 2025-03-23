@@ -46,6 +46,23 @@ ErrorDocument 404 /error.php
     RewriteCond %{ENV:SITE_ENVIRONMENT} =production
     RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
     RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+    
+    # 管理ディレクトリへのアクセス制限（IPベース）
+    # 環境変数が "production" の場合のみIPアドレス制限を適用
+    RewriteCond %{ENV:SITE_ENVIRONMENT} =production
+    RewriteCond %{REQUEST_URI} ^/admin/ [NC]
+    RewriteCond %{REMOTE_ADDR} !^219\.94\.166\.54$
+    RewriteCond %{REMOTE_ADDR} !^150\.95\.250\.235$
+    RewriteCond %{REMOTE_ADDR} !^54\.64\.161\.18$
+    RewriteCond %{REMOTE_ADDR} !^54\.92\.36\.247$
+    RewriteCond %{REMOTE_ADDR} !^122\.219\.43\.14$
+    RewriteCond %{REMOTE_ADDR} !^122\.219\.43\.6$
+    RewriteCond %{REMOTE_ADDR} !^122\.219\.40\.14$
+    RewriteCond %{REMOTE_ADDR} !^210\.131\.150\.101$
+    RewriteCond %{REMOTE_ADDR} !^210\.131\.150\.102$
+    RewriteCond %{REMOTE_ADDR} !^60\.99\.187\.66$
+    RewriteCond %{REMOTE_ADDR} !^60\.139\.162\.159$
+    RewriteRule ^admin/.*$ - [F,L]
 </IfModule>
 
 # 画像へのアクセス許可を明示的に設定
