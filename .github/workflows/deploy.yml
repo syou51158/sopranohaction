@@ -100,7 +100,7 @@ jobs:
           ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
             # .htpasswdファイルがなければ作成（パスワード: wedding2025）
             if [ ! -f .htpasswd ]; then \
-              echo 'admin:$apr1$jExA0LYA$9JgNNhvlCjGKwYPGHY1HX1' > .htpasswd; \
+              echo 'admin:$apr1$knrmpF2r$2TZHowbwRakcVTy2Lrccn.' > .htpasswd; \
               chmod 644 .htpasswd; \
             fi && \
             # 環境変数を設定して管理者.htaccessを生成
