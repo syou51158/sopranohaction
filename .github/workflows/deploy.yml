@@ -80,12 +80,26 @@ jobs:
             fi && \
             if [ -f .htaccess.bak ] && [ ! -f .htaccess ]; then \
               cp .htaccess.bak .htaccess; \
+            fi"
+            
+          # 管理画面用.htaccessの処理（テンプレートから生成）
+          ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
+            # .htpasswdファイルがなければ作成（パスワード: wedding2025）
+            if [ ! -f .htpasswd ]; then \
+              echo 'admin:$apr1$jExA0LYA$9JgNNhvlCjGKwYPGHY1HX1' > .htpasswd; \
+              chmod 644 .htpasswd; \
             fi && \
-            if [ ! -f admin/.htaccess.bak ] && [ -f admin/.htaccess ]; then \
-              cp admin/.htaccess admin/.htaccess.bak; \
-            fi && \
-            if [ -f admin/.htaccess.bak ] && [ ! -f admin/.htaccess ]; then \
-              cp admin/.htaccess.bak admin/.htaccess; \
+            # 環境変数を設定して管理者.htaccessを生成
+            if [ -f admin/.htaccess.template ]; then \
+              # envsubstがない場合に備えてsedでも置換
+              if command -v envsubst >/dev/null 2>&1; then \
+                export ADMIN_ACCESS_CONTROL=\"restricted\"; \
+                envsubst < admin/.htaccess.template > admin/.htaccess; \
+              else \
+                # 単純に条件を有効にする（固定で制限モード）
+                sed '/RewriteCond %{ENV:ADMIN_ACCESS_CONTROL} =restricted/d' admin/.htaccess.template > admin/.htaccess; \
+              fi; \
+              chmod 644 admin/.htaccess; \
             fi"
 
       # ステップ6: デプロイ結果の通知

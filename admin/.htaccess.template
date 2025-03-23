@@ -1,0 +1,48 @@
+# 管理画面用アクセス制限（テンプレート）
+# 環境変数 ADMIN_ACCESS_CONTROL に基づいて動作を変更します
+# "restricted" - IPアドレス制限とBasic認証を両方適用
+# その他の値 - Basic認証のみ適用
+
+# Basic認証の設定（常に有効）
+AuthType Basic
+AuthName "Wedding Admin"
+AuthUserFile /home/users/1/deci.jp-trendcompany/web/sopranohaction/.htpasswd
+Require valid-user
+
+# IPアドレス制限（環境変数が "restricted" の場合のみ有効）
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  
+  # 環境変数が "restricted" の場合にのみIPアドレス制限を適用
+  RewriteCond %{ENV:ADMIN_ACCESS_CONTROL} =restricted
+  RewriteCond %{REMOTE_ADDR} !^219\.94\.166\.54$
+  RewriteCond %{REMOTE_ADDR} !^114\.132\.246\.105$
+  RewriteCond %{REMOTE_ADDR} !^126\.78\.236\.115$
+  RewriteCond %{REMOTE_ADDR} !^106\.154\.145\.52$
+  RewriteCond %{REMOTE_ADDR} !^182\.251\.249\.74$
+  RewriteCond %{REMOTE_ADDR} !^127\.0\.0\.1$
+  RewriteRule .* - [F,L]
+</IfModule>
+
+# PHPの設定
+<IfModule mod_php8.c>
+  php_value memory_limit 512M
+  php_value upload_max_filesize 20M
+  php_value post_max_size 20M
+</IfModule>
+
+# キャッシュ無効化（管理画面）
+<IfModule mod_headers.c>
+  Header set Cache-Control "no-cache, no-store, must-revalidate"
+  Header set Pragma "no-cache"
+  Header set Expires 0
+</IfModule>
+
+# セキュリティヘッダー
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-XSS-Protection "1; mode=block"
+  Header set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+# 追加のIPアドレスを許可する場合は、上記のRewriteCondにアドレスを追加してください 
