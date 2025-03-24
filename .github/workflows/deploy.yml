@@ -19,88 +19,63 @@ jobs:
       - name: Install Composer Dependencies
         run: composer install --no-dev --optimize-autoloader
 
-      # ステップ3: SSH設定を直接実行（単純化・改善）
+      # ステップ3: SSH設定を最小限の構成で実装（完全簡素化）
       - name: Setup SSH connection
         run: |
+          # デバッグ情報を表示
+          echo "セットアップ開始"
+          
           # 秘密鍵ファイルを作成
           mkdir -p $HOME/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > $HOME/.ssh/id_rsa
           chmod 600 $HOME/.ssh/id_rsa
           
-          # ホスト情報を追加してSSH接続をテストする
-          ssh-keyscan -p 2222 ssh.lolipop.jp >> $HOME/.ssh/known_hosts
-          chmod 600 $HOME/.ssh/known_hosts
-          
-          # SSH接続テスト（接続エラーを診断）
-          echo "SSH接続テスト実行中..."
-          ssh -v -p 2222 deci.jp-trendcompany@ssh.lolipop.jp "echo 'SSH接続成功' && ls -la ~/web/ | grep sopranohaction"
+          # SSH接続テスト（冗長モード）
+          echo "ホスト情報を確認..."
+          ssh -o StrictHostKeyChecking=no -p 2222 deci.jp-trendcompany@ssh.lolipop.jp "whoami && pwd"
 
       # ステップ4: 環境変数の設定
       - name: Set deployment variables
         id: vars
         run: |
-          echo "DEPLOY_PATH=~/web/sopranohaction" >> $GITHUB_OUTPUT
+          echo "DEPLOY_PATH=web/sopranohaction" >> $GITHUB_OUTPUT
           echo "SITE_URL=http://trendcompany.deci.jp/sopranohaction/" >> $GITHUB_OUTPUT
 
-      # ステップ5: ファイルをサーバーにデプロイ（改善）
+      # ステップ5: ファイルをサーバーにデプロイ（基本最小構成）
       - name: Deploy to server
         env:
           DEPLOY_PATH: ${{ steps.vars.outputs.DEPLOY_PATH }}
         run: |
-          # rsyncを使用してファイルを転送（オプション修正）
+          # ディレクトリ構造を確認
+          ssh -o StrictHostKeyChecking=no -p 2222 deci.jp-trendcompany@ssh.lolipop.jp "ls -la ~/ && mkdir -p ~/$DEPLOY_PATH"
+          
+          # 最小限のオプションでrsyncを使用
           rsync -avz -e "ssh -p 2222 -o StrictHostKeyChecking=no" \
             --delete --exclude='.git/' --exclude='.github/' --exclude='.env' \
             --exclude='node_modules/' --exclude='uploads/' --exclude='.htaccess' \
             --exclude='admin/.htaccess' \
-            ./ deci.jp-trendcompany@ssh.lolipop.jp:$DEPLOY_PATH/
+            ./ deci.jp-trendcompany@ssh.lolipop.jp:~/$DEPLOY_PATH/
           
           # パーミッション設定
-          ssh -p 2222 -o StrictHostKeyChecking=no deci.jp-trendcompany@ssh.lolipop.jp "cd $DEPLOY_PATH && \
+          ssh -o StrictHostKeyChecking=no -p 2222 deci.jp-trendcompany@ssh.lolipop.jp "cd ~/$DEPLOY_PATH && \
             find . -type d -exec chmod 755 {} \; && \
-            find . -type f -exec chmod 644 {} \;"
+            find . -type f -exec chmod 644 {} \;
             
-          # アップロードディレクトリの確認と設定
-          ssh -p 2222 -o StrictHostKeyChecking=no deci.jp-trendcompany@ssh.lolipop.jp "cd $DEPLOY_PATH && \
+            # アップロードディレクトリの確認と設定
             mkdir -p uploads/photos && \
-            chmod -R 755 uploads && \
-            find uploads -type f -exec chmod 644 {} \;"
+            chmod -R 755 uploads
             
-          # 重要なファイルのバックアップと復元（.htaccessなど）
-          ssh -p 2222 -o StrictHostKeyChecking=no deci.jp-trendcompany@ssh.lolipop.jp "cd $DEPLOY_PATH && \
-            if [ ! -f .htaccess.bak ] && [ -f .htaccess ]; then \
-              cp .htaccess .htaccess.bak; \
-            fi && \
-            if [ -f .htaccess.bak ] && [ ! -f .htaccess ]; then \
-              cp .htaccess.bak .htaccess; \
-            fi"
-            
-          # ルートディレクトリ用.htaccessの処理（テンプレートから生成）
-          ssh -p 2222 -o StrictHostKeyChecking=no deci.jp-trendcompany@ssh.lolipop.jp "cd $DEPLOY_PATH && \
+            # .htaccessファイルの処理
             if [ -f .htaccess.template ]; then \
-              # envsubstがない場合に備えてsedでも置換
-              if command -v envsubst >/dev/null 2>&1; then \
-                export SITE_ENVIRONMENT=\"production\"; \
-                envsubst < .htaccess.template > .htaccess; \
-              else \
-                # 環境変数の置換（SITE_ENVIRONMENT=productionに設定）
-                sed 's/%{ENV:SITE_ENVIRONMENT} =production//g' .htaccess.template > .htaccess; \
-              fi; \
+              export SITE_ENVIRONMENT=\"production\"; \
+              cat .htaccess.template > .htaccess; \
               chmod 644 .htaccess; \
-            fi"
+            fi
             
-          # 管理画面用.htaccessの処理（テンプレートから生成）
-          ssh -p 2222 -o StrictHostKeyChecking=no deci.jp-trendcompany@ssh.lolipop.jp "cd $DEPLOY_PATH && \
-            # 環境変数を設定して管理者.htaccessを生成
+            # 管理画面.htaccessの処理
             if [ -f admin/.htaccess.template ]; then \
-              # envsubstがない場合に備えてsedでも置換
-              if command -v envsubst >/dev/null 2>&1; then \
-                export ADMIN_ACCESS_CONTROL=\"open\"; \
-                envsubst < admin/.htaccess.template > admin/.htaccess; \
-              else \
-                # 単純に条件を有効にする（IP制限なしモード）
-                sed '/RewriteCond %{ENV:ADMIN_ACCESS_CONTROL} =restricted/d' \
-                    admin/.htaccess.template > admin/.htaccess; \
-              fi; \
+              export ADMIN_ACCESS_CONTROL=\"open\"; \
+              cat admin/.htaccess.template > admin/.htaccess; \
               chmod 644 admin/.htaccess; \
             fi"
 
