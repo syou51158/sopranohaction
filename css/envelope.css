@@ -19,9 +19,11 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    overflow: hidden;
+    justify-content: center;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    max-width: 100%;
     background-color: #f9f7f5;
     z-index: 10;
 }
@@ -216,6 +218,12 @@
 
 /* 封筒の内容部分 */
 .envelope-content {
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    padding: 0 15px;
+    margin: 0 auto;
     position: absolute;
     top: 20px;
     left: 20px;
@@ -228,8 +236,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    text-align: center;
     transition: transform 0.8s ease-out 1s;
     transform: translateY(10px);
     color: var(--envelope-text);
@@ -266,12 +272,12 @@
 /* タップ指示のスタイル改善 */
 .tap-instruction {
     position: absolute;
-    top: 120px;
-    left: 50%;
+    top: 100px;
+    left: 44%;
     transform: translateX(-50%);
     color: #86644e;
     font-size: 1rem;
-    padding: 5px 15px;
+    padding: 0px 5px;
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 20px;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
@@ -555,24 +561,6 @@
     letter-spacing: 0.3px;
 }
 
-/* スマートフォン表示用スタイル */
-@media (max-width: 480px) {
-    .choice-header {
-        margin-bottom: 30px !important; /* マージンを調整 */
-    }
-
-    .choice-header h2 {
-        font-size: 16px !important; /* フォントサイズを調整 */
-        margin-bottom: 12px !important; /* マージンを調整 */
-        line-height: 1.3 !important; /* 行間を調整 */
-    }
-
-    .choice-header p {
-        font-size: 12px !important; /* フォントサイズを調整 */
-        line-height: 1.3 !important; /* 行間を調整 */
-    }
-}
-
 /* より大きなスマホサイズ用 */
 @media (max-width: 767px) {
     .choice-header h2 {
@@ -640,6 +628,21 @@
 
 /* メディアクエリ: スマートフォン向け最適化 */
 @media (max-width: 480px) {
+    .choice-header {
+        margin-bottom: 30px !important; /* マージンを調整 */
+    }
+
+    .choice-header h2 {
+        font-size: 16px !important; /* フォントサイズを調整 */
+        margin-bottom: 12px !important; /* マージンを調整 */
+        line-height: 1.3 !important; /* 行間を調整 */
+    }
+
+    .choice-header p {
+        font-size: 12px !important; /* フォントサイズを調整 */
+        line-height: 1.3 !important; /* 行間を調整 */
+    }
+    
     .envelope {
         width: 280px;
         height: 180px;
@@ -652,11 +655,7 @@
         top: -25px;
     }
     
-    .tap-instruction {
-        font-size: 0.9rem;
-        top: 50px;
-        padding: 4px 12px;
-    }
+  
     
     .petal, .heart, .sparkle {
         /* モバイルでは装飾を少し軽くする */
@@ -669,9 +668,14 @@
         50% { transform: translateY(-15px) rotate(5deg); }
     }
     
-    .envelope-flap {
-        height: 80px;
-        transform: translateY(0px);
+    
+    
+    .envelope-content, 
+    .invitation-view {
+        width: 100%;
+        max-width: calc(100vw - 30px);
+        padding: 0 15px;
+        overflow-x: hidden;
     }
 }
 
@@ -688,10 +692,7 @@
         top: -22px;
     }
     
-    .tap-instruction {
-        font-size: 0.8rem;
-        top: -60px;
-    }
+    
     
     /* 装飾効果をさらに軽減 */
     .celebration-effect {
@@ -819,4 +820,14 @@
         transform: translate(-50%, -50%) rotateX(180deg);
         opacity: 0;
     }
+}
+
+/* 招待状コンテンツの表示エリア */
+.invitation-view {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    padding: 0 15px;
 } 

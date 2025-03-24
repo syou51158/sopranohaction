@@ -2,6 +2,9 @@
 // 現在のページのファイル名を取得（アクティブなメニュー項目を判定するために使用）
 $current_page = basename($_SERVER['PHP_SELF']);
 
+// リクエストURLからページを確認
+$request_uri = $_SERVER['REQUEST_URI'];
+
 // 各メニュー項目の定義
 $menu_items = [
     [
@@ -94,54 +97,104 @@ $menu_items = [
         'icon' => 'fas fa-cogs',
         'text' => 'セットアップ'
     ],
+    [
+        'href' => 'remarks.php',
+        'icon' => 'fas fa-sticky-note',
+        'text' => '備考・お願い管理'
+    ],
 ];
 ?>
 
 <div class="admin-sidebar">
-    <nav class="admin-nav">
-        <ul>
-            <?php foreach ($menu_items as $item): 
-                // アクティブなメニュー項目かどうかを判定
-                $is_active = false;
-                
-                // 完全一致の場合
-                if ($item['href'] === $current_page) {
-                    $is_active = true;
-                }
-                // dashboard.php#～ のような場合の処理
-                elseif (strpos($item['href'], '#') !== false) {
-                    $page_part = explode('#', $item['href'])[0];
-                    if ($page_part === $current_page) {
-                        // ダッシュボードの場合は特殊処理
-                        if ($current_page === 'dashboard.php' && $item['href'] === 'dashboard.php') {
-                            $is_active = true;
-                        }
+    <div class="admin-sidebar-content">
+        <div class="admin-nav">
+            <ul>
+                <?php foreach ($menu_items as $item): ?>
+                    <?php
+                    // 現在のページをチェック
+                    $is_active = false;
+                    if ($item['href'] === $current_page || 
+                        (strpos($item['href'], '#') !== false && 
+                         strpos($item['href'], $current_page) === 0) ||
+                        (strpos($request_uri, $item['href']) !== false)
+                    ) {
+                        $is_active = true;
                     }
-                }
-                // 編集ページやその他特殊なページの処理
-                elseif (($current_page === 'edit_guest.php' || $current_page === 'delete_guest.php') && $item['href'] === 'dashboard.php#guests') {
-                    $is_active = true;
-                }
-                // ユーザー管理関連ページの処理
-                elseif (($current_page === 'register.php' || $current_page === 'verify.php' || 
-                        $current_page === 'forgot_password.php' || $current_page === 'reset_password.php') && 
-                        $item['href'] === 'manage_users.php') {
-                    $is_active = true;
-                }
-            ?>
-                <li<?php echo $is_active ? ' class="active"' : ''; ?>>
-                    <a href="<?php echo $item['href']; ?>">
-                        <i class="<?php echo $item['icon']; ?>"></i> <?php echo $item['text']; ?>
-                    </a>
-                </li>
-            <?php endforeach; ?>
-            <li class="admin-sidebar-item <?= strpos($_SERVER['PHP_SELF'], '/faq.php') !== false ? 'active' : '' ?>">
-                <a href="faq.php"><i class="fas fa-question-circle"></i> FAQ管理</a>
-            </li>
-            <li class="admin-sidebar-item <?= strpos($_SERVER['PHP_SELF'], '/remarks.php') !== false ? 'active' : '' ?>">
-                <a href="remarks.php"><i class="fas fa-sticky-note"></i> 備考・お願い管理</a>
-            </li>
-            <li class="admin-sidebar-divider"></li>
-        </ul>
-    </nav>
+                    ?>
+                    <li class="<?php echo $is_active ? 'active' : ''; ?>">
+                        <a href="<?php echo $item['href']; ?>">
+                            <i class="<?php echo $item['icon']; ?>"></i>
+                            <?php echo $item['text']; ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    </div>
 </div>
+
+<script>
+// サイドメニューのスクロール位置を保持するスクリプト
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.querySelector('.admin-sidebar');
+    if (!sidebar) return;
+    
+    // サイドバーのスクロール位置を復元
+    const savedScrollPosition = localStorage.getItem('sidebarScrollPosition');
+    if (savedScrollPosition) {
+        sidebar.scrollTop = parseInt(savedScrollPosition);
+    }
+    
+    // スクロール位置を保存
+    sidebar.addEventListener('scroll', function() {
+        localStorage.setItem('sidebarScrollPosition', sidebar.scrollTop);
+    });
+    
+    // メニュー項目クリック時にスクロール位置を保存
+    const menuItems = document.querySelectorAll('.admin-nav a');
+    menuItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            localStorage.setItem('sidebarScrollPosition', sidebar.scrollTop);
+        });
+    });
+    
+    // モバイル表示のためのクラス追加
+    sidebar.classList.add('sidebar-ready');
+    
+    // タッチデバイス向けのスワイプ機能（オプション）
+    if ('ontouchstart' in window) {
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        // スワイプ開始
+        document.body.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        // スワイプ終了
+        document.body.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+        
+        // スワイプ処理
+        function handleSwipe() {
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            if (!menuToggle) return;
+            
+            // 左から右へのスワイプ（サイドバーを表示）
+            if (touchEndX - touchStartX > 100 && touchStartX < 50) {
+                sidebar.classList.add('visible');
+                const icon = menuToggle.querySelector('i');
+                if (icon) icon.className = 'fas fa-times';
+            } 
+            // 右から左へのスワイプ（サイドバーを非表示）
+            else if (touchStartX - touchEndX > 100 && sidebar.classList.contains('visible')) {
+                sidebar.classList.remove('visible');
+                const icon = menuToggle.querySelector('i');
+                if (icon) icon.className = 'fas fa-bars';
+            }
+        }
+    }
+});
+</script>

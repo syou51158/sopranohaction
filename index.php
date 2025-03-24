@@ -154,8 +154,8 @@ $datetime_info = get_wedding_datetime();
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>翔 & あかね - Wedding Invitation 2025.4.30</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>翔 & あかね - 結婚式のご案内</title>
     
     <!-- パフォーマンス最適化 -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
@@ -173,7 +173,7 @@ $datetime_info = get_wedding_datetime();
     <link rel="stylesheet" href="css/envelope.css">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500&family=Reggae+One&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- スクリプトの遅延読み込み -->
     <script src="js/envelope.js" defer></script>

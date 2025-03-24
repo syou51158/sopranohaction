@@ -18,83 +18,85 @@ include 'inc/header.php';
 <link rel="stylesheet" href="css/seating.css">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><?php echo $page_title; ?></h1>
-        <div>
-            <a href="seating.php" class="btn btn-primary">
-                <i class="fas fa-arrow-left"></i> 席次表に戻る
-            </a>
+<div class="admin-content-wrapper">
+    <section class="admin-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-tools"></i> <?php echo $page_title; ?></h2>
+            <div>
+                <a href="seating.php" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> 席次表に戻る
+                </a>
+            </div>
         </div>
-    </div>
-    
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">診断ツール</h5>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <p><strong>このページはモーダルとJavaScriptの機能を診断するためのものです。</strong></p>
-                        <p>問題を診断するため、さまざまなテストを行います。</p>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">診断ツール</h5>
                     </div>
-                    
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>モーダルテスト</h5>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <p><strong>このページはモーダルとJavaScriptの機能を診断するためのものです。</strong></p>
+                            <p>問題を診断するため、さまざまなテストを行います。</p>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>モーダルテスト</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <button id="testModal" class="btn btn-primary mb-3">テストモーダルを表示</button>
+                                        <button id="testAssignModal" class="btn btn-success mb-3">割り当てモーダルを表示</button>
+                                        <button id="testRemoveModal" class="btn btn-danger mb-3">解除モーダルを表示</button>
+                                        <div id="modalTestResult" class="mt-3"></div>
+                                    </div>
                                 </div>
-                                <div class="card-body">
-                                    <button id="testModal" class="btn btn-primary mb-3">テストモーダルを表示</button>
-                                    <button id="testAssignModal" class="btn btn-success mb-3">割り当てモーダルを表示</button>
-                                    <button id="testRemoveModal" class="btn btn-danger mb-3">解除モーダルを表示</button>
-                                    <div id="modalTestResult" class="mt-3"></div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>ドラッグ＆ドロップテスト</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="test-drag-area mb-3" style="border: 1px solid #ccc; padding: 10px; height: 100px;">
+                                            <div id="testDraggable" class="test-draggable" style="width: 100px; height: 50px; background-color: #f0f0f0; border: 1px solid #999; text-align: center; line-height: 50px; cursor: move;">
+                                                ドラッグ可能
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="test-drop-area" style="border: 1px solid #ccc; padding: 10px; height: 100px; margin-top: 20px;">
+                                            <div id="testDroppable" style="width: 100%; height: 100%; background-color: #e9f5e9; text-align: center; line-height: 100px;">
+                                                ここにドロップ
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="dragDropTestResult" class="mt-3"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>ドラッグ＆ドロップテスト</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="test-drag-area mb-3" style="border: 1px solid #ccc; padding: 10px; height: 100px;">
-                                        <div id="testDraggable" class="test-draggable" style="width: 100px; height: 50px; background-color: #f0f0f0; border: 1px solid #999; text-align: center; line-height: 50px; cursor: move;">
-                                            ドラッグ可能
-                                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>JavaScript環境診断</h5>
                                     </div>
-                                    
-                                    <div class="test-drop-area" style="border: 1px solid #ccc; padding: 10px; height: 100px; margin-top: 20px;">
-                                        <div id="testDroppable" style="width: 100%; height: 100%; background-color: #e9f5e9; text-align: center; line-height: 100px;">
-                                            ここにドロップ
+                                    <div class="card-body">
+                                        <button id="testJQuery" class="btn btn-info mb-3">jQueryテスト</button>
+                                        <button id="testJQueryUI" class="btn btn-info mb-3">jQuery UIテスト</button>
+                                        <button id="checkConsole" class="btn btn-warning mb-3">コンソールデバッグ</button>
+                                        
+                                        <div id="jsTestResult" class="mt-3"></div>
+                                        
+                                        <div class="alert alert-secondary mt-4">
+                                            <h6>診断結果とアドバイス</h6>
+                                            <div id="diagnosticResults"></div>
                                         </div>
-                                    </div>
-                                    
-                                    <div id="dragDropTestResult" class="mt-3"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>JavaScript環境診断</h5>
-                                </div>
-                                <div class="card-body">
-                                    <button id="testJQuery" class="btn btn-info mb-3">jQueryテスト</button>
-                                    <button id="testJQueryUI" class="btn btn-info mb-3">jQuery UIテスト</button>
-                                    <button id="checkConsole" class="btn btn-warning mb-3">コンソールデバッグ</button>
-                                    
-                                    <div id="jsTestResult" class="mt-3"></div>
-                                    
-                                    <div class="alert alert-secondary mt-4">
-                                        <h6>診断結果とアドバイス</h6>
-                                        <div id="diagnosticResults"></div>
                                     </div>
                                 </div>
                             </div>
@@ -103,24 +105,25 @@ include 'inc/header.php';
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 </div>
 
 <!-- テスト用モーダル -->
-<div class="modal fade" id="testModalDialog" tabindex="-1" aria-labelledby="testModalLabel">
+<div id="testModal" class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="testModalLabel">テストモーダル</h5>
+                <h5 class="modal-title">テストモーダル</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <p>このモーダルが表示されれば、Bootstrapモーダルは正常に機能しています。</p>
+                <p>これはテストモーダルです。正常に表示されていますか？</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+                <button type="button" class="btn btn-primary">テスト操作</button>
             </div>
         </div>
     </div>
@@ -194,7 +197,7 @@ $(document).ready(function() {
     // モーダルテスト
     $('#testModal').on('click', function() {
         try {
-            $('#testModalDialog').modal('show');
+            $('#testModal').modal('show');
             $('#modalTestResult').html('<div class="alert alert-success">テストモーダルは正常に機能しています。</div>');
         } catch (e) {
             $('#modalTestResult').html('<div class="alert alert-danger">エラー: ' + e.message + '</div>');
@@ -274,5 +277,7 @@ $(document).ready(function() {
     updateDiagnostic();
 });
 </script>
+
+</div> <!-- admin-content-wrapper の終了 -->
 
 <?php include 'inc/footer.php'; ?> 

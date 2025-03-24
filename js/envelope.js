@@ -344,6 +344,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('音声機能は利用できません');
             }
             
+            // スクロール位置を記憶
+            const scrollPosition = window.scrollY;
+            
+            // エンベロープコンテナが画面中央に表示されるようにスクロール
+            const containerRect = envelopeContainer.getBoundingClientRect();
+            const targetPosition = containerRect.top + window.scrollY - (window.innerHeight - containerRect.height) / 2;
+            
+            // スムーズにスクロール
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+            
             // 封筒アニメーション開始
             this.classList.add('opening');
             

@@ -10,7 +10,13 @@ if (!file_exists($upload_dir)) {
 } else {
     // すでに存在する場合もパーミッションを確認・設定
     if (!is_writable($upload_dir)) {
-        chmod($upload_dir, 0755);
+        // エラーを抑制して実行し、失敗した場合は警告メッセージを表示
+        if (@chmod($upload_dir, 0755) === false) {
+            // ローカル環境では警告のみ表示（本番環境では実行不可の場合は重大な問題）
+            if ($debug_mode) {
+                $upload_warning = "警告: アップロードディレクトリのパーミッション変更に失敗しました。ローカル環境では正常な動作です。";
+            }
+        }
     }
 }
 

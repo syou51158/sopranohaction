@@ -259,8 +259,6 @@
     color: var(--admin-primary);
     border-left: 4px solid var(--admin-primary);
     font-weight: 500;
-    position: relative;
-    overflow: hidden;
 }
 
 .admin-main {
@@ -284,7 +282,6 @@
     width: 100%;
     max-width: 100%;
     overflow-x: auto;
-    animation: fadeIn 0.3s ease-in-out;
 }
 
 .admin-section {
@@ -461,7 +458,7 @@
     font-weight: 500;
 }
 
-/* レスポンシブデザインの改善 */
+/* レスポンシブデザイン */
 @media (max-width: 992px) {
     .admin-sidebar {
         width: 220px;
@@ -470,14 +467,6 @@
     .admin-main {
         margin-left: 220px;
         width: calc(100% - 220px);
-    }
-    
-    .admin-section {
-        padding: 15px;
-    }
-    
-    .admin-card {
-        margin-bottom: 15px;
     }
 }
 
@@ -490,188 +479,49 @@
         width: 100%;
         position: relative;
         top: 0;
+        margin-bottom: 20px;
         height: auto;
-        max-height: 300px;
-        overflow-y: auto;
-        z-index: 100;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        max-height: none;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
     
     .admin-main {
         margin-left: 0;
         width: 100%;
-    }
-    
-    .admin-content-wrapper {
-        padding: 10px;
-    }
-    
-    .admin-section {
-        padding: 10px;
-    }
-    
-    /* ダッシュボードのカード表示の調整 */
-    .admin-dashboard-stats {
-        grid-template-columns: repeat(2, 1fr);
-        grid-gap: 10px;
-    }
-    
-    .admin-card {
-        padding: 15px;
-    }
-    
-    /* テーブルのレスポンシブ対応 */
-    .admin-table {
-        display: block;
         overflow-x: auto;
     }
     
-    .admin-table th, 
-    .admin-table td {
-        padding: 8px;
-        min-width: 100px;
-    }
-    
-    /* フォーム要素の調整 */
-    .admin-form-group {
+    .admin-stat-card {
         margin-bottom: 15px;
     }
     
-    .admin-form-group label {
-        margin-bottom: 5px;
+    .admin-stats {
+        display: flex;
+        flex-direction: column;
     }
     
-    .admin-form-control {
-        padding: 8px;
-    }
-    
-    /* ボタンサイズの調整 */
-    .admin-btn {
-        padding: 8px 15px;
-        font-size: 14px;
-    }
-    
-    /* モーダルの調整 */
-    .admin-modal-content {
-        width: 95%;
-        margin: 10px auto;
-        padding: 15px;
-    }
-}
-
-@media (max-width: 576px) {
     .admin-dashboard-header {
-        padding: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 15px;
+        height: auto;
     }
     
-    .admin-logo {
-        font-size: 18px;
+    .admin-user {
+        width: 100%;
+        justify-content: space-between;
     }
     
-    .admin-user-menu {
-        margin-left: 5px;
-    }
-    
-    .admin-dashboard-stats {
-        grid-template-columns: 1fr;
-    }
-    
-    /* フォーム要素を縦並びに */
     .admin-form-row {
         flex-direction: column;
+        gap: 15px;
     }
     
-    .admin-form-col {
-        margin-bottom: 10px;
-        padding: 0;
-    }
-    
-    /* ボタングループの調整 */
-    .admin-btn-group {
-        flex-direction: column;
-    }
-    
-    .admin-btn-group .admin-btn {
-        margin-bottom: 5px;
-        width: 100%;
-    }
-    
-    /* テーブルのスクロール表示を強化 */
-    .admin-table-wrapper {
-        margin: 0 -10px;
-        padding: 0 10px;
+    .admin-table {
+        display: block;
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    /* アイコンとテキストのスペースを確保 */
-    .admin-nav a i {
-        margin-right: 10px;
-        width: 20px;
-        text-align: center;
-    }
-    
-    /* モーダルの全画面表示 */
-    .admin-modal-content {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        border-radius: 0;
-        max-height: 100vh;
-    }
-}
-
-/* タッチデバイスのための最適化 */
-@media (hover: none) {
-    .admin-btn,
-    .admin-nav a,
-    .admin-user-menu-toggle,
-    .admin-form-control,
-    select.admin-form-control {
-        font-size: 16px; /* タップ領域を広げる */
-    }
-    
-    /* タップ時のフィードバック */
-    .admin-btn:active,
-    .admin-nav a:active {
-        opacity: 0.7;
-    }
-    
-    /* スクロールの流動性向上 */
-    .admin-sidebar,
-    .admin-main,
-    .admin-modal-body {
-        -webkit-overflow-scrolling: touch;
-    }
-}
-
-/* ダークモード対応（オプション） */
-@media (prefers-color-scheme: dark) {
-    .admin-dashboard {
-        --admin-bg: #1a1a1a;
-        --admin-text: #e0e0e0;
-        --admin-border: #333;
-        --admin-card-bg: #282828;
-        --admin-hover: rgba(255, 255, 255, 0.05);
-    }
-    
-    .admin-table th {
-        background-color: #333;
-    }
-    
-    .admin-table tr:nth-child(even) {
-        background-color: #252525;
-    }
-    
-    .admin-form-control {
-        background-color: #333;
-        color: #e0e0e0;
-        border-color: #444;
-    }
-    
-    .admin-form-control:focus {
-        border-color: var(--admin-primary);
-        background-color: #3a3a3a;
+        white-space: nowrap;
     }
 }
 
@@ -790,34 +640,4 @@ body:has(#console:not(.hidden)) .admin-main {
 /* コンテンツが遅れないようにスクロールを有効化 */
 html, body {
     overflow-x: hidden;
-}
-
-/* ページ遷移アニメーション */
-.fade-transition {
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* スムーズスクロール */
-html {
-    scroll-behavior: smooth;
-}
-
-/* アクティブなメニュー項目のハイライト効果を強化 */
-.admin-nav li.active a {
-    background-color: #e6f0fa;
-    color: var(--admin-primary);
-    border-left: 4px solid var(--admin-primary);
-    font-weight: 500;
-    position: relative;
-    overflow: hidden;
-}
-
-/* クリック時のエフェクト */
-.admin-nav a:active {
-    transform: translateY(1px);
 } 
