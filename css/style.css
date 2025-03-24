@@ -1637,7 +1637,7 @@ body::before {
 }
 
 .radio-group {
-    display: flex;
+    
     gap: 30px;
 }
 
@@ -2186,7 +2186,7 @@ footer p {
     }
     
     .radio-group {
-        flex-direction: column;
+        
         gap: 10px;
     }
     
