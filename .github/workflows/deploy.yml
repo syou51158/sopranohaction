@@ -19,7 +19,7 @@ jobs:
       - name: Install Composer Dependencies
         run: composer install --no-dev --optimize-autoloader
 
-      # ステップ3: SSH設定を直接実行（単純化）
+      # ステップ3: SSH設定を直接実行（単純化・改善）
       - name: Setup SSH connection
         run: |
           # 秘密鍵ファイルを作成
@@ -27,21 +27,13 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > $HOME/.ssh/id_rsa
           chmod 600 $HOME/.ssh/id_rsa
           
-          # ホスト情報を追加
-          ssh-keyscan -p 2222 -t ed25519,ecdsa,rsa ssh.lolipop.jp >> $HOME/.ssh/known_hosts
+          # ホスト情報を追加してSSH接続をテストする
+          ssh-keyscan -p 2222 ssh.lolipop.jp >> $HOME/.ssh/known_hosts
           chmod 600 $HOME/.ssh/known_hosts
           
-          # SSH設定ファイルを作成
-          cat > $HOME/.ssh/config << EOF
-          Host lolipop
-            HostName ssh.lolipop.jp
-            User deci.jp-trendcompany
-            Port 2222
-            IdentityFile $HOME/.ssh/id_rsa
-            StrictHostKeyChecking no
-          EOF
-          
-          chmod 600 $HOME/.ssh/config
+          # SSH接続テスト（接続エラーを診断）
+          echo "SSH接続テスト実行中..."
+          ssh -v -p 2222 deci.jp-trendcompany@ssh.lolipop.jp "echo 'SSH接続成功' && ls -la ~/web/ | grep sopranohaction"
 
       # ステップ4: 環境変数の設定
       - name: Set deployment variables
@@ -50,31 +42,31 @@ jobs:
           echo "DEPLOY_PATH=~/web/sopranohaction" >> $GITHUB_OUTPUT
           echo "SITE_URL=http://trendcompany.deci.jp/sopranohaction/" >> $GITHUB_OUTPUT
 
-      # ステップ5: ファイルをサーバーにデプロイ
+      # ステップ5: ファイルをサーバーにデプロイ（改善）
       - name: Deploy to server
         env:
           DEPLOY_PATH: ${{ steps.vars.outputs.DEPLOY_PATH }}
         run: |
-          # rsyncを使用してファイルを安全に転送
-          rsync -avz --delete --exclude='.git/' --exclude='.github/' --exclude='.env' \
+          # rsyncを使用してファイルを転送（オプション修正）
+          rsync -avz -e "ssh -p 2222 -o StrictHostKeyChecking=no" \
+            --delete --exclude='.git/' --exclude='.github/' --exclude='.env' \
             --exclude='node_modules/' --exclude='uploads/' --exclude='.htaccess' \
             --exclude='admin/.htaccess' \
-            -e "ssh -F $HOME/.ssh/config" \
-            ./ lolipop:$DEPLOY_PATH
+            ./ deci.jp-trendcompany@ssh.lolipop.jp:$DEPLOY_PATH/
           
           # パーミッション設定
-          ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
+          ssh -p 2222 -o StrictHostKeyChecking=no deci.jp-trendcompany@ssh.lolipop.jp "cd $DEPLOY_PATH && \
             find . -type d -exec chmod 755 {} \; && \
             find . -type f -exec chmod 644 {} \;"
             
           # アップロードディレクトリの確認と設定
-          ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
+          ssh -p 2222 -o StrictHostKeyChecking=no deci.jp-trendcompany@ssh.lolipop.jp "cd $DEPLOY_PATH && \
             mkdir -p uploads/photos && \
             chmod -R 755 uploads && \
             find uploads -type f -exec chmod 644 {} \;"
             
           # 重要なファイルのバックアップと復元（.htaccessなど）
-          ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
+          ssh -p 2222 -o StrictHostKeyChecking=no deci.jp-trendcompany@ssh.lolipop.jp "cd $DEPLOY_PATH && \
             if [ ! -f .htaccess.bak ] && [ -f .htaccess ]; then \
               cp .htaccess .htaccess.bak; \
             fi && \
@@ -83,7 +75,7 @@ jobs:
             fi"
             
           # ルートディレクトリ用.htaccessの処理（テンプレートから生成）
-          ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
+          ssh -p 2222 -o StrictHostKeyChecking=no deci.jp-trendcompany@ssh.lolipop.jp "cd $DEPLOY_PATH && \
             if [ -f .htaccess.template ]; then \
               # envsubstがない場合に備えてsedでも置換
               if command -v envsubst >/dev/null 2>&1; then \
@@ -97,7 +89,7 @@ jobs:
             fi"
             
           # 管理画面用.htaccessの処理（テンプレートから生成）
-          ssh -F $HOME/.ssh/config lolipop "cd $DEPLOY_PATH && \
+          ssh -p 2222 -o StrictHostKeyChecking=no deci.jp-trendcompany@ssh.lolipop.jp "cd $DEPLOY_PATH && \
             # 環境変数を設定して管理者.htaccessを生成
             if [ -f admin/.htaccess.template ]; then \
               # envsubstがない場合に備えてsedでも置換
