@@ -172,6 +172,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500&family=Reggae+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- キャッシュ防止のためのバージョンパラメータを追加 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <style>
         .fusen-preview {
             background-color: #fff9c4;
@@ -529,7 +533,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     </div>
     
     <script>
+    // ページロード時にモーダルが存在するか確認するデバッグコード
     document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM読み込み完了");
+        // モーダル要素の存在を確認
+        const editModal = document.getElementById('edit-modal');
+        const deleteModal = document.getElementById('delete-modal');
+        console.log("編集モーダル存在:", editModal ? "はい" : "いいえ");
+        console.log("削除モーダル存在:", deleteModal ? "はい" : "いいえ");
+        
         // 付箋タイプ選択時のプレビュー更新
         const fusenTypeSelect = document.getElementById('fusen_type_id');
         const customMessage = document.getElementById('custom_message');
@@ -580,23 +592,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     // 編集モーダルを開く
     function editFusen(id, message, typeName) {
-        const modal = document.getElementById('edit-modal');
-        if (!modal) return;
-        
-        document.getElementById('edit-fusen-id').value = id;
-        document.getElementById('edit-type-name').textContent = typeName;
-        document.getElementById('edit-message').value = message.replace(/\\n/g, '\n');
-        modal.style.display = 'block';
+        try {
+            console.log("editFusen関数が呼び出されました", id, typeName);
+            const modal = document.getElementById('edit-modal');
+            if (!modal) {
+                console.error("編集モーダルが見つかりません");
+                alert("エラー: 編集モーダルが見つかりません。ページを再読み込みしてください。");
+                return;
+            }
+            
+            // IDの要素が見つからない場合の例外処理
+            const fusenIdInput = document.getElementById('edit-fusen-id');
+            const typeNameSpan = document.getElementById('edit-type-name');
+            const messageTextarea = document.getElementById('edit-message');
+            
+            if (!fusenIdInput || !typeNameSpan || !messageTextarea) {
+                console.error("必要な要素が見つかりません", {
+                    fusenIdInput: !!fusenIdInput, 
+                    typeNameSpan: !!typeNameSpan, 
+                    messageTextarea: !!messageTextarea
+                });
+                alert("エラー: モーダル内の要素が見つかりません。ページを再読み込みしてください。");
+                return;
+            }
+            
+            fusenIdInput.value = id;
+            typeNameSpan.textContent = typeName;
+            
+            // メッセージのエスケープ処理を慎重に行う
+            try {
+                messageTextarea.value = message.replace(/\\n/g, '\n');
+            } catch (err) {
+                console.error("メッセージの処理中にエラーが発生しました:", err);
+                messageTextarea.value = message || "";
+            }
+            
+            // モーダルを表示
+            modal.style.display = 'block';
+            console.log("モーダルを表示しました");
+        } catch (err) {
+            console.error("editFusen関数でエラーが発生しました:", err);
+            alert("エラーが発生しました: " + err.message);
+        }
     }
     
     // 削除モーダルを開く
     function deleteFusen(id, typeName) {
-        const modal = document.getElementById('delete-modal');
-        if (!modal) return;
-        
-        document.getElementById('delete-fusen-id').value = id;
-        document.getElementById('delete-type-name').textContent = typeName;
-        modal.style.display = 'block';
+        try {
+            console.log("deleteFusen関数が呼び出されました", id, typeName);
+            const modal = document.getElementById('delete-modal');
+            if (!modal) {
+                console.error("削除モーダルが見つかりません");
+                alert("エラー: 削除モーダルが見つかりません。ページを再読み込みしてください。");
+                return;
+            }
+            
+            const fusenIdInput = document.getElementById('delete-fusen-id');
+            const typeNameSpan = document.getElementById('delete-type-name');
+            
+            if (!fusenIdInput || !typeNameSpan) {
+                console.error("必要な要素が見つかりません");
+                alert("エラー: モーダル内の要素が見つかりません。ページを再読み込みしてください。");
+                return;
+            }
+            
+            fusenIdInput.value = id;
+            typeNameSpan.textContent = typeName;
+            modal.style.display = 'block';
+            console.log("削除モーダルを表示しました");
+        } catch (err) {
+            console.error("deleteFusen関数でエラーが発生しました:", err);
+            alert("エラーが発生しました: " + err.message);
+        }
     }
     </script>
 </body>
