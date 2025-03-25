@@ -230,6 +230,123 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         .fusen-actions .admin-btn {
             padding: 5px 10px;
         }
+        /* モーダルスタイル追加 */
+        .admin-modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .admin-modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .admin-modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        }
+        
+        .admin-modal-close:hover,
+        .admin-modal-close:focus {
+            color: black;
+            text-decoration: none;
+        }
+        
+        /* Bootstrapモーダルの表示修正 */
+        .modal {
+            background-color: rgba(0,0,0,0.4);
+            max-height: 100%;
+            overflow-y: auto;
+            z-index: 1100;
+        }
+        
+        .modal-dialog {
+            max-width: 600px;
+            margin: 30px auto;
+        }
+        
+        .modal-content {
+            position: relative;
+            background-color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 3px 9px rgba(0,0,0,.5);
+            outline: 0;
+        }
+        
+        .modal-header {
+            padding: 15px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .modal-body {
+            position: relative;
+            padding: 15px;
+        }
+        
+        .modal-footer {
+            padding: 15px;
+            text-align: right;
+            border-top: 1px solid #e5e5e5;
+        }
+        
+        .modal-header .close {
+            margin-top: -2px;
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 1;
+            color: #000;
+            text-shadow: 0 1px 0 #fff;
+            filter: alpha(opacity=20);
+            opacity: .2;
+            padding: 0;
+            cursor: pointer;
+            background: transparent;
+            border: 0;
+            float: right;
+        }
+        
+        .modal-header .close:hover {
+            opacity: .5;
+        }
+        
+        .close {
+            float: right;
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 1;
+            color: #000;
+            text-shadow: 0 1px 0 #fff;
+            filter: alpha(opacity=20);
+            opacity: .2;
+            padding: 0;
+            cursor: pointer;
+            background: transparent;
+            border: 0;
+        }
+        
+        .close:hover {
+            opacity: .5;
+        }
     </style>
 </head>
 <body class="admin-body">
@@ -419,26 +536,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         const previewTitle = document.getElementById('preview-title');
         const previewMessage = document.getElementById('preview-message');
         
-        fusenTypeSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption.value) {
-                previewTitle.textContent = selectedOption.text;
-                customMessage.value = '';
-                previewMessage.textContent = selectedOption.dataset.default || '付箋のメッセージ内容がここに表示されます。';
-            } else {
-                previewTitle.textContent = '付箋タイトル';
-                previewMessage.textContent = '付箋のメッセージ内容がここに表示されます。';
-            }
-        });
+        if (fusenTypeSelect) {
+            fusenTypeSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.value) {
+                    previewTitle.textContent = selectedOption.text;
+                    customMessage.value = '';
+                    previewMessage.textContent = selectedOption.dataset.default || '付箋のメッセージ内容がここに表示されます。';
+                } else {
+                    previewTitle.textContent = '付箋タイトル';
+                    previewMessage.textContent = '付箋のメッセージ内容がここに表示されます。';
+                }
+            });
+        }
         
-        customMessage.addEventListener('input', function() {
-            if (fusenTypeSelect.value) {
-                const selectedOption = fusenTypeSelect.options[fusenTypeSelect.selectedIndex];
-                previewMessage.textContent = this.value || selectedOption.dataset.default || '付箋のメッセージ内容がここに表示されます。';
-            } else {
-                previewMessage.textContent = this.value || '付箋のメッセージ内容がここに表示されます。';
-            }
-        });
+        if (customMessage) {
+            customMessage.addEventListener('input', function() {
+                if (fusenTypeSelect.value) {
+                    const selectedOption = fusenTypeSelect.options[fusenTypeSelect.selectedIndex];
+                    previewMessage.textContent = this.value || selectedOption.dataset.default || '付箋のメッセージ内容がここに表示されます。';
+                } else {
+                    previewMessage.textContent = this.value || '付箋のメッセージ内容がここに表示されます。';
+                }
+            });
+        }
         
         // モーダルの閉じるボタン
         document.querySelectorAll('.admin-modal-close').forEach(button => {
@@ -459,17 +580,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     // 編集モーダルを開く
     function editFusen(id, message, typeName) {
+        const modal = document.getElementById('edit-modal');
+        if (!modal) return;
+        
         document.getElementById('edit-fusen-id').value = id;
         document.getElementById('edit-type-name').textContent = typeName;
         document.getElementById('edit-message').value = message.replace(/\\n/g, '\n');
-        document.getElementById('edit-modal').style.display = 'block';
+        modal.style.display = 'block';
     }
     
     // 削除モーダルを開く
     function deleteFusen(id, typeName) {
+        const modal = document.getElementById('delete-modal');
+        if (!modal) return;
+        
         document.getElementById('delete-fusen-id').value = id;
         document.getElementById('delete-type-name').textContent = typeName;
-        document.getElementById('delete-modal').style.display = 'block';
+        modal.style.display = 'block';
     }
     </script>
 </body>

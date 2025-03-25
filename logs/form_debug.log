@@ -608,3 +608,71 @@
 2025-03-21 06:18:21 Companion inserted: ターちゃん
 2025-03-21 06:18:21 Companion inserted: じーちゃん
 2025-03-21 06:18:21 Notification sent for response ID: 22
+2025-03-25 01:29:00 POST Data: Array
+(
+    [guest_id] => 10
+    [group_id] => tashima-planer
+    [name] => たしま
+    [email] => example@example.com
+    [attending] => 1
+    [companions] => 2
+    [companion_name] => Array
+        (
+            [0] => a
+            [1] => b
+        )
+
+    [companion_age] => Array
+        (
+            [0] => adult
+            [1] => infant
+        )
+
+    [companion_dietary] => Array
+        (
+            [0] => ab
+            [1] => ba
+        )
+
+    [message] => a
+    [dietary] => a
+)
+
+2025-03-25 01:29:00 Processed Data: name: たしま, email: example@example.com, attending: 1, companions: 2, guest_id: 10, group_id: tashima-planer
+2025-03-25 01:29:00 SQL Parameters: Array
+(
+    [guest_id] => 10
+    [name] => たしま
+    [email] => example@example.com
+    [attending] => 1
+    [companions] => 2
+    [message] => a
+    [dietary] => a
+)
+
+2025-03-25 01:29:00 SQL Insert successful. Last Insert ID: 23
+2025-03-25 01:29:00 Companion Data: Array
+(
+    [names] => Array
+        (
+            [0] => a
+            [1] => b
+        )
+
+    [ages] => Array
+        (
+            [0] => adult
+            [1] => infant
+        )
+
+    [dietaries] => Array
+        (
+            [0] => ab
+            [1] => ba
+        )
+
+)
+
+2025-03-25 01:29:00 Companion inserted: a
+2025-03-25 01:29:00 Companion inserted: b
+2025-03-25 01:29:02 Notification sent for response ID: 23

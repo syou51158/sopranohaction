@@ -180,7 +180,7 @@ body::before {
     flex-direction: column;
     width: 100%;
     box-sizing: border-box;
-    overflow-x: hidden; /* 横方向のスクロールを防止 */
+    
     position: relative;
 }
 
@@ -191,11 +191,11 @@ body::before {
         margin: 0;
         width: 100%;
         max-width: 100%;
-        overflow-x: hidden;
-    }
+        
+    }overflow-x: hidden; /* 横方向のスクロールを防止 */
     
     body {
-        overflow-x: hidden;
+        
         width: 100%;
         max-width: 100%;
     }

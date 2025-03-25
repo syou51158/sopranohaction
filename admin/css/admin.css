@@ -547,7 +547,7 @@
     
     /* ボタンサイズの調整 */
     .admin-btn {
-        padding: 8px 15px;
+
         font-size: 14px;
     }
     
@@ -821,3 +821,14 @@ html {
 .admin-nav a:active {
     transform: translateY(1px);
 } 
+
+.admin-btn-info {
+    background-color: #c4c134; /* ボタンの背景色 */
+    color: white; /* テキストの色 */
+    border: 1px solid transparent; /* ボーダーを追加 */
+}
+
+.admin-btn-info:hover {
+    background-color: #0056b3; /* ホバー時の背景色 */
+    border-color: #0056b3; /* ホバー時のボーダー色 */
+}
