@@ -418,7 +418,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                 <h3><?= htmlspecialchars($fusen['type_name']) ?></h3>
                                 <p><?= nl2br(htmlspecialchars($fusen['custom_message'] ?: $fusen['default_message'])) ?></p>
                                 <div class="fusen-actions">
-                                    <button class="admin-btn admin-btn-edit" onclick="editFusen(<?= $fusen['id'] ?>, '<?= htmlspecialchars(str_replace("\r\n", "\\n", str_replace("\n", "\\n", $fusen['custom_message'] ?: $fusen['default_message']))) ?>', '<?= htmlspecialchars($fusen['type_name']) ?>')">
+                                    <button class="admin-btn admin-btn-edit" 
+                                        data-fusen-id="<?= $fusen['id'] ?>" 
+                                        data-fusen-message="<?= htmlspecialchars($fusen['custom_message'] ?: $fusen['default_message']) ?>" 
+                                        data-fusen-type="<?= htmlspecialchars($fusen['type_name']) ?>"
+                                        onclick="editFusen(this)">
                                         <i class="fas fa-edit"></i> 編集
                                     </button>
                                     <button class="admin-btn admin-btn-delete" onclick="deleteFusen(<?= $fusen['id'] ?>, '<?= htmlspecialchars($fusen['type_name']) ?>')">
@@ -591,8 +595,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     });
     
     // 編集モーダルを開く
-    function editFusen(id, message, typeName) {
+    function editFusen(button) {
         try {
+            const id = button.dataset.fusenId;
+            const typeName = button.dataset.fusenType;
+            const message = button.dataset.fusenMessage;
+            
             console.log("editFusen関数が呼び出されました", id, typeName);
             const modal = document.getElementById('edit-modal');
             if (!modal) {
@@ -619,13 +627,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             fusenIdInput.value = id;
             typeNameSpan.textContent = typeName;
             
-            // メッセージのエスケープ処理を慎重に行う
-            try {
-                messageTextarea.value = message.replace(/\\n/g, '\n');
-            } catch (err) {
-                console.error("メッセージの処理中にエラーが発生しました:", err);
-                messageTextarea.value = message || "";
-            }
+            // メッセージを直接設定
+            messageTextarea.value = message;
             
             // モーダルを表示
             modal.style.display = 'block';
