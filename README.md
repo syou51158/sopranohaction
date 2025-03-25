@@ -148,4 +148,6 @@ wedding/
    ```
 
 3. セキュリティ上の理由から、`.env` ファイルはGitにコミットしないでください。
-echo "GitHub Actions Test Deploy" >> README.md
+
+## Gitテスト
+このセクションはGitのテスト用に2025年3月25日に追加されました。
