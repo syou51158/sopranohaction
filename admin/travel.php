@@ -677,7 +677,7 @@ if (!empty($accommodation_info)) {
                                             <?php endif; ?>
                                             
                                             <div class="travel-description">
-                                                <?= nl2br(htmlspecialchars($info['description'])) ?>
+                                                <?= nl2br($info['description']) ?>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
@@ -799,7 +799,7 @@ if (!empty($accommodation_info)) {
                                             <?php endif; ?>
                                             
                                             <div class="travel-description">
-                                                <?= nl2br(htmlspecialchars($info['description'])) ?>
+                                                <?= nl2br($info['description']) ?>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>

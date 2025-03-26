@@ -602,8 +602,8 @@ if ($has_bookings_table && isset($guest_info['id'])) {
                     <?php endif; ?>
                     <div class="info-card-content">
                         <h3 class="info-card-title"><?= htmlspecialchars($info['title']) ?></h3>
-                        <div class="info-card-description">
-                            <?= nl2br(htmlspecialchars($info['description'])) ?>
+                        <div class="travel-description">
+                            <?= nl2br($info['description']) ?>
                         </div>
                     </div>
                 </div>
@@ -630,8 +630,8 @@ if ($has_bookings_table && isset($guest_info['id'])) {
                     <?php endif; ?>
                     <div class="info-card-content">
                         <h3 class="info-card-title"><?= htmlspecialchars($info['title']) ?></h3>
-                        <div class="info-card-description">
-                            <?= nl2br(htmlspecialchars($info['description'])) ?>
+                        <div class="travel-description">
+                            <?= nl2br($info['description']) ?>
                         </div>
                     </div>
                 </div>
