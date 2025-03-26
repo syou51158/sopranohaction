@@ -30,14 +30,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $event_time = isset($_POST['event_time']) ? trim($_POST['event_time']) : '';
         $event_name = isset($_POST['event_name']) ? trim($_POST['event_name']) : '';
         $event_description = isset($_POST['event_description']) ? trim($_POST['event_description']) : '';
-        $for_group_type = isset($_POST['for_group_type']) ? trim($_POST['for_group_type']) : null;
+        $for_group_type_id = isset($_POST['for_group_type_id']) && !empty($_POST['for_group_type_id']) ? (int)$_POST['for_group_type_id'] : null;
         
         if (empty($event_time) || empty($event_name)) {
             $error = "イベント時間とイベント名は必須です。";
         } else {
             try {
-                $stmt = $pdo->prepare("INSERT INTO schedule (event_time, event_name, event_description, for_group_type) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$event_time, $event_name, $event_description, $for_group_type]);
+                $stmt = $pdo->prepare("INSERT INTO schedule (event_time, event_name, event_description, for_group_type_id) VALUES (?, ?, ?, ?)");
+                $stmt->execute([$event_time, $event_name, $event_description, $for_group_type_id]);
                 $success = "新しいイベントを追加しました。";
             } catch (PDOException $e) {
                 $error = "イベントの追加に失敗しました。";
@@ -51,14 +51,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $event_time = isset($_POST['event_time']) ? trim($_POST['event_time']) : '';
         $event_name = isset($_POST['event_name']) ? trim($_POST['event_name']) : '';
         $event_description = isset($_POST['event_description']) ? trim($_POST['event_description']) : '';
-        $for_group_type = isset($_POST['for_group_type']) ? trim($_POST['for_group_type']) : null;
+        $for_group_type_id = isset($_POST['for_group_type_id']) && !empty($_POST['for_group_type_id']) ? (int)$_POST['for_group_type_id'] : null;
         
         if (empty($event_time) || empty($event_name)) {
             $error = "イベント時間とイベント名は必須です。";
         } else {
             try {
-                $stmt = $pdo->prepare("UPDATE schedule SET event_time = ?, event_name = ?, event_description = ?, for_group_type = ? WHERE id = ?");
-                $stmt->execute([$event_time, $event_name, $event_description, $for_group_type, $id]);
+                $stmt = $pdo->prepare("UPDATE schedule SET event_time = ?, event_name = ?, event_description = ?, for_group_type_id = ? WHERE id = ?");
+                $stmt->execute([$event_time, $event_name, $event_description, $for_group_type_id, $id]);
                 $success = "イベントを更新しました。";
             } catch (PDOException $e) {
                 $error = "イベントの更新に失敗しました。";
@@ -89,7 +89,7 @@ try {
     $stmt = $pdo->query("
         SELECT s.*, gt.type_name 
         FROM schedule s
-        LEFT JOIN group_types gt ON s.for_group_type = gt.type_name
+        LEFT JOIN group_types gt ON s.for_group_type_id = gt.id
         ORDER BY s.event_time
     ");
     $events = $stmt->fetchAll();
@@ -456,11 +456,11 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
                             </div>
                             
                             <div class="admin-form-group">
-                                <label for="for_group_type">対象グループ</label>
-                                <select id="for_group_type" name="for_group_type">
+                                <label for="for_group_type_id">対象グループ</label>
+                                <select id="for_group_type_id" name="for_group_type_id">
                                     <option value="">すべて</option>
                                     <?php foreach ($group_types as $type): ?>
-                                        <option value="<?= htmlspecialchars($type['type_name']) ?>" <?= $edit_event && $edit_event['for_group_type'] === $type['type_name'] ? 'selected' : '' ?>>
+                                        <option value="<?= $type['id'] ?>" <?= $edit_event && $edit_event['for_group_type_id'] == $type['id'] ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($type['type_name']) ?>
                                         </option>
                                     <?php endforeach; ?>
@@ -520,9 +520,9 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
                                     <?php endif; ?>
                                     
                                     <div class="timeline-footer">
-                                        <?php if (!empty($event['for_group_type'])): ?>
+                                        <?php if (!empty($event['for_group_type_id'])): ?>
                                             <div class="timeline-group specific-group">
-                                                <i class="fas fa-users"></i> <?= htmlspecialchars($event['type_name'] ?? $event['for_group_type']) ?>のみ
+                                                <i class="fas fa-users"></i> <?= htmlspecialchars($event['type_name'] ?? $event['for_group_type_id']) ?>のみ
                                             </div>
                                         <?php else: ?>
                                             <div class="timeline-group all-guests">

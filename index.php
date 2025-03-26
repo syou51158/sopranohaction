@@ -123,11 +123,13 @@ function get_wedding_datetime() {
     global $pdo;
     $datetime_info = [
         'date' => '2024年4月30日',
-        'time' => '12:00'
+        'time' => '12:00',
+        'ceremony_time' => '12:00',
+        'reception_time' => '13:00'
     ];
     
     try {
-        $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM wedding_settings WHERE setting_key IN ('wedding_date', 'wedding_time')");
+        $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM wedding_settings WHERE setting_key IN ('wedding_date', 'wedding_time', 'ceremony_time', 'reception_time')");
         $stmt->execute();
         
         while ($row = $stmt->fetch()) {
@@ -135,6 +137,10 @@ function get_wedding_datetime() {
                 $datetime_info['date'] = $row['setting_value'];
             } elseif ($row['setting_key'] == 'wedding_time') {
                 $datetime_info['time'] = $row['setting_value'];
+            } elseif ($row['setting_key'] == 'ceremony_time') {
+                $datetime_info['ceremony_time'] = $row['setting_value'];
+            } elseif ($row['setting_key'] == 'reception_time') {
+                $datetime_info['reception_time'] = $row['setting_value'];
             }
         }
     } catch (PDOException $e) {
@@ -489,10 +495,10 @@ $datetime_info = get_wedding_datetime();
                         <div class="info-details">
                             <h3>日時</h3>
                             <p><?= $datetime_info['date'] ?></p>
+                            <p>挙式　　<?= $datetime_info['ceremony_time'] ?></p>
+                            <p>披露宴　<?= $datetime_info['reception_time'] ?></p>
                             <?php if ($group_id): ?>
-                            <p class="arrival-time">ご集合: <?= $guest_info['arrival_time'] ?></p>
-                            <?php else: ?>
-                            <p><?= $datetime_info['time'] ?>〜</p>
+                            
                             <?php endif; ?>
                         </div>
                     </div>
@@ -601,14 +607,58 @@ $datetime_info = get_wedding_datetime();
                     <?php
                     try {
                         // スケジュール情報を取得
-                        $stmt = $pdo->query("SELECT * FROM schedule ORDER BY event_time ASC");
+                        if ($group_id && isset($guest_info['id'])) {
+                            // グループIDがある場合、グループタイプIDとグループタイプ名を取得
+                            $stmt = $pdo->prepare("
+                                SELECT g.group_type_id, gt.type_name
+                                FROM guests g
+                                JOIN group_types gt ON g.group_type_id = gt.id
+                                WHERE g.id = ?
+                            ");
+                            $stmt->execute([$guest_info['id']]);
+                            $group_info = $stmt->fetch();
+                            $group_type_id = $group_info['group_type_id'];
+                            $group_type_name = $group_info['type_name'];
+                            
+                            // グループタイプIDに対応するスケジュールと全員向けスケジュールを取得
+                            $stmt = $pdo->prepare("
+                                SELECT s.*, gt.type_name as group_type_name
+                                FROM schedule s
+                                LEFT JOIN group_types gt ON s.for_group_type_id = gt.id
+                                WHERE s.for_group_type_id IS NULL OR s.for_group_type_id = ? 
+                                ORDER BY s.event_time ASC
+                            ");
+                            $stmt->execute([$group_type_id]);
+                        } else {
+                            // グループIDがない場合は全員向けスケジュールのみ取得
+                            $stmt = $pdo->query("
+                                SELECT s.*, gt.type_name as group_type_name
+                                FROM schedule s
+                                LEFT JOIN group_types gt ON s.for_group_type_id = gt.id
+                                WHERE s.for_group_type_id IS NULL 
+                                ORDER BY s.event_time ASC
+                            ");
+                        }
+                        
                         $events = $stmt->fetchAll();
                         
                         if (!empty($events)) {
                             foreach ($events as $event) {
-                                echo '<div class="schedule-item">';
+                                // グループ固有のイベントかどうかをチェック
+                                $isGroupSpecific = !empty($event['for_group_type_id']);
+                                $groupSpecificClass = $isGroupSpecific ? 'group-specific-event' : '';
+                                
+                                echo '<div class="schedule-item ' . $groupSpecificClass . '">';
                                 echo '<div class="schedule-time">' . date("H:i", strtotime($event['event_time'])) . '</div>';
                                 echo '<div class="schedule-content">';
+                                
+                                // グループ固有のイベントの場合、特別なアイコンと表示を追加
+                                if ($isGroupSpecific) {
+                                    echo '<div class="group-specific-label">';
+                                    echo '<i class="fas fa-users"></i> ' . htmlspecialchars($guest_info['group_name']) . '向け';
+                                    echo '</div>';
+                                }
+                                
                                 echo '<h3>' . htmlspecialchars($event['event_name']) . '</h3>';
                                 echo '<p>' . nl2br(htmlspecialchars($event['event_description'])) . '</p>';
                                 echo '</div>';
@@ -626,6 +676,47 @@ $datetime_info = get_wedding_datetime();
                     }
                     ?>
                 </div>
+                
+                <style>
+                
+                .group-specific-label {
+                    display: inline-block;
+                    padding: 4px 12px;
+                    margin-bottom: 8px;
+                    font-size: 0.85rem;
+                    color: #fff;
+                    background: linear-gradient(135deg, #6b9d61, #8bc34a);
+                    border-radius: 20px;
+                    box-shadow: 0 2px 5px rgba(107, 157, 97, 0.3);
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .group-specific-label::after {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    left: -50%;
+                    width: 200%;
+                    height: 200%;
+                    background: linear-gradient(transparent, rgba(255, 255, 255, 0.3), transparent);
+                    transform: rotate(30deg);
+                    animation: sheen 3s infinite;
+                }
+                
+                .group-specific-label i {
+                    margin-right: 5px;
+                }
+                
+                @keyframes sheen {
+                    0%, 100% {
+                        transform: translateX(-100%) rotate(30deg);
+                    }
+                    50% {
+                        transform: translateX(100%) rotate(30deg);
+                    }
+                }
+                </style>
             </section>
 
             <!-- 備考・お願い -->
