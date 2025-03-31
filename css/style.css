@@ -192,7 +192,7 @@ body::before {
         width: 100%;
         max-width: 100%;
         
-    }overflow-x: hidden; /* 横方向のスクロールを防止 */
+    } /* overflow-x: hidden; は body や .container など適切な要素に設定 */
     
     body {
         

@@ -181,6 +181,77 @@ $datetime_info = get_wedding_datetime();
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500&family=Reggae+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- スクロールアニメーション用のCSS -->
+    <style>
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease, transform 1s ease;
+            transition-delay: 0.2s;
+            will-change: opacity, transform;
+        }
+        
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .fade-sequence > * {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            will-change: opacity, transform;
+        }
+        
+        .fade-sequence.is-visible > * {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .fade-sequence.is-visible > *:nth-child(1) { transition-delay: 0.1s; }
+        .fade-sequence.is-visible > *:nth-child(2) { transition-delay: 0.2s; }
+        .fade-sequence.is-visible > *:nth-child(3) { transition-delay: 0.3s; }
+        .fade-sequence.is-visible > *:nth-child(4) { transition-delay: 0.4s; }
+        .fade-sequence.is-visible > *:nth-child(5) { transition-delay: 0.5s; }
+        .fade-sequence.is-visible > *:nth-child(6) { transition-delay: 0.6s; }
+        .fade-sequence.is-visible > *:nth-child(7) { transition-delay: 0.7s; }
+        .fade-sequence.is-visible > *:nth-child(8) { transition-delay: 0.8s; }
+        .fade-sequence.is-visible > *:nth-child(9) { transition-delay: 0.9s; }
+        .fade-sequence.is-visible > *:nth-child(10) { transition-delay: 1.0s; }
+        
+        .scale-in {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            will-change: opacity, transform;
+        }
+        
+        .scale-in.is-visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            will-change: opacity, transform;
+        }
+        
+        .slide-in-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            will-change: opacity, transform;
+        }
+        
+        .slide-in-left.is-visible,
+        .slide-in-right.is-visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+    
     <!-- スクリプトの遅延読み込み -->
     <script src="js/envelope.js" defer></script>
     <script src="js/main.js" defer></script>
@@ -317,7 +388,7 @@ $datetime_info = get_wedding_datetime();
         </div>
 
         <div class="container">
-            <header class="main-header">
+            <header class="main-header fade-in-section">
                 <div class="header-inner">
                     <h1 class="title">翔 & あかね</h1>
                     <div class="title-decoration">
@@ -352,7 +423,7 @@ $datetime_info = get_wedding_datetime();
                 </div>
             </header>
 
-            <div class="video-container">
+            <div class="video-container fade-in-section">
                 <div class="video-wrapper">
                     <?php
                     // メイン動画を取得
@@ -428,12 +499,12 @@ $datetime_info = get_wedding_datetime();
                 </div>
             </div>
 
-            <section class="timeline-section">
+            <section class="timeline-section fade-in-section">
                 <div class="section-title">
                     <h2>ふたりの物語</h2>
                     <div class="title-underline"></div>
                 </div>
-                <div class="timeline">
+                <div class="timeline fade-sequence">
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-date">
@@ -481,13 +552,13 @@ $datetime_info = get_wedding_datetime();
                 </div>
             </section>
 
-            <section class="wedding-info">
+            <section class="wedding-info fade-in-section">
                 <div class="section-title">
                     <h2>結婚式のご案内</h2>
                     <div class="title-underline"></div>
                 </div>
                 
-                <div class="info-card">
+                <div class="info-card fade-sequence">
                     <div class="info-item date-time">
                         <div class="info-icon">
                             <i class="far fa-calendar-alt"></i>
@@ -595,7 +666,7 @@ $datetime_info = get_wedding_datetime();
             </section>
 
             <!-- 結婚式タイムスケジュール -->
-            <section class="schedule-section">
+            <section class="schedule-section fade-in-section">
                 <div class="section-title">
                     <h2>当日のスケジュール</h2>
                     <div class="title-underline"></div>
@@ -603,7 +674,7 @@ $datetime_info = get_wedding_datetime();
                 <div class="schedule-intro">
                     <p>結婚式当日の流れをご案内します</p>
                 </div>
-                <div class="schedule-container">
+                <div class="schedule-container fade-sequence">
                     <?php
                     try {
                         // スケジュール情報を取得
@@ -720,12 +791,12 @@ $datetime_info = get_wedding_datetime();
             </section>
 
             <!-- 備考・お願い -->
-            <section class="notes-section">
+            <section class="notes-section fade-in-section">
                 <div class="section-title">
                     <h2>備考・お願い</h2>
                     <div class="title-underline"></div>
                 </div>
-                <div class="notes-container">
+                <div class="notes-container fade-sequence">
                     <?php
                     try {
                         // 備考・お願い情報を取得
@@ -788,7 +859,7 @@ $datetime_info = get_wedding_datetime();
                 </div>
             </section>
 
-            <section id="rsvp" class="rsvp-section">
+            <section id="rsvp" class="rsvp-section fade-in-section">
                 <div class="section-title">
                     <h2>ご返信</h2>
                     <div class="title-underline"></div>
@@ -796,7 +867,7 @@ $datetime_info = get_wedding_datetime();
                 <div class="rsvp-intro">
                     <p>お手数ですが、<strong>2025年4月15日</strong>までにご返信をお願いいたします。</p>
                 </div>
-                <form id="rsvp-form" action="process_rsvp.php" method="post">
+                <form id="rsvp-form" action="process_rsvp.php" method="post" class="scale-in">
                     <?php if ($group_id && isset($guest_info['id'])): ?>
                     <input type="hidden" name="guest_id" value="<?= $guest_info['id'] ?>">
                     <input type="hidden" name="group_id" value="<?= $group_id ?>">
@@ -853,7 +924,7 @@ $datetime_info = get_wedding_datetime();
                 </div>
             </section>
 
-            <section class="countdown-section">
+            <section class="countdown-section fade-in-section">
                 <div class="countdown-container">
                     <h2>結婚式まであと</h2>
                     <div class="countdown-timer" data-wedding-date="<?= date('Y-m-d', strtotime(str_replace(['年', '月', '日'], ['-', '-', ''], $datetime_info['date']))) ?>" data-wedding-time="<?= $datetime_info['time'] ?>">
@@ -877,7 +948,7 @@ $datetime_info = get_wedding_datetime();
                 </div>
             </section>
 
-            <section class="gallery">
+            <section class="gallery fade-in-section">
                 <div class="section-title">
                     <h2>ふたりの思い出</h2>
                     <div class="title-underline"></div>
@@ -885,7 +956,7 @@ $datetime_info = get_wedding_datetime();
                 <div class="gallery-intro">
                     <p>二人の思い出の写真をシェアします</p>
                 </div>
-                <div class="photos">
+                <div class="photos fade-sequence">
                     <?php
                     try {
                         // 承認済みの写真を取得
@@ -944,12 +1015,12 @@ $datetime_info = get_wedding_datetime();
                 </div>
             </section>
 
-            <section class="message-section">
+            <section class="message-section fade-in-section">
                 <div class="section-title">
                     <h2>新郎新婦からのメッセージ</h2>
                     <div class="title-underline"></div>
                 </div>
-                <div class="message-card">
+                <div class="message-card scale-in">
                     <div class="message-icon">❝</div>
                     <p class="message-text">私たちにとって大切な皆様に、人生の新しい門出をお祝いいただけることを心から嬉しく思います。当日は「森の中」をテーマに、自然に囲まれた温かい雰囲気の中で、皆様と素敵な時間を過ごせることを楽しみにしています。ぜひお気軽な服装でお越しください。</p>
                     <p class="message-signature">翔 & あかね</p>
@@ -957,7 +1028,7 @@ $datetime_info = get_wedding_datetime();
             </section>
 
             <!-- よくある質問（FAQ）セクション -->
-            <section class="faq-section">
+            <section class="faq-section fade-in-section">
                 <div class="section-title">
                     <h2>よくある質問</h2>
                     <div class="title-underline"></div>
@@ -965,7 +1036,7 @@ $datetime_info = get_wedding_datetime();
                 <div class="faq-intro">
                     <p>ゲストの皆様からよく寄せられる質問をまとめました</p>
                 </div>
-                <div class="faq-container">
+                <div class="faq-container fade-sequence">
                     <?php
                     try {
                         // FAQを取得
@@ -1004,7 +1075,7 @@ $datetime_info = get_wedding_datetime();
             </section>
 
             <!-- ゲストブックへのリンク -->
-            <div class="guestbook-link-container">
+            <div class="guestbook-link-container fade-in-section">
                 <a href="guestbook.php<?= $group_id ? '?group=' . urlencode($group_id) : '' ?>" class="guestbook-link-button">
                     <i class="fas fa-book-open"></i> ゲストブックを見る・書く
                 </a>
@@ -1013,7 +1084,7 @@ $datetime_info = get_wedding_datetime();
         </div>
 
         <!-- サイト名の説明を一番下に移動 -->
-        <div class="soprano-note-container">
+        <div class="soprano-note-container fade-in-section">
             <div class="soprano-note">
                 <div class="note-content">
                     <div class="note-inner">
@@ -1046,7 +1117,7 @@ $datetime_info = get_wedding_datetime();
             </div>
         </div>
 
-        <footer>
+        <footer class="fade-in-section">
             <div class="footer-decoration">
                 <div class="leaf-decoration left"></div>
                 <div class="heart-container">
@@ -1125,5 +1196,32 @@ $datetime_info = get_wedding_datetime();
         transform: translateX(3px);
     }
     </style>
+
+    <!-- スクロールアニメーション用のJavaScript -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Intersection Observerの設定
+        const options = {
+            root: null, // ビューポートをルートとして使用
+            rootMargin: '0px', // マージンなし
+            threshold: 0.1 // 要素の10%が見えたときに実行
+        };
+        
+        // フェードイン要素を監視するオブザーバー
+        const fadeObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target); // 一度表示されたら監視を解除
+                }
+            });
+        }, options);
+        
+        // すべてのフェードイン要素を監視対象に追加
+        document.querySelectorAll('.fade-in-section, .fade-sequence, .scale-in, .slide-in-left, .slide-in-right').forEach(el => {
+            fadeObserver.observe(el);
+        });
+    });
+    </script>
 </body>
 </html> 

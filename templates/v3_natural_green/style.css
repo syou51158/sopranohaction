@@ -1,0 +1,254 @@
+/* v3_natural_green テーマ用スタイルシート */
+
+:root {
+    --primary-color: #6b9d61;
+    --primary-light: #8bc34a;
+    --primary-dark: #5d8b4f;
+    --secondary-color: #f8f4e6;
+    --text-color: #333;
+    --accent-color: #e0c9a6;
+    --accent-dark: #c8b28a;
+    --accent-light: #f4ebd9;
+    --background-color: #f8f4e6;
+    --border-color: #e0d5c1;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --error-color: #e74c3c;
+    --success-color: #27ae60;
+    --info-color: #3498db;
+    --warning-color: #f39c12;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    overflow-x: hidden;
+}
+
+/* ナチュラルグリーンテーマの共通スタイル */
+.natural-green {
+    background-color: #f9f7f4;
+    color: #444;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ヘッダー・カップル名 */
+.couple-names {
+    font-family: 'Noto Serif JP', serif;
+    text-align: center;
+    padding: 60px 0 30px;
+}
+
+.couple-names h1 {
+    font-size: 2.2rem;
+    font-weight: normal;
+    margin-bottom: 20px;
+    color: var(--primary-dark);
+}
+
+.wedding-date {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+/* 正式な招待状メッセージ */
+.formal-message {
+    font-family: 'Noto Serif JP', serif;
+    text-align: center;
+    line-height: 2.2;
+    margin: 40px 0;
+    padding: 20px;
+}
+
+/* 日付表示 */
+.todays-date {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.date-display {
+    font-size: 1.3rem;
+    font-weight: normal;
+    color: var(--primary-dark);
+}
+
+/* 挙式・披露宴情報 */
+.ceremony-reception-info {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    padding: 30px;
+    margin: 30px 0;
+}
+
+.info-section {
+    margin-bottom: 20px;
+}
+
+.info-section h3 {
+    font-weight: normal;
+    color: var(--primary-dark);
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.info-section p {
+    margin-bottom: 10px;
+}
+
+/* 会場情報 */
+.venue-info {
+    margin: 30px 0;
+}
+
+.venue-name {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.venue-address {
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+/* 交通情報 */
+.transportation-note {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: rgba(107, 157, 97, 0.1);
+    border-radius: 5px;
+}
+
+/* 回答セクション */
+.rsvp-section {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.rsvp-text {
+    margin-bottom: 20px;
+}
+
+.rsvp-deadline {
+    font-weight: 500;
+    color: var(--primary-dark);
+}
+
+.rsvp-link {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+}
+
+.rsvp-link:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(107, 157, 97, 0.3);
+}
+
+/* フッター */
+.footer-branding {
+    margin-top: 50px;
+    text-align: center;
+    padding: 20px 0;
+    font-size: 0.9rem;
+    color: #888;
+}
+
+/* 自然をテーマにした装飾 */
+.natural-decoration {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.leaf {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-image: url('../../images/leaf1.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.2;
+    animation: falling linear infinite;
+}
+
+@keyframes falling {
+    0% {
+        transform: translateY(-10%) rotate(0deg);
+    }
+    100% {
+        transform: translateY(1000%) rotate(360deg);
+    }
+}
+
+/* ユーティリティクラス */
+.text-center {
+    text-align: center;
+}
+
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+.mb-30 {
+    margin-bottom: 30px;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    .couple-names h1 {
+        font-size: 2rem;
+    }
+    
+    .formal-message {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .couple-names h1 {
+        font-size: 1.8rem;
+    }
+    
+    .formal-message {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .ceremony-reception-info {
+        padding: 20px;
+    }
+    
+    .venue-name {
+        font-size: 1.1rem;
+    }
+} 

@@ -1,0 +1,3 @@
+date	size'/'remotesize	flags(request:Update,Range state:File response:Modified,Chunked,gZipped)	statuscode	status ('servermsg')	MIME	Etag|Date	URL	localfile	(from URL)
+00:18:47	196/196	---M--	404	error ('Not%20Found')	text/html	date:Wed,%2026%20Mar%202025%2015:18:46%20GMT	https://sample.weddingday.jp/robots.txt		(from )
+00:18:48	58486/58486	---MC-	200	added ('OK')	text/html	date:Wed,%2026%20Mar%202025%2015:18:47%20GMT	https://sample.weddingday.jp/?design=v3_natural_green	/Applications/XAMPP/xamppfiles/htdocs/wedding/templates/sample.weddingday.jp/index12bb.html	(from )
