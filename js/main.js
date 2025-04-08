@@ -807,4 +807,126 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    
+    // スクロールパフォーマンス最適化
+    let scrollTimeout;
+    const body = document.body;
+    
+    // スクロール中にアニメーションを一時停止して軽量化
+    window.addEventListener('scroll', function() {
+        if (!body.classList.contains('is-scrolling')) {
+            body.classList.add('is-scrolling');
+        }
+        
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(function() {
+            body.classList.remove('is-scrolling');
+        }, 150); // スクロールが終わって150ms後にアニメーション再開
+    }, { passive: true });
+    
+    // iOSのスクロールバウンス問題を修正
+    document.addEventListener('touchmove', function(e) {
+        // バウンス効果がトリガーされたときのスクロール位置
+        if (window.scrollY <= 0 || window.scrollY + window.innerHeight >= document.body.scrollHeight) {
+            // 通常のトラブルシューティングコードで使用するために維持
+            // ただし必要ない場合はパフォーマンスのため削除可能
+            console.log('スクロールバウンス検出', window.scrollY);
+        }
+    }, { passive: true });
+    
+    // レイジーロード画像の最適化（既存のコードとマージ）
+    function optimizeLazyImages() {
+        const lazyImages = document.querySelectorAll('img.lazy-load:not(.loaded)');
+        
+        if (lazyImages.length > 0) {
+            lazyImages.forEach(img => {
+                if (isElementInViewport(img) && !img.classList.contains('loaded')) {
+                    // データ属性からソースを設定
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        // 読み込み完了後にクラスを追加
+                        img.onload = function() {
+                            img.classList.add('loaded');
+                            img.classList.add('gpu-accelerated');
+                        };
+                    }
+                }
+            });
+        }
+    }
+    
+    // 最適化: 要素が表示されているかを効率的に判定
+    function isElementInViewport(el) {
+        const rect = el.getBoundingClientRect();
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+        
+        // 画面に表示されているか、表示直前100px以内にあるかを確認
+        return (
+            rect.top <= windowHeight + 100 &&
+            rect.bottom >= -100
+        );
+    }
+    
+    // Intersection Observerを使用してスクロール最適化（サポートされている場合）
+    if ('IntersectionObserver' in window) {
+        const elementsToAnimate = document.querySelectorAll('.fade-in, .slide-in, .photo-item, .info-card');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        });
+        
+        elementsToAnimate.forEach(element => {
+            observer.observe(element);
+        });
+    }
+    
+    // パフォーマンス問題が発生しやすい要素に最適化クラスを追加
+    function addOptimizationClasses() {
+        const heavyElements = document.querySelectorAll('.video-container, .photos, .photo-item, img, .forest-header');
+        
+        heavyElements.forEach(el => {
+            el.classList.add('gpu-accelerated');
+        });
+    }
+    
+    // 初期化時に最適化を実行
+    addOptimizationClasses();
+    optimizeLazyImages();
+    
+    // スクロールイベントをデバウンスして効率的に処理
+    let isScrolling = false;
+    window.addEventListener('scroll', function() {
+        if (!isScrolling) {
+            window.requestAnimationFrame(function() {
+                optimizeLazyImages();
+                isScrolling = false;
+            });
+            isScrolling = true;
+        }
+    }, { passive: true });
+    
+    // モバイルデバイスの検出と最適化
+    function isMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+    }
+    
+    // モバイルデバイスでは一部のアニメーションを無効化
+    if (isMobileDevice()) {
+        document.body.classList.add('mobile-device');
+        
+        // モバイルでのパフォーマンス最適化
+        const heavyAnimations = document.querySelectorAll('.floating-petals, .floating-leaves, .heart, .sparkle');
+        heavyAnimations.forEach(el => {
+            el.style.display = 'none';
+        });
+    }
 }); 
