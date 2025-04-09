@@ -923,7 +923,7 @@ $datetime_info = get_wedding_datetime();
                     </div>
                     
                     <div class="form-group">
-                        <div class="g-recaptcha" data-sitekey="6LeFiZApAAAAAJhbCL-YsH-IaIxwYBKJMYT5B-0l"></div>
+                        <div class="g-recaptcha" data-sitekey="6LfXwg8rAAAAAO8tgbD74yqTFHK9ZW6Ns18M8GpF"></div>
                     </div>
                     
                     <button type="submit" class="submit-button"><i class="fas fa-paper-plane"></i> 送信する</button>

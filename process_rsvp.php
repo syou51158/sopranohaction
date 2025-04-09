@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // reCAPTCHA検証
     $recaptcha_valid = false;
     if (!empty($recaptcha_response)) {
-        $recaptcha_secret = '6LeFiZApAAAAAOaYHSF4J0kVPOSQ9t5ImxbJlfdQ'; // reCAPTCHAシークレットキー
+        $recaptcha_secret = '6LfXwg8rAAAAAPIdyZWGj-VGMI_nbdS3aVj0E4nP'; // reCAPTCHAシークレットキー
         $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
         $recaptcha_data = [
             'secret' => $recaptcha_secret,
