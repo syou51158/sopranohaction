@@ -97,6 +97,9 @@ if ($guest_info && isset($guest_info['group_id'])) {
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- QRコード生成ライブラリ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
     <style>
         .mypage-container {
             max-width: 800px;
@@ -283,11 +286,26 @@ if ($guest_info && isset($guest_info['group_id'])) {
         
         <?php if ($guest_info && !empty($qr_code_html)): ?>
         <div class="qr-section">
-            <h2><?= htmlspecialchars($guest_info['group_name']) ?> 様</h2>
+            <h2><?= htmlspecialchars($guest_info['group_name']) ?></h2>
             <p>以下のQRコードを結婚式当日にご提示ください</p>
             
             <div class="qr-code-container">
-                <?= $qr_code_html ?>
+                <div id="qrcode" style="margin: 0 auto; padding: 15px; background: #fff; border-radius: 10px; display: inline-block;"></div>
+                <p class="qr-instructions">結婚式当日、このQRコードを会場受付でご提示ください</p>
+                
+                <?php if ($debug_mode): ?>
+                <!-- デバッグ情報 -->
+                <div style="margin-top: 20px; padding: 10px; background: #f8f8f8; border: 1px solid #ddd; text-align: left; font-size: 12px;">
+                    <h4>デバッグ情報:</h4>
+                    <p>ゲストID: <?= $guest_info['id'] ?></p>
+                    <p>QRトークン: <?= htmlspecialchars($guest_info['qr_code_token']) ?></p>
+                    <?php
+                    // QRコードに埋め込むURL（チェックインページへのリンク）
+                    $checkin_url = $site_url . "admin/checkin.php?token=" . urlencode($guest_info['qr_code_token']);
+                    ?>
+                    <p>埋め込みURL: <?= htmlspecialchars($checkin_url) ?></p>
+                </div>
+                <?php endif; ?>
             </div>
             
             <div class="note-box">
@@ -336,24 +354,46 @@ if ($guest_info && isset($guest_info['group_id'])) {
     
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // QRコードを生成
+        <?php if ($guest_info && !empty($guest_info['qr_code_token'])): ?>
+        // QRコードに埋め込むURL（チェックインページへのリンク）
+        const checkinUrl = '<?= $site_url . "admin/checkin.php?token=" . urlencode($guest_info['qr_code_token']) ?>';
+        
+        // QRコードを生成
+        new QRCode(document.getElementById("qrcode"), {
+            text: checkinUrl,
+            width: 256,
+            height: 256,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        <?php endif; ?>
+        
         // QRコードを長押しで保存できるようにするヒント表示
-        const qrImage = document.querySelector('.qr-code-container img');
-        if (qrImage) {
-            qrImage.addEventListener('contextmenu', function(e) {
-                // 右クリックメニューを表示（デフォルト動作を維持）
-            });
-            
-            // モバイルデバイス向けロングタップイベント
-            let timer;
-            qrImage.addEventListener('touchstart', function() {
-                timer = setTimeout(function() {
-                    alert('QRコードを長押しすると保存できます');
-                }, 800);
-            });
-            
-            qrImage.addEventListener('touchend', function() {
-                clearTimeout(timer);
-            });
+        const qrCodeContainer = document.getElementById('qrcode');
+        if (qrCodeContainer) {
+            // QRコード内の画像が生成された後に実行
+            setTimeout(function() {
+                const qrImage = qrCodeContainer.querySelector('img');
+                if (qrImage) {
+                    qrImage.addEventListener('contextmenu', function(e) {
+                        // 右クリックメニューを表示（デフォルト動作を維持）
+                    });
+                    
+                    // モバイルデバイス向けロングタップイベント
+                    let timer;
+                    qrImage.addEventListener('touchstart', function() {
+                        timer = setTimeout(function() {
+                            alert('QRコードを長押しすると保存できます');
+                        }, 800);
+                    });
+                    
+                    qrImage.addEventListener('touchend', function() {
+                        clearTimeout(timer);
+                    });
+                }
+            }, 500); // 少し遅延を入れて、QRコード画像が生成された後に実行
         }
     });
     </script>
