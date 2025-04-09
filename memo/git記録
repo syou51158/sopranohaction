@@ -1,0 +1,302 @@
+cd /Applications/XAMPP/xamppfiles/htdocs/wedding/
+git add .
+git commit -m "プロジェクトをサーバーにアップする"
+git push origin main
+
+git add .
+git commit -m "招待状の動きの改善、フラップの動きの改善。座席表の操作の改善"
+git push origin main
+
+git add .
+git commit -m "indexページのモバイル表示改善、FAQのボタンの問題を修正"
+git push origin main
+
+git add .
+git commit -m "indexページのカウントダウンモバイル表示改善、時間の読み込み問題の改善"
+git push origin main
+
+git add .
+git commit -m "2人の物語の内容変更"
+git push origin main
+
+git add .
+git commit -m "ロリポップサーバーでの写真表示問題を修正：パーミッション設定、キャッシュ制御、.htaccess設定、管理ツール追加"
+git push origin main
+
+# 変更内容
+- ロリポップサーバーで管理画面からアップロードした写真が表示されなくなる問題を修正
+- 写真ファイルにパーミッション設定（0644）を追加
+- キャッシュ制御のためのHTTPヘッダー設定
+- 画像URLにタイムスタンプを追加してキャッシュを回避
+- .htaccessファイルを新規作成・設定
+- admin/.htaccessを別ファイルとして設定（IP制限を適用）
+- JavaScriptの重複関数問題を修正
+- 管理画面にパーミッション修正ツールを追加
+
+git add .
+git commit -m "サイトをHTTPS化：保護された通信のためのSSL設定"
+git push origin main
+
+# 変更内容
+- サイトの「保護されていない通信」警告を解決するためにHTTPS化
+- .htaccessファイルにHTTPSリダイレクト設定を追加
+- HTTP接続を自動的にHTTPSにリダイレクト
+- config.phpのサイトURLをhttps://に変更
+
+git add .
+git commit -m "デプロイスクリプト修正：uploadsフォルダを保持するように変更"
+git push origin main
+
+# 変更内容
+- rsyncコマンドのオプションに`--exclude='uploads/'`を追加
+- デプロイ時にuploadsフォルダとその中の写真を削除しないように設定
+- デプロイ後にuploadsフォルダとサブディレクトリを自動的に作成
+- フォルダのパーミッションを755に、ファイルのパーミッションを644に設定
+
+git add .
+git commit -m "ダッシュボード表示問題解決"
+git push origin main
+
+git add .
+git commit -m ".htaccessファイルをデプロイ時に保持する設定を追加"
+git push origin main
+
+# 変更内容
+- rsyncコマンドの除外設定に`.htaccess`と`admin/.htaccess`を追加
+- サーバー上の.htaccessファイルをバックアップする処理を追加
+- デプロイ時に.htaccessファイルが存在しない場合、バックアップから復元する処理を実装
+- ローカル環境では.htaccessを削除しても、サーバー上のファイルは保持される
+
+git add .
+git commit -m "セキュリティー対応"
+git push origin main
+
+git add .
+git commit -m "よくある質問にリンクを追加"
+git push origin main
+
+2024年6月12日
+【変更内容】
+- 管理画面アクセス制限を環境変数で制御する機能を追加
+- admin/.htaccess.templateファイルを作成し、環境変数ADMIN_ACCESS_CONTROLに基づいて制限を適用するように変更
+- デプロイスクリプト(.github/workflows/deploy.yml)を修正し、.htaccessファイルを環境に応じて生成するよう改善
+- .htpasswdファイルがない場合は自動生成するコードを追加
+
+【目的】
+- 開発環境と本番環境で管理画面のアクセス制限を柔軟に切り替えられるようにする
+- 結婚式プランナーなど、特定のユーザーが管理画面にアクセスできるように設定を改善
+- Basic認証とIPアドレス制限を組み合わせてセキュリティを強化
+
+【コミットID】
+9dfc23a
+
+2024年6月13日
+【変更内容】
+- ルートの.htaccess.templateにadminディレクトリのアクセス制限設定を追加
+- 本番環境（SITE_ENVIRONMENT=production）でのみadminディレクトリへのIPアドレス制限が適用されるよう設定
+
+【目的】
+- 本番環境でスマートフォンからアクセスした際に発生する403エラーを解決
+- 管理画面へのアクセス制限をルートの.htaccessファイルでも適切に設定
+- 開発環境と本番環境でのアクセス制限を環境変数で統一的に管理
+
+【コミットID】
+6cbab4b
+
+2024年6月14日
+【変更内容】
+- 管理画面へのスマホアクセスを許可するように設定を修正
+- 管理画面の.htaccessファイルにIPアドレス制限を緩和する「open」モードを追加
+- デプロイスクリプトでADMIN_ACCESS_CONTROL環境変数を「open」に設定
+- ルートの.htaccess.templateからadminディレクトリへのIP制限を削除
+
+【目的】
+- スマートフォンから外部で管理画面にアクセスできるようにする
+- Basic認証のみのモードを追加し、IP制限なしでも管理画面にアクセスできるようにする
+- 管理画面のアクセス制限を一元的に管理（admin/.htaccessで完結）
+
+【コミットID】
+216f0f9
+
+2024年6月14日（その2）
+【変更内容】
+- ベーシック認証のパスワードハッシュを更新
+- 新しいハッシュに置き換え（パスワードは同じ）
+
+【目的】
+- スマートフォンからのベーシック認証のログイン問題を解決
+- ハッシュの互換性問題に対応
+
+【コミットID】
+d6b5e06
+
+2024年6月14日（その3）
+【変更内容】
+- ベーシック認証を完全に無効化
+- PHPセッション認証のみを使用するように変更
+- .htpasswdファイルを生成する処理を削除
+- 管理画面へのアクセス方法を簡素化
+
+【目的】
+- スマートフォンからの管理画面アクセスを容易にする
+- 結婚式プランナーやその他の管理者が簡単にアクセスできるようにする
+- 複数の認証層による混乱を解消し、PHPのセッション認証のみに統一
+
+【コミットID】
+828c031
+
+2024年6月14日（その4）
+【変更内容】
+- デプロイスクリプトのSSH接続設定を修正
+- StrictHostKeyChecking設定を「accept-new」から「no」に変更
+
+【目的】
+- デプロイ中に発生するRSAキー署名エラーを解決
+- サーバー接続時のホスト認証を無効化し、自動デプロイを確実に実行できるようにする
+
+【コミットID】
+5fa5c86
+
+2024年6月14日（その5）
+【変更内容】
+- デプロイスクリプトのパス設定を修正
+- 相対パス(~/)から絶対パス(/home/users/1/...)に変更
+
+【目的】
+- ディレクトリが見つからないエラーを解決
+- サーバー上の正確なパスを指定し、デプロイの安定性を向上
+
+【コミットID】
+d2cd78a
+
+git add .
+git commit -m "スタイル一部修正、indexページのモバイル表示改善"
+git push origin main
+
+git add .
+git commit -m "招待状ページ分と管理者ページのモバイル表示改善"
+git push origin main
+
+git add .
+git commit -m "招待状ページ出席する　しない　ボタンのモバイル表示改善"
+git push origin main
+
+git add .
+git commit -m "招待状ページのモバイル表示改善、ソプラノハクションの由来の説明の表示改善"
+git push origin main
+
+2024年6月14日（その6）
+【変更内容】
+- デプロイスクリプトを大幅改善
+- SSH設定ファイル方式からコマンドライン直接指定方式に変更
+- SSH接続テストを追加し、事前に接続確認を行うように修正
+- rsyncコマンドのオプションを改善し、接続エラーを回避
+- すべてのSSHコマンドに直接接続パラメータを指定
+
+【目的】
+- 継続的に発生するデプロイエラーの根本的解決
+- SSH接続の安定性向上
+- GitHubアクションでのデプロイ成功率向上
+
+【コミットID】
+811273d
+
+git add .
+git commit -m "ゲストブックページのモバイル表示改善"
+git push origin main
+
+2024年6月14日（その7）
+【変更内容】
+- デプロイスクリプトを完全に簡素化
+- SSHコマンドを最小限の構成に変更
+- ディレクトリパスを明示的にチェックする処理を追加
+- ホームディレクトリからの相対パス(web/sopranohaction)を使用
+- 複雑なシェルコマンドを単純化し、catコマンドを使用
+
+【目的】
+- 継続的に発生するSSH接続エラーとパス問題の根本的解決
+- デプロイプロセスの信頼性向上
+- 複雑なシェルコマンドによるエラーを回避
+
+【コミットID】
+3325350
+
+git add .
+git commit -m "ゲストブックページのモバイル表示改善"
+git push origin main
+
+2025年3月25日
+【変更内容】
+- READMEファイルにGitテストセクションを追加
+- 日付を明示的に記載（2025年3月25日）
+
+【目的】
+- Gitプッシュとデプロイプロセスのテスト
+- GitHub Actionsのワークフロー検証
+
+【コミットID】
+c8b57eb
+
+git add .
+git commit -m "封筒のタップ指示の位置を変更"
+git push origin main     
+
+git add .
+git commit -m "招待状ページのゲストブックモバイル表示改善及び管理者ページのゲスト付箋の表示及び操作改善"
+git push origin main
+
+2025年3月25日（その2）
+【変更内容】
+- 管理者ページのゲスト付箋編集機能を修正
+- 編集ボタンが本番環境で機能しない問題を解決
+- キャッシュ防止のためのメタタグを追加
+- JavaScriptにエラー処理とデバッグログを追加
+- モーダル表示のロバスト性を向上
+
+【目的】
+- 本番環境でのユーザビリティ向上
+- JavaScriptの堅牢性向上によるエラー耐性の強化
+- デバッグ情報の追加による問題の早期発見
+
+【コミットID】
+0467019
+
+git add .
+git commit -m "ゲスト付箋編集機能の修正"
+git push origin main
+
+git add .
+git commit -m "招待状及び管理ページにおける、ブライダル担当の要件に基づき修正"
+git push origin main
+
+git add .
+git commit -m "管理者ページ交通宿泊URL問題の修正"
+git push origin main
+
+git add .
+git commit -m "スクロールアニメーションの改善"
+git push origin main
+
+git add .
+git commit -m "復元"
+git push origin main
+
+2025年3月26日
+【変更内容】
+- 管理ダッシュボードの回答一覧に削除機能を追加
+- 削除確認モーダルの実装
+- 削除処理時に関連する同伴者情報も一緒に削除するよう実装
+- RSVPフォームにGoogle reCAPTCHA v2を導入
+- フォーム送信時にreCAPTCHA検証を実装
+
+【目的】
+- 本番環境で発生したスパム回答を管理者が削除できるようにする
+- スパムボットによる自動送信を防止するためのreCAPTCHA導入
+- 回答フォームのセキュリティ強化
+
+【コミットID】
+fd197d3
+
+git add .
+git commit -m "管理画面に回答削除機能を追加し、フォームにreCAPTCHAを追加"
+git push origin main
