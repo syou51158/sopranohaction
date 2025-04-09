@@ -269,6 +269,48 @@ if ($group_id) {
                 height: 80px;
             }
         }
+
+        /* QRコード案内スタイル */
+        .qr-info-box {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f8f9ff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid #4285F4;
+            text-align: left;
+        }
+
+        .qr-info-box h3 {
+            color: #4285F4;
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+
+        .qr-info-box p {
+            margin: 10px 0;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .qr-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 24px;
+            background-color: #4285F4;
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 3px 8px rgba(66, 133, 244, 0.3);
+        }
+
+        .qr-link:hover {
+            background-color: #3367D6;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(66, 133, 244, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -278,15 +320,25 @@ if ($group_id) {
                 <i class="fas fa-heart thank-you-icon"></i>
                 <h1>ありがとうございます</h1>
                 <p><?= $guest_info['group_name'] ?></p>
-                <p>ご回答いただき、誠にありがとうございます。</p>
-                
-                <?php if ($response_status === 1): ?>
-                <p>大切な日にご参加いただけること、心より嬉しく思います。<br>当日お会いできることを楽しみにしております。</p>
-                <?php elseif ($response_status === 0): ?>
-                <p>残念ながらご都合がつかないとのこと、<br>心よりお気持ちに感謝いたします。</p>
-                <?php else: ?>
-                <p>皆様の温かいお気持ちに心から感謝いたします。</p>
-                <?php endif; ?>
+                <div class="thank-you-message">
+                    <h2>ご回答ありがとうございます</h2>
+                    <p>大切なご返信をいただき、心より感謝申し上げます。</p>
+                    <?php if (isset($guest_info['attending']) && $guest_info['attending'] == 1): ?>
+                    <p class="special-message">ご出席のご連絡をいただき、とても嬉しく思います。<br>当日お会いできることを楽しみにしております。</p>
+                    
+                    <!-- QRコードチェックイン案内 -->
+                    <div class="qr-info-box">
+                        <h3><i class="fas fa-qrcode"></i> QRコードチェックインのご案内</h3>
+                        <p>結婚式当日は受付でQRコードをご提示いただくとスムーズにチェックインができます。</p>
+                        <p>以下のリンクからQRコードをご確認いただけます。結婚式当日までお手元に保存しておいてください。</p>
+                        <a href="<?= $group_id ? "my_qrcode.php?group=" . urlencode($group_id) : "my_qrcode.php" ?>" class="qr-link">
+                            <i class="fas fa-arrow-right"></i> マイQRコードを表示する
+                        </a>
+                    </div>
+                    <?php else: ?>
+                    <p class="special-message">ご欠席のご連絡をいただき、ありがとうございます。<br>またの機会にお会いできることを楽しみにしております。</p>
+                    <?php endif; ?>
+                </div>
                 
                 <div class="thank-you-signature">
                     <p>翔 &amp; あかね</p>

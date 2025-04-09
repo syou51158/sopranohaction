@@ -693,6 +693,57 @@ $datetime_info = get_wedding_datetime();
                     <div class="rsvp-button-container">
                         <a href="#rsvp" class="rsvp-button"><i class="fas fa-envelope"></i> ご出欠を回答する</a>
                     </div>
+                    
+                    <!-- QRコードチェックイン情報 -->
+                    <?php if ($group_id): ?>
+                    <div class="qr-checkin-info">
+                        <h3><i class="fas fa-qrcode"></i> QRコードチェックイン</h3>
+                        <p>結婚式当日の受付をスムーズに行うため、QRコードをご用意しています。</p>
+                        <a href="<?= "my_qrcode.php?group=" . urlencode($group_id) ?>" class="qr-button">
+                            マイQRコードを表示 <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                    
+                    <style>
+                    .qr-checkin-info {
+                        margin-top: 30px;
+                        padding: 20px;
+                        background-color: #f0f8ff;
+                        border-radius: 10px;
+                        text-align: center;
+                        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+                        border-left: 4px solid #4285F4;
+                    }
+                    
+                    .qr-checkin-info h3 {
+                        color: #4285F4;
+                        margin-top: 0;
+                    }
+                    
+                    .qr-checkin-info p {
+                        margin: 10px 0;
+                        color: #555;
+                    }
+                    
+                    .qr-button {
+                        display: inline-block;
+                        padding: 10px 20px;
+                        margin-top: 10px;
+                        color: #fff;
+                        background-color: #4285F4;
+                        border-radius: 50px;
+                        text-decoration: none;
+                        transition: all 0.3s;
+                        font-weight: 500;
+                    }
+                    
+                    .qr-button:hover {
+                        background-color: #3367D6;
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                    }
+                    </style>
+                    <?php endif; ?>
                 </div>
             </section>
 

@@ -120,9 +120,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // データベースに保存
                 $stmt = $pdo->prepare("
-                    INSERT INTO responses 
-                    (guest_id, name, email, attending, companions, message, dietary) 
-                    VALUES (:guest_id, :name, :email, :attending, :companions, :message, :dietary)
+                     INSERT INTO responses 
+                     (guest_id, name, email, attending, companions, message, dietary) 
+                     VALUES (:guest_id, :name, :email, :attending, :companions, :message, :dietary)
                 ");
                 
                 $params = [
@@ -138,11 +138,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // デバッグログ - SQLパラメータ
                 log_debug("SQL Parameters: " . print_r($params, true));
                 
-                $stmt->execute($params);
+                $result = $stmt->execute($params);
                 
                 // デバッグログ - 挿入成功
                 $last_id = $pdo->lastInsertId();
                 log_debug("SQL Insert successful. Last Insert ID: " . $last_id);
+                
+                // QRコードトークンを生成（参加する場合のみ、存在しない場合）
+                if ($result && $attending == 1 && $guest_id) {
+                    $qr_token = generate_qr_token($guest_id);
+                    log_debug("QRコードトークン生成: " . ($qr_token ? "成功" : "失敗") . " - ゲストID: $guest_id");
+                }
                 
                 // 同伴者情報の保存
                 if ($companions > 0 && $attending == 1) {
@@ -169,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 ");
                                 
                                 $companion_params = [
-                                    'response_id' => $last_id,
+                                    'response_id' => $guest_id,
                                     'name' => htmlspecialchars($companion_names[$i]),
                                     'age_group' => isset($companion_ages[$i]) ? htmlspecialchars($companion_ages[$i]) : 'adult',
                                     'dietary' => isset($companion_dietaries[$i]) ? htmlspecialchars($companion_dietaries[$i]) : ''
@@ -251,7 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $update_response_stmt = $pdo->prepare("
                                 UPDATE responses SET guest_id = ? WHERE id = ?
                             ");
-                            $update_response_stmt->execute([$guest_id, $last_id]);
+                            $update_response_stmt->execute([$guest_id, $guest_id]);
                         }
                     } catch (PDOException $e) {
                         log_debug("Error creating guest record: " . $e->getMessage());
@@ -267,7 +273,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     // 最新の回答データを取得
                     $response_stmt = $pdo->prepare("SELECT * FROM responses WHERE id = ?");
-                    $response_stmt->execute([$last_id]);
+                    $response_stmt->execute([$guest_id]);
                     $response_data = $response_stmt->fetch();
                     
                     // 通知送信
@@ -343,7 +349,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         log_debug("QR code email sent to $email: " . ($mail_result ? "Success" : "Failed"));
                     }
                     
-                    log_debug("Notification sent for response ID: " . $last_id);
+                    log_debug("Notification sent for response ID: " . $guest_id);
                 } catch (Exception $e) {
                     // 通知送信に失敗しても処理を続行
                     log_debug("Failed to send notification: " . $e->getMessage());
