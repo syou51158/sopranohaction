@@ -1,12 +1,124 @@
 name: Deploy to Production
 
-# mainブランチへのプッシュをトリガーにワークフローを実行
+# mainブランチへのプッシュとプルリクエストをトリガーにワークフローを実行
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  deploy:
+  # プルリクエスト時のテストジョブ
+  test:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      # リポジトリのコードをチェックアウト
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Composerの依存関係をインストール
+      - name: Install Composer Dependencies
+        run: composer install --optimize-autoloader
+
+      # 基本的な構文チェック
+      - name: PHP Syntax Check
+        run: |
+          find . -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 php -l
+
+      # 追加のテストがある場合はここに追加
+
+  # ステージング環境へのデプロイ（プルリクエスト時）
+  deploy-staging:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      # リポジトリのコードをチェックアウト
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 完全な履歴をチェックアウト
+
+      # Composerの依存関係をインストール
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      # SSH設定
+      - name: Setup SSH connection
+        run: |
+          echo "ステージング環境へのセットアップ開始"
+          
+          # 秘密鍵ファイルを作成
+          mkdir -p $HOME/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > $HOME/.ssh/id_rsa
+          chmod 600 $HOME/.ssh/id_rsa
+          
+          # SSH接続テスト
+          echo "ホスト情報を確認..."
+          ssh -o StrictHostKeyChecking=no -p 2222 deci.jp-trendcompany@ssh.lolipop.jp "whoami && pwd"
+
+      # 環境変数の設定
+      - name: Set deployment variables
+        id: vars
+        run: |
+          echo "DEPLOY_PATH=web/staging-sopranohaction" >> $GITHUB_OUTPUT
+          echo "SITE_URL=http://trendcompany.deci.jp/staging-sopranohaction/" >> $GITHUB_OUTPUT
+          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+
+      # ファイルをステージングサーバーにデプロイ
+      - name: Deploy to staging server
+        env:
+          DEPLOY_PATH: ${{ steps.vars.outputs.DEPLOY_PATH }}
+        run: |
+          # ステージングディレクトリを作成
+          ssh -o StrictHostKeyChecking=no -p 2222 deci.jp-trendcompany@ssh.lolipop.jp "mkdir -p ~/$DEPLOY_PATH"
+          
+          # rsyncを使用してファイルを転送
+          rsync -avz -e "ssh -p 2222 -o StrictHostKeyChecking=no" \
+            --delete --exclude='.git/' --exclude='.github/' --exclude='.env' \
+            --exclude='node_modules/' --exclude='uploads/' --exclude='.htaccess' \
+            --exclude='admin/.htaccess' \
+            ./ deci.jp-trendcompany@ssh.lolipop.jp:~/$DEPLOY_PATH/
+          
+          # パーミッション設定
+          ssh -o StrictHostKeyChecking=no -p 2222 deci.jp-trendcompany@ssh.lolipop.jp "cd ~/$DEPLOY_PATH && \
+            find . -type d -exec chmod 755 {} \; && \
+            find . -type f -exec chmod 644 {} \;
+            
+            # アップロードディレクトリの確認と設定
+            mkdir -p uploads/photos && \
+            chmod -R 755 uploads
+            
+            # .htaccessファイルの処理
+            if [ -f .htaccess.template ]; then \
+              export SITE_ENVIRONMENT=\"staging\"; \
+              cat .htaccess.template > .htaccess; \
+              chmod 644 .htaccess; \
+            fi
+            
+            # 管理画面.htaccessの処理
+            if [ -f admin/.htaccess.template ]; then \
+              export ADMIN_ACCESS_CONTROL=\"restricted\"; \
+              cat admin/.htaccess.template > admin/.htaccess; \
+              chmod 644 admin/.htaccess; \
+            fi"
+
+      # ステージングデプロイ結果の通知
+      - name: Notify staging deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ ステージング環境へのデプロイが成功しました！"
+            echo "プレビューURL: ${{ steps.vars.outputs.SITE_URL }}"
+            echo "プルリクエスト #${{ steps.vars.outputs.PR_NUMBER }}のプレビューが利用可能です。"
+          else
+            echo "❌ ステージング環境へのデプロイに失敗しました。ログを確認してください。"
+          fi
+
+  # 本番環境へのデプロイ（mainブランチへのプッシュ時）
+  deploy-production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       # ステップ1: リポジトリのコードをチェックアウト（最新バージョンに更新）
