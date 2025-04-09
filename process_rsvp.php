@@ -1,6 +1,7 @@
 <?php
 // 設定ファイルを読み込み
 require_once 'config.php';
+require_once 'includes/qr_helper.php';
 
 // 出力バッファリングを開始
 ob_start();
@@ -170,10 +171,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
                 
+                // QRコード生成（ゲストIDがある場合のみ）
+                $qr_code_html = '';
+                $qr_code_token = '';
+                
+                if ($guest_id) {
+                    // QRコードトークンを生成
+                    $qr_code_token = generate_qr_token($guest_id);
+                    log_debug("Generated QR token for guest_id: $guest_id, token: $qr_code_token");
+                    
+                    if ($qr_code_token) {
+                        // QRコードHTMLを生成
+                        $qr_code_html = get_qr_code_html($guest_id, [
+                            'size' => 200,
+                            'instruction_text' => '会場受付でこのQRコードをお見せください'
+                        ]);
+                    }
+                } else {
+                    // 既存のゲストレコードがない場合は、新しく作成
+                    try {
+                        // まず、同じ名前とメールアドレスでゲストが存在するか確認
+                        $check_guest_stmt = $pdo->prepare("
+                            SELECT id FROM guests 
+                            WHERE name = ? AND email = ?
+                        ");
+                        $check_guest_stmt->execute([$name, $email]);
+                        $existing_guest_id = $check_guest_stmt->fetchColumn();
+                        
+                        if ($existing_guest_id) {
+                            // 既存のゲストIDを使用
+                            $guest_id = $existing_guest_id;
+                        } else {
+                            // 新しいゲストレコードを作成
+                            $create_guest_stmt = $pdo->prepare("
+                                INSERT INTO guests (name, email, group_name, group_id) 
+                                VALUES (?, ?, ?, ?)
+                            ");
+                            
+                            // グループIDがない場合は生成
+                            if (empty($group_id)) {
+                                $group_id = 'G' . uniqid();
+                            }
+                            
+                            $group_name = $name . 'のグループ';
+                            $create_guest_stmt->execute([$name, $email, $group_name, $group_id]);
+                            
+                            $guest_id = $pdo->lastInsertId();
+                            log_debug("Created new guest record: $guest_id");
+                        }
+                        
+                        // QRコードトークンを生成
+                        if ($guest_id) {
+                            $qr_code_token = generate_qr_token($guest_id);
+                            log_debug("Generated QR token for new guest_id: $guest_id, token: $qr_code_token");
+                            
+                            if ($qr_code_token) {
+                                // QRコードHTMLを生成
+                                $qr_code_html = get_qr_code_html($guest_id, [
+                                    'size' => 200,
+                                    'instruction_text' => '会場受付でこのQRコードをお見せください'
+                                ]);
+                            }
+                            
+                            // responsesテーブルのguest_idを更新
+                            $update_response_stmt = $pdo->prepare("
+                                UPDATE responses SET guest_id = ? WHERE id = ?
+                            ");
+                            $update_response_stmt->execute([$guest_id, $last_id]);
+                        }
+                    } catch (PDOException $e) {
+                        log_debug("Error creating guest record: " . $e->getMessage());
+                        // エラーが発生しても処理を続行
+                    }
+                }
+                
                 // 通知を送信
                 try {
                     // 通知ヘルパーを読み込み
                     require_once 'includes/notification_helper.php';
+                    require_once 'includes/mail_helper.php';
                     
                     // 最新の回答データを取得
                     $response_stmt = $pdo->prepare("SELECT * FROM responses WHERE id = ?");
@@ -182,6 +258,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     // 通知送信
                     send_rsvp_notification($response_data);
+                    
+                    // 出席者にはQRコード付きの確認メールを送信
+                    if ($attending == 1 && !empty($email) && !empty($qr_code_html)) {
+                        // 結婚式設定情報を取得
+                        $wedding_settings = [];
+                        $settings_stmt = $pdo->query("SELECT setting_key, setting_value FROM wedding_settings");
+                        while ($row = $settings_stmt->fetch()) {
+                            $wedding_settings[$row['setting_key']] = $row['setting_value'];
+                        }
+                        
+                        // メールのタイトルと本文
+                        $subject = "【招待状の受付確認】" . ($wedding_settings['couple_name'] ?? '翔＆あかね') . "の結婚式";
+                        
+                        // メール本文にQRコードのHTMLを含める
+                        $body = "
+                            <html>
+                            <head>
+                                <style>
+                                    body { font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; }
+                                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                                    .header { text-align: center; margin-bottom: 20px; }
+                                    .message { margin-bottom: 30px; }
+                                    .qr-section { text-align: center; margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }
+                                    .qr-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #4CAF50; }
+                                    .qr-instructions { margin-top: 15px; font-size: 14px; color: #666; }
+                                    .footer { margin-top: 30px; font-size: 12px; color: #777; text-align: center; }
+                                </style>
+                            </head>
+                            <body>
+                                <div class='container'>
+                                    <div class='header'>
+                                        <h2>" . ($wedding_settings['couple_name'] ?? '翔＆あかね') . "の結婚式</h2>
+                                    </div>
+                                    
+                                    <div class='message'>
+                                        <p>" . htmlspecialchars($name) . " 様</p>
+                                        <p>結婚式の出席登録ありがとうございます。以下の内容で受け付けました。</p>
+                                        <ul>
+                                            <li>お名前: " . htmlspecialchars($name) . "</li>
+                                            <li>ご出欠: 出席</li>
+                                            <li>同伴者数: " . $companions . "名</li>
+                                            <li>日時: " . ($wedding_settings['wedding_date'] ?? '2024年4月30日') . " " . ($wedding_settings['ceremony_time'] ?? '13:00') . "〜</li>
+                                            <li>会場: " . ($wedding_settings['venue_name'] ?? '結婚式場') . "</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class='qr-section'>
+                                        <div class='qr-title'>📱 スマートチェックイン用QRコード</div>
+                                        $qr_code_html
+                                        <p class='qr-instructions'>
+                                            ※当日の受付をスムーズにするために、こちらのQRコードを保存しておいてください。<br>
+                                            会場の受付でこのQRコードをご提示いただくとスムーズにご案内いたします。
+                                        </p>
+                                    </div>
+                                    
+                                    <p>お会いできることを楽しみにしております。何かご不明な点がありましたら、ご連絡ください。</p>
+                                    
+                                    <div class='footer'>
+                                        <p>※このメールは自動送信されています。ご返信いただいてもお答えできません。</p>
+                                        <p>&copy; " . date('Y') . " " . ($wedding_settings['couple_name'] ?? '翔＆あかね') . " Wedding</p>
+                                    </div>
+                                </div>
+                            </body>
+                            </html>
+                        ";
+                        
+                        // メール送信
+                        $mail_result = send_mail($email, $name, $subject, $body, true);
+                        log_debug("QR code email sent to $email: " . ($mail_result ? "Success" : "Failed"));
+                    }
                     
                     log_debug("Notification sent for response ID: " . $last_id);
                 } catch (Exception $e) {
@@ -248,47 +394,240 @@ if (isset($success) && $success) {
                 
                 .success-message {
                     animation: pulseAndFadeOut 3s forwards;
-                    animation-delay: 1s;
                 }
                 
                 @keyframes fadeOutTransition {
-                    0% { opacity: 1; }
-                    100% { opacity: 0; }
+                    from { opacity: 1; }
+                    to { opacity: 0; }
                 }
                 
                 @keyframes pulseAndFadeOut {
-                    0% { transform: scale(1); opacity: 1; }
-                    50% { transform: scale(1.05); opacity: 1; }
-                    100% { transform: scale(1); opacity: 0; }
+                    0% { transform: scale(1); }
+                    10% { transform: scale(1.05); }
+                    20% { transform: scale(1); }
+                    100% { transform: scale(1); }
                 }
                 </style>
                 <script>
-                // JavaScript による確実なリダイレクト処理
-                setTimeout(function() {
-                    document.body.style.opacity = 0;
-                    document.body.style.transition = "opacity 0.5s ease-out";
-                    
+                    // 画面遷移を確実にするためのJavaScriptリダイレクト
                     setTimeout(function() {
-                        window.location.href = '<?= $redirect_url ?? "thank_you.php" ?>';
-                    }, 500);
-                }, 2500);
+                        window.location.href = "<?= $redirect_url ?>";
+                    }, 3000); // 3秒後に遷移
                 </script>
-            <?php elseif (isset($error)): ?>
-                <div class="error-message">
-                    <i class="fas fa-exclamation-triangle fa-3x"></i>
-                    <h2>エラーが発生しました</h2>
-                    <p class="error-text"><?= $error ?></p>
-                    <a href="javascript:history.back()" class="back-button"><i class="fas fa-arrow-left"></i> 戻る</a>
-                </div>
             <?php else: ?>
-                <div class="error-message">
-                    <i class="fas fa-exclamation-circle fa-3x"></i>
-                    <h2>不正なアクセスです</h2>
-                    <p class="error-text">フォームから送信してください。</p>
-                    <a href="index.php" class="back-button"><i class="fas fa-home"></i> トップに戻る</a>
+                <div class="response-form">
+                    <h2><i class="fas fa-envelope-open-text"></i> ご回答フォーム</h2>
+                    
+                    <?php if (isset($error)): ?>
+                        <div class="error-message">
+                            <?= $error ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <form id="rsvp-form" method="post" action="process_rsvp.php">
+                        <?php
+                        // URLパラメータからグループIDを取得
+                        $group_id = isset($_GET['group']) ? htmlspecialchars($_GET['group']) : '';
+                        
+                        // グループIDからゲスト情報を取得（存在する場合）
+                        $guest_info = [
+                            'id' => null,
+                            'name' => '',
+                            'email' => '',
+                            'max_companions' => 5
+                        ];
+                        
+                        if (!empty($group_id)) {
+                            try {
+                                $stmt = $pdo->prepare("SELECT * FROM guests WHERE group_id = :group_id LIMIT 1");
+                                $stmt->execute(['group_id' => $group_id]);
+                                $row = $stmt->fetch();
+                                
+                                if ($row) {
+                                    $guest_info = [
+                                        'id' => $row['id'],
+                                        'name' => $row['name'],
+                                        'email' => $row['email'],
+                                        'max_companions' => $row['max_companions'] ?: 5
+                                    ];
+                                }
+                            } catch (PDOException $e) {
+                                // エラー処理（静かに失敗）
+                                if ($debug_mode) {
+                                    echo "<!-- データベースエラー: " . $e->getMessage() . " -->";
+                                }
+                            }
+                        }
+                        ?>
+                        
+                        <!-- 隠しフィールド -->
+                        <input type="hidden" name="guest_id" value="<?= $guest_info['id'] ?>">
+                        <input type="hidden" name="group_id" value="<?= $group_id ?>">
+                        
+                        <div class="form-group">
+                            <label for="name">お名前 <span class="required">*</span></label>
+                            <input type="text" id="name" name="name" required
+                                   value="<?= isset($_POST['name']) ? htmlspecialchars($_POST['name']) : htmlspecialchars($guest_info['name']) ?>">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">メールアドレス <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" required
+                                   value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : htmlspecialchars($guest_info['email']) ?>">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>ご出欠 <span class="required">*</span></label>
+                            <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="attending" value="1" 
+                                           <?= (isset($_POST['attending']) && $_POST['attending'] == 1) ? 'checked' : '' ?> required>
+                                    出席します
+                                </label>
+                                <label>
+                                    <input type="radio" name="attending" value="0" 
+                                           <?= (isset($_POST['attending']) && $_POST['attending'] == 0) ? 'checked' : '' ?> required>
+                                    欠席します
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" id="companions-group">
+                            <label for="companions">ご同伴者の人数</label>
+                            <select id="companions" name="companions">
+                                <option value="0">なし</option>
+                                <?php for ($i = 1; $i <= $guest_info['max_companions']; $i++): ?>
+                                    <option value="<?= $i ?>" <?= (isset($_POST['companions']) && $_POST['companions'] == $i) ? 'selected' : '' ?>><?= $i ?>名</option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+                        
+                        <div id="companion-details" style="display:none;">
+                            <h3>ご同伴者の情報</h3>
+                            <div id="companion-fields"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dietary">食事に関するご要望（アレルギーなど）</label>
+                            <textarea id="dietary" name="dietary" rows="2"><?= isset($_POST['dietary']) ? htmlspecialchars($_POST['dietary']) : '' ?></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">メッセージ</label>
+                            <textarea id="message" name="message" rows="4"><?= isset($_POST['message']) ? htmlspecialchars($_POST['message']) : '' ?></textarea>
+                        </div>
+                        
+                        <button type="submit" class="submit-button">
+                            <i class="fas fa-paper-plane"></i> 送信する
+                        </button>
+                    </form>
+                    
+                    <div class="form-footer">
+                        <a href="index.php<?= $group_id ? '?group=' . urlencode($group_id) : '' ?>" class="back-link">
+                            <i class="fas fa-arrow-left"></i> 招待状に戻る
+                        </a>
+                    </div>
                 </div>
+                
+                <script>
+                // 同伴者フィールドの動的制御
+                document.addEventListener('DOMContentLoaded', function() {
+                    const attendingRadios = document.querySelectorAll('input[name="attending"]');
+                    const companionsGroup = document.getElementById('companions-group');
+                    const companionsSelect = document.getElementById('companions');
+                    const companionDetails = document.getElementById('companion-details');
+                    const companionFields = document.getElementById('companion-fields');
+                    
+                    // 出欠選択の変更を監視
+                    attendingRadios.forEach(radio => {
+                        radio.addEventListener('change', function() {
+                            if (this.value === '1') { // 出席
+                                companionsGroup.style.display = 'block';
+                                updateCompanionFields();
+                            } else { // 欠席
+                                companionsGroup.style.display = 'none';
+                                companionDetails.style.display = 'none';
+                                companionsSelect.value = '0';
+                            }
+                        });
+                    });
+                    
+                    // 初期状態の設定
+                    const selectedAttending = document.querySelector('input[name="attending"]:checked');
+                    if (selectedAttending) {
+                        if (selectedAttending.value === '0') {
+                            companionsGroup.style.display = 'none';
+                        } else {
+                            updateCompanionFields();
+                        }
+                    } else {
+                        companionsGroup.style.display = 'none';
+                    }
+                    
+                    // 同伴者数の変更を監視
+                    companionsSelect.addEventListener('change', updateCompanionFields);
+                    
+                    // 同伴者フィールドの更新
+                    function updateCompanionFields() {
+                        const count = parseInt(companionsSelect.value);
+                        companionFields.innerHTML = '';
+                        
+                        if (count > 0) {
+                            companionDetails.style.display = 'block';
+                            
+                            for (let i = 0; i < count; i++) {
+                                const fieldSet = document.createElement('div');
+                                fieldSet.className = 'companion-fieldset';
+                                fieldSet.innerHTML = `
+                                    <h4>同伴者 ${i + 1}</h4>
+                                    <div class="form-group">
+                                        <label for="companion_name_${i}">お名前</label>
+                                        <input type="text" id="companion_name_${i}" name="companion_name[]" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="companion_age_${i}">年齢区分</label>
+                                        <select id="companion_age_${i}" name="companion_age[]">
+                                            <option value="adult">大人</option>
+                                            <option value="child">子供（小学生〜中学生）</option>
+                                            <option value="infant">幼児（未就学児）</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="companion_dietary_${i}">食事に関するご要望</label>
+                                        <textarea id="companion_dietary_${i}" name="companion_dietary[]" rows="2"></textarea>
+                                    </div>
+                                `;
+                                companionFields.appendChild(fieldSet);
+                            }
+                        } else {
+                            companionDetails.style.display = 'none';
+                        }
+                    }
+                    
+                    // reCAPTCHA v3トークンの追加
+                    const rsvpForm = document.getElementById('rsvp-form');
+                    if (rsvpForm) {
+                        rsvpForm.addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            grecaptcha.ready(function() {
+                                grecaptcha.execute('6LfXwg8rAAAAAO8tgbD74yqTFHK9ZW6Ns18M8GpF', {action: 'submit'}).then(function(token) {
+                                    // トークンを隠しフィールドとして追加
+                                    const input = document.createElement('input');
+                                    input.type = 'hidden';
+                                    input.name = 'g-recaptcha-response';
+                                    input.value = token;
+                                    rsvpForm.appendChild(input);
+                                    
+                                    // フォームを送信
+                                    rsvpForm.submit();
+                                });
+                            });
+                        });
+                    }
+                });
+                </script>
             <?php endif; ?>
         </div>
     </div>
 </body>
-</html> 
+</html>
