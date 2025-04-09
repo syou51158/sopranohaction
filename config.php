@@ -86,4 +86,6 @@ if ($debug_mode) {
     error_reporting(E_ALL);
 } else {
     error_reporting(0);
-} 
+}
+
+// ここで終わり 

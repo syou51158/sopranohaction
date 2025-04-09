@@ -35,34 +35,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // reCAPTCHA検証
     $recaptcha_valid = false;
     if (!empty($recaptcha_response)) {
-        $recaptcha_secret = '6LfXwg8rAAAAAPIdyZWGj-VGMI_nbdS3aVj0E4nP'; // reCAPTCHA v3 シークレットキー
-        $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
-        $recaptcha_data = [
-            'secret' => $recaptcha_secret,
-            'response' => $recaptcha_response,
-            'remoteip' => $_SERVER['REMOTE_ADDR']
-        ];
+        // 開発環境かどうか自動検出（ローカルホストかどうかで判断）
+        $is_development = (
+            $_SERVER['SERVER_NAME'] == 'localhost' || 
+            $_SERVER['SERVER_NAME'] == '127.0.0.1' ||
+            strpos($_SERVER['SERVER_NAME'], '.local') !== false
+        );
         
-        $recaptcha_options = [
-            'http' => [
-                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
-                'method' => 'POST',
-                'content' => http_build_query($recaptcha_data)
-            ]
-        ];
-        
-        $recaptcha_context = stream_context_create($recaptcha_options);
-        $recaptcha_result = file_get_contents($recaptcha_url, false, $recaptcha_context);
-        $recaptcha_json = json_decode($recaptcha_result, true);
-        
-        // v3では、スコアを評価する（0.0〜1.0の範囲、1.0が最も信頼性が高い）
-        if ($recaptcha_json && isset($recaptcha_json['success']) && $recaptcha_json['success']) {
-            $score = isset($recaptcha_json['score']) ? $recaptcha_json['score'] : 0;
-            // スコアが0.5以上であれば信頼できるとみなす
-            $recaptcha_valid = ($score >= 0.5);
-            log_debug("reCAPTCHA v3 validation: Score=$score, Valid=" . ($recaptcha_valid ? 'true' : 'false'));
+        if (!$is_development) {
+            // 本番環境: 通常のreCAPTCHA検証を実行
+            $recaptcha_secret = '6LfXwg8rAAAAAPIdyZWGj-VGMI_nbdS3aVj0E4nP'; // reCAPTCHA v3 シークレットキー
+            $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
+            $recaptcha_data = [
+                'secret' => $recaptcha_secret,
+                'response' => $recaptcha_response,
+                'remoteip' => $_SERVER['REMOTE_ADDR']
+            ];
+            
+            $recaptcha_options = [
+                'http' => [
+                    'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                    'method' => 'POST',
+                    'content' => http_build_query($recaptcha_data)
+                ]
+            ];
+            
+            $recaptcha_context = stream_context_create($recaptcha_options);
+            $recaptcha_result = file_get_contents($recaptcha_url, false, $recaptcha_context);
+            $recaptcha_json = json_decode($recaptcha_result, true);
+            
+            // v3では、スコアを評価する（0.0〜1.0の範囲、1.0が最も信頼性が高い）
+            if ($recaptcha_json && isset($recaptcha_json['success']) && $recaptcha_json['success']) {
+                $score = isset($recaptcha_json['score']) ? $recaptcha_json['score'] : 0;
+                // スコアが0.5以上であれば信頼できるとみなす
+                $recaptcha_valid = ($score >= 0.5);
+                log_debug("reCAPTCHA v3 validation: Score=$score, Valid=" . ($recaptcha_valid ? 'true' : 'false'));
+            } else {
+                log_debug("reCAPTCHA validation failed: " . print_r($recaptcha_json, true));
+            }
         } else {
-            log_debug("reCAPTCHA validation failed: " . print_r($recaptcha_json, true));
+            // 開発環境: 検証をスキップ
+            $recaptcha_valid = true;
+            log_debug("reCAPTCHA validation skipped in development environment");
         }
     } else {
         log_debug("No reCAPTCHA response received");
