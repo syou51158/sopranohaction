@@ -40,8 +40,13 @@ function send_mail($to, $subject, $message, $from_email, $from_name = '', $reply
         
         // デバッグ情報（開発環境のみ有効にする）
         if (defined('MAIL_DEBUG') && MAIL_DEBUG) {
-            // メールデバッグが有効な場合は画面に出力
+            // メールデバッグが有効な場合はログファイルに出力
             $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+            $mail->Debugoutput = function($str, $level) {
+                $log_file = __DIR__ . '/../logs/mail_debug.log';
+                $timestamp = date('Y-m-d H:i:s');
+                file_put_contents($log_file, "$timestamp DEBUG: $str\n", FILE_APPEND);
+            };
         } else if (defined('DEBUG_MODE') && DEBUG_MODE) {
             // デバッグモードが有効だがメールデバッグは無効の場合はログファイルに出力
             $mail->SMTPDebug = SMTP::DEBUG_SERVER;

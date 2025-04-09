@@ -2,6 +2,9 @@
 // 設定ファイルを読み込み
 require_once 'config.php';
 
+// 出力バッファリングを開始
+ob_start();
+
 // デバッグ用ログ関数
 function log_debug($message) {
     global $debug_mode;
@@ -191,10 +194,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // リダイレクト先を設定
                 $redirect_url = $group_id ? "thank_you.php?group=$group_id" : "thank_you.php";
-                
-                // 3秒後にリダイレクト
-                header("Refresh: 3; URL=$redirect_url");
-                
             }
         } catch (PDOException $e) {
             // エラーメッセージを設定
@@ -205,6 +204,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+}
+
+// 成功時のみヘッダーリダイレクトを設定
+if (isset($success) && $success) {
+    // ヘッダーリダイレクトの前に何も出力していないことを確認
+    // JavaScriptリダイレクトもバックアップとして使用
+    header("Location: $redirect_url");
+    exit;
 }
 ?>
 <!DOCTYPE html>
