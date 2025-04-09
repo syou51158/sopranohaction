@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const choiceScreen = document.querySelector('.choice-screen');
     const choiceContent = document.querySelector('.choice-content');
     const celebrationEffects = document.querySelector('.celebration-effects');
+    
+    // 重複処理防止用のフラグ
+    let openedEnvelope = false;
 
     // 封筒が存在する場合の処理
     if (envelope && envelopeContainer) {
@@ -382,58 +385,56 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 従来の開封処理（フォールバック）
     function handleTraditionalOpen() {
-        // 先に招待状コンテンツを準備
-        if (invitationContent) {
-            invitationContent.style.opacity = '0';
-            invitationContent.style.display = 'flex';
-            invitationContent.style.flexDirection = 'column';
-        }
-
-        if (choiceScreen) {
-            // 選択画面のスタイルを先に設定
-            choiceScreen.style.position = 'relative';
-            choiceScreen.style.display = 'flex';
-            choiceScreen.style.flexDirection = 'column';
-            choiceScreen.style.height = 'auto';
-            choiceScreen.style.width = 'auto';
-            choiceScreen.style.margin = '0 auto';
-            choiceScreen.style.padding = '40px 20px';
-            choiceScreen.style.zIndex = '100';
-            choiceScreen.style.opacity = '0';
-            choiceScreen.classList.remove('hide');
-        }
+        console.log('従来の開封処理を実行します');
         
-        // body要素の準備
-        document.body.style.display = 'flex';
-        document.body.style.flexDirection = 'column';
+        // 封筒コンテナをフェードアウト
+        envelopeContainer.style.opacity = '0';
+        envelopeContainer.style.transition = 'opacity 0.5s ease';
         
-        // 封筒コンテナを即時非表示に設定
-        envelopeContainer.classList.add('hide');
-        
-        // 適切な画面を即座に表示
-        if (choiceScreen) {
-            // 強制リフロー
-            void choiceScreen.offsetWidth;
+        // フェードアウト完了後に処理を実行
+        setTimeout(() => {
+            // 封筒コンテナを非表示に設定
+            envelopeContainer.classList.add('hide');
             
-            // 選択画面をフェードイン
-            choiceScreen.style.transition = 'opacity 0.4s ease';
-            choiceScreen.style.opacity = '1';
-            
-            // カードをアニメーションで表示
-            const cards = choiceScreen.querySelectorAll('.choice-card');
-            cards.forEach((card, index) => {
-                card.style.transitionDelay = `${100 + (index * 50)}ms`;
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            });
-        } else if (invitationContent) {
-            // 強制リフロー
-            void invitationContent.offsetWidth;
-            
-            // フェードイン
-            invitationContent.style.transition = 'opacity 0.4s ease';
-            invitationContent.style.opacity = '1';
-        }
+            // 適切な画面を表示
+            if (choiceScreen) {
+                // 選択画面のスタイルを設定
+                choiceScreen.style.display = 'flex';
+                choiceScreen.style.flexDirection = 'column';
+                choiceScreen.style.opacity = '0';
+                choiceScreen.classList.remove('hide');
+                
+                // 強制リフロー
+                void choiceScreen.offsetWidth;
+                
+                // 選択画面をフェードイン
+                choiceScreen.style.transition = 'opacity 0.4s ease';
+                choiceScreen.style.opacity = '1';
+                
+                // カードをアニメーションで表示
+                const cards = choiceScreen.querySelectorAll('.choice-card');
+                cards.forEach((card, index) => {
+                    card.style.transitionDelay = `${100 + (index * 50)}ms`;
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                });
+            } else if (invitationContent) {
+                // 招待状コンテンツを表示準備
+                invitationContent.style.display = 'block';
+                invitationContent.style.opacity = '0';
+                invitationContent.classList.remove('hide');
+                
+                // 強制リフロー
+                void invitationContent.offsetWidth;
+                
+                // フェードイン
+                invitationContent.style.transition = 'opacity 0.4s ease';
+                invitationContent.style.opacity = '1';
+                
+                // スクロールを許可
+                document.body.style.overflow = 'auto';
+            }
+        }, 500); // 封筒フェードアウトの時間
     }
     
     // 選択ボタンのイベント設定
@@ -575,6 +576,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 completeEnvelopeOpen();
             }, 1500); // スマホではアニメーション時間を短くする
         }, 10);
+    }
+
+    // 封筒開封完了処理（アニメーション後に呼び出される）
+    function completeEnvelopeOpen() {
+        console.log('封筒開封完了処理を実行します');
+        
+        // 選択コンテンツを表示
+        const choiceContent = envelope.querySelector('.choice-content');
+        if (choiceContent) {
+            choiceContent.classList.add('visible');
+        } else {
+            // 選択コンテンツがなければ従来の処理
+            handleTraditionalOpen();
+        }
     }
 
     // タッチデバイスの検出を改善

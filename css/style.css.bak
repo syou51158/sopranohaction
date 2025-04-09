@@ -6,124 +6,274 @@
     --accent-dark: #388E3C;
     --text-color: #333333;
     --background-light: #f8f9fa;
-    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.08); /* より軽い影に */
+    --shadow-light: rgba(0, 0, 0, 0.04);
+    --shadow-medium: rgba(0, 0, 0, 0.12);
+    --shadow-strong: rgba(0, 0, 0, 0.16);
     --gold: #d4af37;
     --light-gold: #f1e6c1;
     --cream: #fcf8e8;
     --pink-accent: #f8bbd0;
     --pink-light: #fce4ec;
     --pink-dark: #ec407a;
-    
-    /* 席次表管理のz-index継承（seating.cssと同期） */
-    --z-layout-base: 1;        /* 基本レイアウト */
-    --z-grid: 10;              /* グリッド線 */
-    --z-table: 100;            /* テーブル要素 */
-    --z-table-selected: 110;   /* 選択されたテーブル */
-    --z-table-dragging: 120;   /* ドラッグ中のテーブル */
-    --z-table-handles: 130;    /* テーブルのハンドル */
-    --z-controls: 800;         /* コントロールボタン */
-    --z-selection-box: 900;    /* 選択範囲ボックス */
-    --z-print-boundary: 950;   /* 印刷範囲 */
-    --z-print-handles: 960;    /* 印刷範囲のハンドル */
-    --z-toast: 1000;           /* トースト通知 */
-    --z-modal: 1100;           /* モーダル */
-}
-
-/* 席次表管理システムの保護スタイル */
-body.admin-body .table-grid,
-body.admin-body .table-grid-item,
-body.admin-body .print-boundary-container,
-body.admin-body .print-boundary {
-    visibility: visible !important;
-    opacity: 1 !important;
-    display: block !important;
-    position: absolute !important;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); 
     }
-    to {
-        opacity: 1;
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
     }
 }
 
 @keyframes float {
-    0% {
-        transform: translateY(0) rotate(0deg);
-    }
-    50% {
-        transform: translateY(-20px) rotate(5deg);
-    }
-    100% {
-        transform: translateY(0) rotate(0deg);
-    }
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+    100% { transform: translateY(0) rotate(0deg); }
 }
 
 @keyframes heartbeat {
-    0% {
-        transform: scale(1);
-    }
-    15% {
-        transform: scale(1.1);
-    }
-    30% {
-        transform: scale(1);
-    }
-    45% {
-        transform: scale(1.1);
-    }
-    60% {
-        transform: scale(1);
-    }
+    0% { transform: scale(1); }
+    25% { transform: scale(1.1); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }
 
 @keyframes shimmer {
-    0% {
-        opacity: 0.4;
-    }
-    50% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0.4;
-    }
+    0% { background-position: -100% 0; }
+    100% { background-position: 200% 0; }
 }
 
 @keyframes unfold {
-    from {
-        transform: scaleY(0);
-    }
-    to {
-        transform: scaleY(1);
-    }
+    0% { transform: rotateX(90deg); transform-origin: top; }
+    100% { transform: rotateX(0deg); transform-origin: top; }
 }
 
 @keyframes fallingSlow {
-    from {
+    0% { 
+        transform: translateY(-10px) translateX(0) rotate(0deg);
         opacity: 0;
-        transform: translateY(-50px);
     }
-    to {
+    10% {
         opacity: 1;
-        transform: translateY(0);
+    }
+    100% { 
+        transform: translateY(100vh) translateX(20px) rotate(360deg);
+        opacity: 0;
     }
 }
 
 * {
-    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
-/* 本文の背景画像設定を最適化 */
+/* 初期読み込み時の最適化 */
+html {
+    scroll-behavior: auto !important; /* 初期読み込み時はスムーススクロールを無効化 */
+    -webkit-overflow-scrolling: touch; /* iOS Safari向け改善 */
+    scroll-padding-top: 80px; /* ヘッダーの高さ分のスクロールパディング */
+}
+
+html.ready {
+    scroll-behavior: smooth;
+}
+
+/* 重いアニメーションの初期状態を調整 */
 body {
     font-family: 'Noto Serif JP', serif;
-    background-color: #fcf8f5;
-    color: #5d4037;
+    margin: 0;
+    padding: 0;
+    background: url('../images/leaves-bg.png') repeat;
+    background-size: 400px;
+    background-attachment: fixed;
+    color: #2c3e50;
     line-height: 1.6;
-    overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    overflow-x: hidden; /* 横方向のスクロールを防止 */
+    width: 100%;
+    max-width: 100%; /* ビューポート幅を超えないように制限 */
+    will-change: scroll-position; /* スクロールパフォーマンスを向上 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* 初期表示を最適化 */
+    opacity: 0.99;
+    transition: opacity 0.3s ease;
+}
+
+body.ready {
+    opacity: 1;
+}
+
+/* 初期表示時に不要なアニメーションを抑制 */
+.heart, .sparkle, .petal, .leaf {
+    /* animation-play-state: paused; */ /* デフォルトで一時停止 */
+    display: none; /* 初期表示では非表示 */
+}
+
+/* ページ準備完了後にアニメーションを開始（軽量モードでない場合） */
+body.ready:not(.ultra-light-mode) .heart,
+body.ready:not(.ultra-light-mode) .sparkle,
+body.ready:not(.ultra-light-mode) .petal,
+body.ready:not(.ultra-light-mode) .leaf {
+    /* animation-play-state: running; */
+    display: block; /* 表示 */
+}
+
+/* 画像読み込み中の表示を最適化 */
+img.lazy-load.loading {
+    opacity: 0.3;
+    background-color: #f5f5f5;
+}
+
+/* 初期ローディング画面のスタイル */
+.initial-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.initial-loading.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* モバイル向け超軽量モード - 最初の読み込み時に適用 */
+@media (max-width: 767px) {
+    /* 初期表示時のアニメーションを減らす */
+    .floating-petals, .floating-leaves {
+        /* opacity: 0; */
+        /* transition: opacity 1s ease; */
+        display: none; /* 最初から非表示 */
+    }
+    
+    /* body.ready .floating-petals, */ /* JSから制御するため削除 */
+    /* body.ready .floating-leaves { */ /* JSから制御するため削除 */
+        /* opacity: 0.5; */
+    /* } */
+    
+    /* フォント読み込み前にシステムフォントを使用 */
+    .title, .subtitle, h1, h2, h3 {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    body.fonts-loaded .title,
+    body.fonts-loaded .subtitle,
+    body.fonts-loaded h1,
+    body.fonts-loaded h2,
+    body.fonts-loaded h3 {
+        font-family: 'Noto Serif JP', serif;
+    }
+    
+    /* 読み込み中の背景を簡素化 */
+    body::before {
+        opacity: 0.02;
+    }
+    
+    /* アニメーションの簡易化 */
+    .heart, .sparkle, .petal, .leaf {
+        /* animation-play-state: paused; */ /* JSで制御 */
+        display: none !important; /* モバイルでは基本的に非表示 */
+    }
+    
+    /* スクロール中はアニメーション停止 */
+    /* .is-scrolling クラスは維持 */
+    .is-scrolling .heart,
+    .is-scrolling .sparkle,
+    .is-scrolling .petal,
+    .is-scrolling .leaf {
+        /* animation-play-state: paused !important; */ /* JS側で制御 */
+        /* transition: none !important; */
+    }
+}
+
+/* スクロール中の最適化 */
+html.is-scrolling {
+    scroll-behavior: auto !important;
+}
+
+body.is-scrolling {
+    /* スクロール中は重い処理を一時停止 */
+    background-attachment: scroll !important;
+}
+
+body.is-scrolling::before {
+    /* スクロール中は背景を無効化 */
+    display: none !important;
+}
+
+/* スクロールが引っかかる箇所を最適化 */
+.photo-item, .forest-header {
+    containment: layout style paint;
+    content-visibility: auto;
+}
+
+/* ページ内の要素を適切に分離して再描画を最小化 */
+.section-title, .info-card, .message-card, .countdown-section, .schedule-section, .faq-section {
+    contain: layout style; /* paintを除外し、影響を軽減 */
+}
+
+/* 超軽量モードの場合の超簡素化デザイン */
+.ultra-light-mode {
+    /* すべてのアニメーションを無効化 */
+    animation: none !important;
+    transition: none !important;
+}
+
+.ultra-light-mode * {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+}
+
+.ultra-light-mode img {
+    /* transform: translateZ(0); */ /* 削除 */
+}
+
+.ultra-light-mode .floating-petals,
+.ultra-light-mode .floating-leaves,
+.ultra-light-mode .heart,
+.ultra-light-mode .sparkle,
+.ultra-light-mode .petal,
+.ultra-light-mode .leaf {
+    display: none !important;
+}
+
+.ultra-light-mode .video-container,
+.ultra-light-mode .photos,
+.ultra-light-mode .invitation-content {
+    box-shadow: none !important;
 }
 
 /* 森のヘッダー画像を最適化 */
@@ -146,21 +296,43 @@ body {
 /* 画像のレイジーロード設定 */
 img.lazy-load {
     opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.3s;
 }
 
 img.lazy-load.loaded {
     opacity: 1;
 }
 
+/* ページコンテンツの表示を最適化 */
+.invitation-content {
+    padding: 0;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    overflow-x: hidden; /* 横方向のスクロールを防止 */
+    box-sizing: border-box;
+    transform: translateZ(0); /* ハードウェアアクセラレーションを促進 */
+    backface-visibility: hidden;
+    padding-top: 80px; /* ヘッダーの高さを考慮して上部パディングを追加 */
+}
+
+.invitation-content.visible {
+    opacity: 1;
+}
+
 /* 即時表示のための優先的な要素 */
 .priority-visible {
     opacity: 1 !important;
-    animation: none !important;
+    display: block !important;
 }
 
 /* スケルトンローディング用のスタイル */
-.skeleton-loading:not(.admin-body):not(.table-grid):not(.table-grid-item):not(.print-boundary-container):not(.print-boundary) {
+.skeleton-loading {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
     animation: loading 1.5s infinite;
@@ -187,8 +359,11 @@ body::before {
     background-repeat: repeat;
     opacity: 0.05;
     z-index: -1;
+    will-change: transform; /* GPU高速化 */
+    /* transform: translateZ(0); */ /* 削除 */
 }
 
+/* Container のレスポンシブ対応 */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -196,7 +371,211 @@ body::before {
     flex: 1;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    overflow-x: hidden; /* 横方向のスクロールを防止 */
 }
+
+/* スマホ向けのメディアクエリ追加 */
+@media (max-width: 480px) {
+    .container {
+        width: 95%;
+        margin: 0 auto;
+        padding: 0;
+    }
+    
+    body {
+        font-size: 14px;
+        background-size: 300px;
+    }
+    
+    .invitation-content {
+        padding-top: 60px; /* モバイル向けのヘッダー高さに合わせて調整 */
+    }
+    
+    /* モバイル向けの固定ヘッダー調整 */
+    html {
+        scroll-padding-top: 60px; /* モバイルのヘッダー高さ */
+    }
+    
+    section, .section {
+        scroll-margin-top: 60px; /* モバイルのヘッダー高さ */
+    }
+    
+    /* 以下既存のスタイル */
+    .main-header {
+        height: 60px;
+    }
+    
+    .main-header .title {
+        font-size: 20px;
+    }
+    
+    .main-header .subtitle {
+        font-size: 12px;
+    }
+    
+    .date {
+        font-size: 16px;
+    }
+    
+    .section-title h2 {
+        font-size: 22px;
+    }
+    
+    .personal-message {
+        padding: 15px;
+        font-size: 14px;
+    }
+    
+    /* ビデオコンテナ関連の定義削除 */
+    
+    .info-card {
+        padding: 15px;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    
+    .info-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .countdown-item span:first-child {
+        font-size: 30px;
+    }
+    
+    .photos {
+        gap: 10px;
+    }
+    
+    /* 写真アイテムのスタイル */
+    .photo-item {
+        width: calc(50% - 5px);
+        margin-bottom: 10px;
+    }
+    
+    .photo-item:nth-child(3n+1) {
+        width: calc(50% - 5px);
+    }
+    
+    .photo-item:nth-child(3n+2) {
+        width: calc(50% - 5px);
+    }
+    
+    .photo-item img {
+        border-radius: 5px;
+        transition: transform 0.3s;
+        will-change: transform;
+    }
+    
+    .photo-item:hover img {
+        transform: scale(1.05);
+    }
+    
+    .main-photo {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .message-card {
+        padding: 15px;
+    }
+    
+    .message-text {
+        font-size: 14px;
+    }
+    
+    .schedule-item {
+        padding: 10px;
+    }
+    
+    .faq-question h3 {
+        font-size: 16px;
+    }
+    
+    #rsvp-form {
+        padding: 15px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .radio-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .radio-group label {
+        margin-bottom: 10px;
+    }
+    
+    body::before {
+        opacity: 0.05;
+    }
+}
+
+/* タブレット向けのメディアクエリ */
+@media (min-width: 481px) and (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+    
+    .main-header .title {
+        font-size: 2.2rem;
+    }
+    
+    .photos {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* スマホとタブレット共通の調整 */
+@media (max-width: 768px) {
+    .info-card {
+        display: block;
+    }
+    
+    .rsvp-button-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .guestbook-link-container {
+        padding: 15px;
+    }
+    
+    .timeline::before {
+        left: 30px;
+    }
+    
+    .timeline-item {
+        flex-direction: column;
+        margin-left: 30px;
+    }
+    
+    .timeline-date {
+        margin-bottom: 10px;
+        text-align: left;
+    }
+    
+    .timeline-dot {
+        left: 30px;
+    }
+    
+    .timeline-content {
+        width: 100%;
+    }
+}
+
+/* 既存のメディアクエリと衝突しないよう、一部のメディアクエリを上書き */
+
 
 /* 封筒演出 - 高級感のある新デザイン */
 
@@ -282,16 +661,15 @@ body::before {
 
 @keyframes floatPetal {
     0% {
-        transform: translate(0, 0) rotate(0deg);
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.7;
     }
-    33% {
-        transform: translate(100px, 100px) rotate(120deg);
-    }
-    66% {
-        transform: translate(200px, 50px) rotate(240deg);
+    50% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0.4;
     }
     100% {
-        transform: translate(300px, 200px) rotate(360deg);
+        transform: translateY(120vh) rotate(720deg);
         opacity: 0;
     }
 }
@@ -403,18 +781,18 @@ body::before {
 
 @keyframes float-heart {
     0% {
-        transform: translateY(0) scale(1);
-        opacity: 0;
+        top: 100%;
+        transform: scale(0.8) rotate(0deg);
+        opacity: 0.7;
     }
-    10% {
-        opacity: 0.8;
-    }
-    90% {
-        opacity: 0.8;
+    50% {
+        transform: scale(1) rotate(10deg);
+        opacity: 0.9;
     }
     100% {
-        transform: translateY(-100vh) scale(1.2);
-        opacity: 0;
+        top: 0;
+        transform: scale(0.8) rotate(0deg);
+        opacity: 0.7;
     }
 }
 
@@ -422,7 +800,7 @@ body::before {
     position: absolute;
     width: 15px;
     height: 15px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23ffeb3b' d='M50 0l12 38h38l-31 22 12 38-31-22-31 22 12-38-31-22h38z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffd700' d='M12 0L9.4 9.4 0 12l9.4 2.6L12 24l2.6-9.4L24 12l-9.4-2.6z'/%3E%3C/svg%3E");
     background-size: contain;
     background-repeat: no-repeat;
     opacity: 0;
@@ -441,20 +819,16 @@ body::before {
         transform: scale(0) rotate(0deg);
         opacity: 0;
     }
-    10% {
+    30% {
         transform: scale(1) rotate(180deg);
-        opacity: 1;
+        opacity: 0.7;
     }
-    50% {
-        transform: scale(1.5) rotate(360deg);
-        opacity: 1;
-    }
-    90% {
-        transform: scale(1) rotate(540deg);
-        opacity: 1;
+    70% {
+        transform: scale(1) rotate(360deg);
+        opacity: 0.7;
     }
     100% {
-        transform: scale(0) rotate(720deg);
+        transform: scale(0) rotate(540deg);
         opacity: 0;
     }
 }
@@ -475,9 +849,17 @@ body::before {
         font-size: 16px;
     }
     
-    .tap-instruction {
-        font-size: 14px;
-    }
+    
+}
+
+.hide {
+    display: none !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
 /* 浮遊する葉っぱ */
@@ -499,6 +881,7 @@ body::before {
     opacity: 0.6;
     pointer-events: none;
     animation: fallingSlow 20s linear infinite;
+    will-change: transform; /* GPU高速化 */
 }
 
 .leaf1 {
@@ -681,21 +1064,26 @@ body::before {
     border-radius: 3px;
 }
 
-/* ビデオコンテナ */
+/* ビデオコンテナスタイル - クラス名が重複しないように統一 */
 .video-container {
     width: 100%;
-    margin: 0 auto 70px;
-    border-radius: 15px;
+    max-width: 100%;
+    margin: 0 auto 40px;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 10px 30px var(--shadow-color);
+    box-shadow: 0 5px 15px var(--shadow-light);
     position: relative;
+    box-sizing: border-box;
+    transform: translateZ(0); /* GPUアクセラレーション */
 }
 
 .video-wrapper {
-    position: relative;
     width: 100%;
+    position: relative;
     padding-top: 56.25%; /* 16:9のアスペクト比 */
     background-color: #000;
+    box-sizing: border-box;
+    transform: translateZ(0); /* GPUアクセラレーション */
 }
 
 #wedding-video {
@@ -706,7 +1094,8 @@ body::before {
     height: 100%;
     display: block;
     object-fit: cover;
-    background-color: var(--background-light);
+    box-sizing: border-box;
+    transform: translateZ(0); /* GPUアクセラレーション */
 }
 
 .video-overlay {
@@ -715,11 +1104,14 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
+    background: rgba(0,0,0,0.2);
     display: flex;
-    justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    transition: background 0.3s ease;
+    transform: translateZ(0); /* GPUアクセラレーション */
 }
 
 .video-overlay:hover {
@@ -737,12 +1129,12 @@ body::before {
     align-items: center;
     cursor: pointer;
     transition: transform 0.3s, box-shadow 0.3s;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 15px var(--shadow-color);
 }
 
 .play-button:hover {
     transform: scale(1.1);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 25px var(--shadow-medium);
 }
 
 .play-button i {
@@ -757,9 +1149,9 @@ body::before {
     padding: 50px;
     border-radius: 15px;
     margin-bottom: 70px;
-    box-shadow: 0 10px 30px var(--shadow-color);
     position: relative;
     overflow: hidden;
+    scroll-margin-top: 80px; /* ヘッダーの高さ分のスクロールマージン */
 }
 
 .story-section::before {
@@ -864,6 +1256,12 @@ body::before {
     box-shadow: 0 10px 30px var(--shadow-color);
     position: relative;
     overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding-left: 10px;
+    padding-right: 10px;
+    scroll-margin-top: 80px; /* ヘッダーの高さ分のスクロールマージン */
 }
 
 .timeline {
@@ -1019,6 +1417,10 @@ body::before {
 /* 結婚式情報 */
 .wedding-info {
     margin-bottom: 70px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    
 }
 
 .info-card {
@@ -1150,6 +1552,10 @@ body::before {
 /* カウントダウン */
 .countdown-section {
     margin-bottom: 70px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    
 }
 
 .countdown-container {
@@ -1160,7 +1566,13 @@ body::before {
     padding: 50px 30px;
     border-radius: 15px;
     text-align: center;
-    box-shadow: 0 10px 30px var(--shadow-color);
+    box-shadow: 
+        0 10px 20px var(--shadow-light),
+        0 6px 6px var(--shadow-color),
+        0 16px 30px var(--shadow-light);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .countdown-container h2 {
@@ -1174,6 +1586,7 @@ body::before {
     display: flex;
     justify-content: center;
     gap: 25px;
+    flex-wrap: wrap;
 }
 
 .countdown-item {
@@ -1189,8 +1602,10 @@ body::before {
     display: block;
     padding: 20px;
     background-color: white;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px var(--shadow-color);
+    border-radius: 18px;
+    box-shadow: 
+        0 3px 5px var(--shadow-light),
+        0 5px 15px var(--shadow-color);
     position: relative;
     color: var(--accent-dark);
     border: 1px solid var(--accent-light);
@@ -1200,6 +1615,9 @@ body::before {
 .countdown-item span:first-child:hover {
     border-color: var(--pink-accent);
     transform: translateY(-3px);
+    box-shadow: 
+        0 5px 10px var(--shadow-light),
+        0 8px 20px var(--shadow-color);
 }
 
 .countdown-label {
@@ -1208,9 +1626,57 @@ body::before {
     margin-top: 10px;
 }
 
+@media (max-width: 480px) {
+    .countdown-container {
+        padding: 30px 15px;
+        box-shadow: 
+            0 8px 15px var(--shadow-light),
+            0 5px 5px var(--shadow-color),
+            0 10px 25px var(--shadow-light);
+    }
+    
+    .countdown-container h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    
+    .countdown-timer {
+        gap: 5px;
+        flex-wrap: nowrap;
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .countdown-item {
+        min-width: 23%;
+        margin: 0 1px;
+        padding: 0;
+    }
+    
+    .countdown-item span:first-child {
+        font-size: 1.4rem;
+        padding: 10px 5px;
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 15px;
+        box-shadow: 
+            0 2px 4px var(--shadow-light),
+            0 3px 10px var(--shadow-color);
+    }
+    
+    .countdown-label {
+        font-size: 0.7rem;
+        margin-top: 5px;
+    }
+}
+
 /* ギャラリー */
 .gallery {
     margin-bottom: 70px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    
 }
 
 .gallery-intro {
@@ -1228,19 +1694,34 @@ body::before {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, 250px);
     gap: 20px;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    
 }
 
 .photo-item {
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 10px 25px var(--shadow-color);
+    box-shadow: 
+        0 5px 10px var(--shadow-light),
+        0 8px 20px var(--shadow-color);
     transition: all 0.3s ease;
     position: relative;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    box-sizing: border-box;
 }
 
 .photo-item:hover {
     transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    box-shadow: 
+        0 8px 15px var(--shadow-light),
+        0 12px 25px var(--shadow-medium),
+        0 15px 35px var(--shadow-light);
 }
 
 .photo-item::after {
@@ -1274,6 +1755,8 @@ body::before {
 .main-photo {
     grid-column: span 2;
     grid-row: span 2;
+    width: 100%;
+    max-width: 100%;
 }
 
 /* RSVP フォーム */
@@ -1282,9 +1765,13 @@ body::before {
     padding: 50px;
     border-radius: 15px;
     margin-bottom: 70px;
-    box-shadow: 0 10px 30px var(--shadow-color);
     position: relative;
     overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 10px 30px var(--shadow-color); /* 影を追加 */
+    scroll-margin-top: 80px; /* ヘッダーの高さ分のスクロールマージン */
 }
 
 .rsvp-intro {
@@ -1342,7 +1829,7 @@ body::before {
 }
 
 .radio-group {
-    display: flex;
+    
     gap: 30px;
 }
 
@@ -1358,7 +1845,7 @@ body::before {
     font-weight: normal;
 }
 
-.attendance-details:not(.admin-body):not(.table-grid):not(.table-grid-item):not(.print-boundary-container):not(.print-boundary) {
+.attendance-details {
     display: none;
 }
 
@@ -1430,13 +1917,20 @@ body::before {
 /* メッセージセクション */
 .message-section {
     margin-bottom: 70px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    
 }
 
 .message-card {
     background-color: rgba(255, 255, 255, 0.95);
     padding: 50px;
     border-radius: 15px;
-    box-shadow: 0 10px 30px var(--shadow-color);
+    box-shadow: 
+        0 10px 20px var(--shadow-light),
+        0 6px 6px var(--shadow-color),
+        0 16px 30px var(--shadow-light);
     text-align: center;
     position: relative;
     max-width: 800px;
@@ -1482,18 +1976,20 @@ body::before {
     background-color: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(10px);
     border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05), 
-                0 2px 5px rgba(0, 0, 0, 0.03),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.9),
-                inset 0 0 0 2px rgba(212, 175, 55, 0.1);
+    box-shadow: 
+        0 5px 15px var(--shadow-light),
+        0 3px 8px var(--shadow-color),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+        inset 0 0 0 2px rgba(212, 175, 55, 0.1);
     transition: all 0.4s ease;
 }
 
 .soprano-note:hover {
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.07), 
-                0 4px 10px rgba(0, 0, 0, 0.03),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.9),
-                inset 0 0 0 2px rgba(212, 175, 55, 0.2);
+    box-shadow: 
+        0 8px 20px var(--shadow-light),
+        0 5px 12px var(--shadow-color),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+        inset 0 0 0 2px rgba(212, 175, 55, 0.2);
     transform: translateY(-3px);
 }
 
@@ -1564,7 +2060,7 @@ body::before {
 
 .sneeze-icon {
     font-family: 'Reggae One', cursive;
-    font-size: 1.3rem;
+    font-size: 0.55rem;
     color: var(--accent-dark);
     display: inline-block;
     transform: rotate(-5deg);
@@ -1573,7 +2069,6 @@ body::before {
     z-index: 2;
     text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8), 
                 -1px -1px 0 rgba(255, 255, 255, 0.8);
-    animation: float 4s ease-in-out infinite;
     letter-spacing: 0.02em;
 }
 
@@ -1750,35 +2245,11 @@ footer p {
     line-height: 1.8;
 }
 
-/* 動画再生ボタン */
-.play-button {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(255, 255, 255, 0.9);
-    border: none;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.play-button:hover {
-    transform: translate(-50%, -50%) scale(1.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
+/* 動画再生ボタン - 削除 */
 
 /* アニメーション用クラス */
-.fade-in:not(.admin-body):not(.table-grid):not(.table-grid-item):not(.print-boundary-container):not(.print-boundary) {
-    opacity: 0;
-    animation: fadeIn 1s ease forwards;
+.fade-in {
+    animation: fadeIn 0.5s ease forwards;
 }
 
 /* レスポンシブ対応 */
@@ -1882,52 +2353,11 @@ footer p {
     }
     
     .radio-group {
-        flex-direction: column;
         gap: 10px;
-    }
-    
-    .play-button {
-        width: 60px;
-        height: 60px;
-    }
-    
-    .play-button i {
-        font-size: 24px;
     }
     
     .timeline-section {
         padding: 30px 20px;
-    }
-    
-    .timeline::before {
-        left: 10px;
-    }
-    
-    .timeline-item {
-        padding-left: 35px;
-    }
-    
-    .timeline-date {
-        margin-bottom: 12px;
-        border-bottom: 1px dashed var(--accent-light);
-        padding-bottom: 8px;
-    }
-    
-    .timeline-date span {
-        display: block;
-        white-space: normal;
-        font-size: 1.05rem;
-    }
-    
-    .timeline-dot {
-        left: 2px;
-        top: 6px;
-        width: 14px;
-        height: 14px;
-    }
-    
-    .timeline-content p {
-        text-align: left;
     }
 }
 
@@ -1945,9 +2375,7 @@ footer p {
         height: 180px;
     }
     
-    .envelope-flap {
-        height: 90px;
-    }
+   
     
     .wax-seal {
         width: 50px;
@@ -2288,7 +2716,6 @@ footer p {
 
 .guestbook-wrapper {
     max-width: 1000px;
-    margin: 0 auto;
     padding: 2rem 1rem;
 }
 
@@ -2420,6 +2847,12 @@ footer p {
     margin: 40px auto;
     max-width: 900px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding-left: 10px;
+    padding-right: 10px;
+    overflow-x: hidden;
 }
 
 .schedule-intro {
@@ -2505,12 +2938,11 @@ footer p {
 
 /* FAQセクションのスタイル */
 .faq-section {
+    padding: 3rem 1rem;
     background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 12px;
-    padding: 30px;
-    margin: 40px auto;
-    max-width: 900px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 3rem;
 }
 
 .faq-intro {
@@ -2528,8 +2960,9 @@ footer p {
 .faq-item {
     margin-bottom: 15px;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: visible; /* hiddenからvisibleに変更 */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
 
 .faq-question {
@@ -2540,6 +2973,24 @@ footer p {
     justify-content: space-between;
     align-items: center;
     transition: background-color 0.3s;
+    z-index: 2;
+    position: relative;
+}
+
+.faq-toggle {
+    transition: transform 0.3s;
+    position: relative;
+    z-index: 2;
+}
+
+.faq-answer {
+    background-color: white;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out, padding 0.3s;
+    position: relative;
+    z-index: 1;
 }
 
 .faq-question:hover {
@@ -2558,20 +3009,8 @@ footer p {
     color: #b8c1a2;
 }
 
-.faq-toggle {
-    transition: transform 0.3s;
-}
-
 .faq-item.active .faq-toggle i {
     transform: rotate(180deg);
-}
-
-.faq-answer {
-    background-color: white;
-    padding: 0;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s ease-out, padding 0.3s;
 }
 
 .faq-item.active .faq-answer {
@@ -2580,16 +3019,27 @@ footer p {
 }
 
 .faq-answer p {
-    margin: 0;
-    color: #666;
+    margin-bottom: 10px;
     line-height: 1.6;
 }
 
+.faq-link {
+    color: var(--accent-dark);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--accent-light);
+    transition: all 0.3s ease;
+    padding-bottom: 1px;
+}
+
+.faq-link:hover {
+    color: var(--accent-light);
+    border-bottom: 1px solid var(--accent-light);
+}
+
 .no-faqs {
+    padding: 2rem;
     text-align: center;
     color: #888;
-    font-style: italic;
-    padding: 20px;
 }
 
 /* レスポンシブデザインの調整 */
@@ -2611,7 +3061,7 @@ footer p {
         width: 30px;
         height: 30px;
         line-height: 30px;
-        font-size: 0.8rem;
+        font-size: 0.7rem;
     }
     
     .faq-question h3 {
@@ -2627,6 +3077,12 @@ footer p {
     margin: 40px auto;
     max-width: 900px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding-left: 10px;
+    padding-right: 10px;
+    overflow-x: hidden;
 }
 
 .notes-container {
@@ -2738,12 +3194,12 @@ footer p {
     position: relative;
     max-width: 800px;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 50px 25px; /* 余白を調整 */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: var(--cream);
+    background-color: #fdfbf6; /* 背景色を少し明るく、上品な色合いに */
     z-index: 100;
     flex: 1;
 }
@@ -2756,282 +3212,317 @@ footer p {
     width: 100%;
     height: 100%;
     background-image: url('../images/leaves-bg.png');
-    background-size: 300px;
+    background-size: 250px; /* 背景模様を少し小さく */
     background-repeat: repeat;
-    opacity: 0.05;
+    opacity: 0.04; /* 背景模様をさらに薄く */
     z-index: -1;
 }
 
-.invitation-content {
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    will-change: opacity, transform;
-    margin-top: 0;
-    padding-top: 0;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.invitation-content.hide:not(.admin-body):not(.table-grid):not(.table-grid-item):not(.print-boundary-container):not(.print-boundary) {
-    display: none !important;
-    opacity: 0 !important;
-    height: 0 !important;
-    overflow: hidden !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.invitation-content:not(.hide) {
-    opacity: 1;
-    transform: translateY(0);
-    margin-top: 0;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-.choice-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.choice-header h2 {
-    font-family: 'M PLUS Rounded 1c', cursive;
-    color: #d35400;
-    margin-bottom: 10px;
-    font-size: 2.5rem;
-}
-
-.choice-header p {
-    color: #666;
-    font-size: 1.2rem;
-}
-
-.choice-card {
-    display: flex;
-    align-items: center;
-    background: #fff;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    width: 100%;
-    max-width: 500px;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-    will-change: transform, opacity, box-shadow;
-}
-
-.choice-card.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.choice-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-}
-
-.choice-card-icon {
-    background-color: #f5f5f5;
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 20px;
-    flex-shrink: 0;
-}
-
-.choice-card-icon i {
-    font-size: 30px;
-    color: #e67e22;
-}
-
-.choice-invitation-card .choice-card-icon i {
-    color: #3498db;
-}
-
-.choice-fusen-card .choice-card-icon i {
-    color: #e67e22;
-}
-
-.choice-card-content {
-    text-align: left;
-}
-
-.choice-card-content h3 {
-    font-family: 'Noto Sans JP', sans-serif;
-    margin: 0 0 8px 0;
-    font-size: 1.4rem;
-    color: #333;
-}
-
-.choice-card-content p {
-    margin: 0;
-    color: #666;
-    font-size: 1rem;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@media (max-width: 768px) {
-    .choice-card {
-        padding: 15px;
-    }
-    
-    .choice-card-icon {
-        width: 50px;
-        height: 50px;
-        margin-right: 15px;
-    }
-    
-    .choice-card-icon i {
-        font-size: 20px;
-    }
-    
-    .choice-card-content h3 {
-        font-size: 1.2rem;
-    }
-}
-
-/* 装飾エフェクト - 全体で使用可能に変更 */
-.decoration-effects {
-    position: fixed;
+/* 選択画面用の装飾エフェクト */
+.choice-decoration-effects {
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 10;
+    z-index: 0;
     overflow: hidden;
 }
 
-/* クリック/タップエフェクト */
-.click-effect {
-    position: absolute;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,192,203,0.8) 0%, rgba(255,255,255,0) 70%);
-    transform: scale(0);
-    pointer-events: none;
-    z-index: 10;
-    animation: click-ripple 1s ease-out forwards;
+/* カード内のコンテンツスタイル調整 */
+.choice-card-content h3 {
+    font-family: 'Noto Serif JP', sans-serif;
+    margin: 0 0 8px 0;
+    font-size: 1.3rem; /* 1.4remから1.3remに調整 */
+    color: #5d4037; /* 色を統一 */
+    font-weight: 500;
+    letter-spacing: 0.5px;
 }
 
-@keyframes click-ripple {
-    0% {
-        transform: scale(0);
-        opacity: 0.7;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 0;
-    }
+.choice-card-content p {
+    margin: 0;
+    color: #7d6e63; /* グレーからより暖かい色調に */
+    font-size: 0.95rem; /* フォントサイズを微調整 */
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
 }
 
-/* ハートの装飾 - 常に表示 */
-.floating-heart {
-    position: fixed;
-    width: 15px;
-    height: 15px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23ff6b8e' d='M50 80c18-16 36-32 36-52 0-12-10-18-18-18-8 0-14 4-18 12-4-8-10-12-18-12-8 0-18 6-18 18 0 20 18 36 36 52z'/%3E%3C/svg%3E");
-    background-size: contain;
-    background-repeat: no-repeat;
-    pointer-events: none;
-    opacity: 0.15;
-    z-index: 3;
-    animation: float 15s ease-in-out infinite;
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(0) rotate(0deg);
-    }
-    50% {
-        transform: translateY(-20px) rotate(5deg);
-    }
-    100% {
-        transform: translateY(0) rotate(0deg);
-    }
-}
-
-/* キラキラの装飾 - 常に表示 */
-.floating-sparkle {
-    position: absolute;
-    width: 15px;
-    height: 15px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffd700' d='M12 0L9.4 9.4 0 12l9.4 2.6L12 24l2.6-9.4L24 12l-9.4-2.6z'/%3E%3C/svg%3E");
-    background-size: contain;
-    background-repeat: no-repeat;
-    opacity: 0.2;
-    pointer-events: none;
-    z-index: 3;
-    animation: twinkle 10s ease-in-out infinite;
-}
-
-@keyframes twinkle {
-    0%, 100% {
-        opacity: 0.2;
-        transform: scale(1);
-    }
-    30%, 70% {
-        opacity: 0.8;
-    }
-    50% {
-        opacity: 0.5;
-        transform: scale(1.2);
-    }
-    100% {
-        transform: scale(1.5) rotate(180deg);
-        opacity: 0;
-    }
-}
-
-/* 選択画面のトランジション最適化 */
-.choice-screen:not(.hide) {
-    opacity: 1;
-    transition: opacity 0.5s ease;
-}
-
-.choice-screen.hide:not(.admin-body):not(.table-grid):not(.table-grid-item):not(.print-boundary-container):not(.print-boundary) {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .fade-in:not(.admin-body):not(.table-grid):not(.table-grid-item):not(.print-boundary-container):not(.print-boundary) {
-        animation: none !important;
-        opacity: 1 !important;
+/* スマホ用のさらなる調整 */
+@media (max-width: 480px) {
+    .choice-screen {
+        padding: 40px 20px;
     }
     
-    .envelope.opening, 
-    .envelope.opening .envelope-flap::before,
-    .envelope.opening .envelope-content,
-    .envelope.opening .seal,
-    .envelope.opening .tap-instruction {
-        animation-duration: 0.3s !important;
+    .choice-header h2 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
     }
     
-    .heart, .sparkle, .petal, .leaf, .floating-heart, .floating-sparkle, .click-effect {
-        animation: none !important;
+    .choice-header p {
+        font-size: 0.9rem;
     }
     
-    .note-music i {
-        animation: none !important;
+    .choice-card-content h3 {
+        font-size: 1.1rem;
+    }
+    
+    .choice-card-content p {
+        font-size: 0.85rem;
+    }
+}
+
+/* 固定ヘッダーの最適化 - モバイル向け */
+@media (max-width: 767px) {
+    .main-header {
+        position: fixed; /* 元の設定に戻す */
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+    }
+    
+    /* 画像の読み込みと表示を最適化 */
+    img {
+        opacity: 1 !important; /* 透明度アニメーションを無効化 */
+        transform: none !important; /* 変形アニメーションを無効化 */
+        transition: none !important; /* すべてのトランジションを無効化 */
+    }
+    
+    /* パララックス効果の無効化 */
+    .parallax-bg {
+        background-attachment: scroll !important;
+        transform: none !important;
+    }
+}
+
+/* モバイルでのスクロール中は追加最適化を削除 */
+
+@media (max-width: 768px) {
+    /* 前の内容 */
+    
+    .timeline-section {
+        padding: 30px 20px;
+    }
+    
+    .timeline::before {
+        left: 10px;
+    }
+    
+    .timeline-item {
+        padding-left: 35px;
+    }
+    
+    .timeline-date {
+        margin-bottom: 12px;
+        border-bottom: 1px dashed var(--accent-light);
+        padding-bottom: 8px;
+    }
+    
+    .timeline-date span {
+        display: block;
+        white-space: normal;
+        font-size: 1.05rem;
+    }
+    
+    .timeline-dot {
+        left: 2px;
+        top: 6px;
+        width: 14px;
+        height: 14px;
+    }
+    
+    .timeline-content p {
+        text-align: left;
+    }
+}
+
+/* セクションのスクロール位置調整 - 固定ヘッダー分のオフセット */
+section, .section {
+    scroll-margin-top: 80px; /* ヘッダーの高さ分のスクロールマージン */
+}
+
+/* story-sectionのパディング調整を元に戻す */
+.story-section {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 50px;
+    border-radius: 15px;
+    margin-bottom: 70px;
+    position: relative;
+    overflow: hidden;
+    scroll-margin-top: 80px; /* ヘッダーの高さ分のスクロールマージン */
+}
+
+/* モバイル向け全体調整 */
+@media (max-width: 767px) {
+    /* ヘッダー固定に対応する調整 */
+    .invitation-content {
+        padding-top: 70px; /* ヘッダーの高さ+余白 */
+    }
+    
+    html {
+        scroll-padding-top: 70px;
+    }
+    
+    section, .section, .timeline-section, .story-section, 
+    .countdown-section, .gallery, .rsvp-section, 
+    .message-section, .schedule-section, .faq-section {
+        scroll-margin-top: 70px;
+        padding: 30px 15px; /* パディングを調整 */
+        margin-bottom: 40px; /* セクション間の余白を調整 */
+    }
+    
+    /* 各セクションの余白と表示を調整 */
+    .section-title {
+        margin-bottom: 20px;
+    }
+    
+    /* ヘッダー設定 */
+    .main-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        padding: 10px 15px;
+        height: auto;
+        min-height: 60px;
+        box-sizing: border-box;
+        background-color: rgba(255, 255, 255, 0.95);
+    }
+}
+
+/* スマホ向け特別調整 */
+@media (max-width: 480px) {
+    /* ヘッダーとコンテンツの関係をさらに調整 */
+    .invitation-content {
+        padding-top: 60px; /* ヘッダーの高さ+余白 */
+    }
+    
+    html {
+        scroll-padding-top: 60px;
+    }
+    
+    section, .section, .timeline-section, .story-section, 
+    .countdown-section, .gallery, .rsvp-section, 
+    .message-section, .schedule-section, .faq-section {
+        scroll-margin-top: 60px;
+        padding: 25px 10px; /* パディングをさらに調整 */
+        margin-bottom: 30px; /* セクション間の余白をさらに調整 */
+        border-radius: 10px; /* 角丸を調整 */
+    }
+    
+    /* モバイルでの余白調整 */
+    .container {
+        width: 95%;
+        margin: 0 auto;
+        padding: 0;
+    }
+    
+    /* ヘッダーをより小さく調整 */
+    .main-header {
+        min-height: 50px;
+        padding: 8px 10px;
+        height: 60px;
+    }
+    
+    .main-header .title {
+        font-size: 20px;
+    }
+    
+    .main-header .subtitle {
+        font-size: 12px;
+        margin-top: 0;
+    }
+    
+    /* フォントサイズ調整 */
+    body {
+        font-size: 14px;
+        background-size: 300px;
+    }
+    
+    .date {
+        font-size: 16px;
+    }
+    
+    .section-title h2 {
+        font-size: 20px;
+    }
+    
+    .personal-message {
+        padding: 15px;
+        font-size: 14px;
+    }
+    
+    p {
+        line-height: 1.5;
+    }
+    
+    /* インフォメーションカードの調整 */
+    .info-card {
+        padding: 15px;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    
+    .info-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+}
+
+/* 特定のセクション調整 - モバイル向け */
+@media (max-width: 767px) {
+    /* タイムラインの調整 */
+    .timeline-section {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+    
+    .timeline::before {
+        left: 15px;
+    }
+    
+    .timeline-item {
+        padding-left: 40px;
+    }
+    
+    .timeline-dot {
+        left: 7px;
+    }
+    
+    /* ストーリーセクションの特別調整 */
+    .story-section {
+        padding-top: 40px;
+    }
+    
+    /* RSVPセクションの調整 */
+    .rsvp-section {
+        padding-top: 40px;
+    }
+    
+    /* ナビゲーションのスクロール位置調整 */
+    #timeline, #story, #rsvp, #gallery, #message, #schedule, #faq {
+        scroll-margin-top: 70px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* スマホ向け特別調整 */
+    #timeline, #story, #rsvp, #gallery, #message, #schedule, #faq {
+        scroll-margin-top: 60px;
+    }
+    
+    /* フッター調整 */
+    footer {
+        padding: 20px 15px;
+        margin-top: 30px;
     }
 }
