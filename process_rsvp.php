@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // reCAPTCHA検証
     $recaptcha_valid = false;
     if (!empty($recaptcha_response)) {
-        $recaptcha_secret = '6LfXwg8rAAAAAPIdyZWGj-VGMI_nbdS3aVj0E4nP'; // reCAPTCHAシークレットキー
+        $recaptcha_secret = '6LfXwg8rAAAAAPIdyZWGj-VGMI_nbdS3aVj0E4nP'; // reCAPTCHA v3 シークレットキー
         $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
         $recaptcha_data = [
             'secret' => $recaptcha_secret,
@@ -51,9 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $recaptcha_result = file_get_contents($recaptcha_url, false, $recaptcha_context);
         $recaptcha_json = json_decode($recaptcha_result, true);
         
+        // v3では、スコアを評価する（0.0〜1.0の範囲、1.0が最も信頼性が高い）
         if ($recaptcha_json && isset($recaptcha_json['success']) && $recaptcha_json['success']) {
-            $recaptcha_valid = true;
-            log_debug("reCAPTCHA validation successful");
+            $score = isset($recaptcha_json['score']) ? $recaptcha_json['score'] : 0;
+            // スコアが0.5以上であれば信頼できるとみなす
+            $recaptcha_valid = ($score >= 0.5);
+            log_debug("reCAPTCHA v3 validation: Score=$score, Valid=" . ($recaptcha_valid ? 'true' : 'false'));
         } else {
             log_debug("reCAPTCHA validation failed: " . print_r($recaptcha_json, true));
         }

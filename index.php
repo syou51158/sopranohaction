@@ -181,8 +181,36 @@ $datetime_info = get_wedding_datetime();
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500&family=Reggae+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google reCAPTCHA v2 -->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <!-- Google reCAPTCHA v3 -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6LfXwg8rAAAAAO8tgbD74yqTFHK9ZW6Ns18M8GpF"></script>
+    <script>
+    function onSubmitForm(token) {
+        document.getElementById("rsvp-form").submit();
+    }
+    
+    // フォーム送信時にreCAPTCHA v3を実行
+    document.addEventListener('DOMContentLoaded', function() {
+        const rsvpForm = document.getElementById('rsvp-form');
+        if (rsvpForm) {
+            rsvpForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                grecaptcha.ready(function() {
+                    grecaptcha.execute('6LfXwg8rAAAAAO8tgbD74yqTFHK9ZW6Ns18M8GpF', {action: 'submit'}).then(function(token) {
+                        // トークンを隠しフィールドに追加
+                        let recaptchaInput = document.createElement('input');
+                        recaptchaInput.setAttribute('type', 'hidden');
+                        recaptchaInput.setAttribute('name', 'g-recaptcha-response');
+                        recaptchaInput.setAttribute('value', token);
+                        rsvpForm.appendChild(recaptchaInput);
+                        
+                        // フォームを送信
+                        rsvpForm.submit();
+                    });
+                });
+            });
+        }
+    });
+    </script>
     
     <!-- スクロールアニメーション用のCSS -->
     <style>
@@ -922,9 +950,8 @@ $datetime_info = get_wedding_datetime();
                         <textarea id="dietary" name="dietary" rows="2"></textarea>
                     </div>
                     
-                    <div class="form-group">
-                        <div class="g-recaptcha" data-sitekey="6LfXwg8rAAAAAO8tgbD74yqTFHK9ZW6Ns18M8GpF"></div>
-                    </div>
+                    <!-- reCAPTCHA v3は非表示 -->
+                    <input type="hidden" name="recaptcha_v3" value="true">
                     
                     <button type="submit" class="submit-button"><i class="fas fa-paper-plane"></i> 送信する</button>
                 </form>
