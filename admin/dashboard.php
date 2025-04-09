@@ -123,6 +123,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         }
     }
 }
+
+// 回答削除処理
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete_response') {
+    $response_id = isset($_POST['response_id']) ? (int)$_POST['response_id'] : 0;
+    
+    if ($response_id > 0) {
+        try {
+            // 関連する同伴者情報を先に削除
+            $stmt = $pdo->prepare("DELETE FROM companions WHERE response_id = ?");
+            $stmt->execute([$response_id]);
+            
+            // 回答を削除
+            $stmt = $pdo->prepare("DELETE FROM responses WHERE id = ?");
+            $stmt->execute([$response_id]);
+            
+            // 成功メッセージを設定
+            $_SESSION['success_message'] = "回答を削除しました。";
+            
+            // ページをリロード
+            header('Location: dashboard.php#responses');
+            exit;
+        } catch (PDOException $e) {
+            $delete_error = "回答の削除に失敗しました。";
+            if ($debug_mode) {
+                $delete_error .= " エラー: " . $e->getMessage();
+            }
+        }
+    }
+}
+
+// 成功メッセージがあれば取得して削除
+$success_message = isset($_SESSION['success_message']) ? $_SESSION['success_message'] : '';
+unset($_SESSION['success_message']);
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -252,6 +285,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     
                     <section id="responses" class="admin-section">
                         <h2>回答一覧</h2>
+                        
+                        <?php if (!empty($success_message)): ?>
+                        <div class="admin-success">
+                            <?= $success_message ?>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php if (isset($delete_error)): ?>
+                        <div class="admin-error">
+                            <?= $delete_error ?>
+                        </div>
+                        <?php endif; ?>
+                        
                         <div class="admin-table-container">
                             <table class="admin-table">
                                 <thead>
@@ -294,6 +340,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                                 <a href="export_response.php?id=<?= $response['id'] ?>" class="admin-btn admin-btn-export" title="CSV出力">
                                                     <i class="fas fa-file-csv"></i>
                                                 </a>
+                                                <button type="button" class="admin-btn admin-btn-delete delete-response" data-id="<?= $response['id'] ?>" title="削除">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
@@ -403,6 +452,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <span class="admin-modal-close">&times;</span>
             <h2>同伴者情報</h2>
             <div id="companions-details"></div>
+        </div>
+    </div>
+    
+    <!-- 回答削除確認モーダル -->
+    <div id="delete-modal" class="admin-modal">
+        <div class="admin-modal-content">
+            <span class="admin-modal-close">&times;</span>
+            <h2>回答削除の確認</h2>
+            <p>この回答を削除してもよろしいですか？この操作は元に戻せません。</p>
+            <form method="post" action="">
+                <input type="hidden" name="action" value="delete_response">
+                <input type="hidden" name="response_id" id="delete-response-id" value="">
+                <div class="admin-form-actions">
+                    <button type="button" class="admin-button cancel-delete">キャンセル</button>
+                    <button type="submit" class="admin-button delete-confirm">削除する</button>
+                </div>
+            </form>
         </div>
     </div>
     
@@ -563,6 +629,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             // モーダルを表示
             modal.style.display = 'block';
         }
+        
+        // 回答削除モーダル
+        const deleteModal = document.getElementById('delete-modal');
+        const deleteResponseIdInput = document.getElementById('delete-response-id');
+        const deleteButtons = document.querySelectorAll('.delete-response');
+        const cancelDeleteButton = document.querySelector('.cancel-delete');
+        const closeDeleteBtn = deleteModal.querySelector('.admin-modal-close');
+        
+        // 削除ボタンのイベントリスナー
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const responseId = this.getAttribute('data-id');
+                deleteResponseIdInput.value = responseId;
+                deleteModal.style.display = 'block';
+            });
+        });
+        
+        // キャンセルボタン
+        cancelDeleteButton.addEventListener('click', function() {
+            deleteModal.style.display = 'none';
+        });
+        
+        // モーダルを閉じるボタン
+        closeDeleteBtn.addEventListener('click', function() {
+            deleteModal.style.display = 'none';
+        });
+        
+        // モーダルの外側をクリックしても閉じる
+        window.addEventListener('click', function(event) {
+            if (event.target == deleteModal) {
+                deleteModal.style.display = 'none';
+            }
+        });
     });
     </script>
 </body>

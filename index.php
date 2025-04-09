@@ -181,6 +181,9 @@ $datetime_info = get_wedding_datetime();
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500&family=Reggae+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Google reCAPTCHA v2 -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    
     <!-- スクロールアニメーション用のCSS -->
     <style>
         .fade-in-section {
@@ -909,14 +912,20 @@ $datetime_info = get_wedding_datetime();
                             <!-- 同伴者フィールドがJSで動的に追加されます -->
                         </div>
                     </div>
-                    <div class="form-group" id="message-group">
-                        <label for="message">お二人へのメッセージ</label>
-                        <textarea id="message" name="message" rows="4"></textarea>
+                    <div class="form-group">
+                        <label for="message">メッセージ</label>
+                        <textarea id="message" name="message" rows="4" placeholder="お二人へのお祝いのメッセージなど"></textarea>
                     </div>
+                    
                     <div class="form-group" id="dietary-group">
                         <label for="dietary">アレルギー・食事制限等</label>
                         <textarea id="dietary" name="dietary" rows="2"></textarea>
                     </div>
+                    
+                    <div class="form-group">
+                        <div class="g-recaptcha" data-sitekey="6LeFiZApAAAAAJhbCL-YsH-IaIxwYBKJMYT5B-0l"></div>
+                    </div>
+                    
                     <button type="submit" class="submit-button"><i class="fas fa-paper-plane"></i> 送信する</button>
                 </form>
                 <div class="rsvp-decoration">

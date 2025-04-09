@@ -23,9 +23,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $guest_id = isset($_POST['guest_id']) ? (int)$_POST['guest_id'] : null;
     $group_id = isset($_POST['group_id']) ? htmlspecialchars($_POST['group_id']) : '';
     $email = isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '';
+    $recaptcha_response = isset($_POST['g-recaptcha-response']) ? $_POST['g-recaptcha-response'] : '';
     
     // デバッグログ - POSTデータ
     log_debug("POST Data: " . print_r($_POST, true));
+    
+    // reCAPTCHA検証
+    $recaptcha_valid = false;
+    if (!empty($recaptcha_response)) {
+        $recaptcha_secret = '6LeFiZApAAAAAOaYHSF4J0kVPOSQ9t5ImxbJlfdQ'; // reCAPTCHAシークレットキー
+        $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
+        $recaptcha_data = [
+            'secret' => $recaptcha_secret,
+            'response' => $recaptcha_response,
+            'remoteip' => $_SERVER['REMOTE_ADDR']
+        ];
+        
+        $recaptcha_options = [
+            'http' => [
+                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                'method' => 'POST',
+                'content' => http_build_query($recaptcha_data)
+            ]
+        ];
+        
+        $recaptcha_context = stream_context_create($recaptcha_options);
+        $recaptcha_result = file_get_contents($recaptcha_url, false, $recaptcha_context);
+        $recaptcha_json = json_decode($recaptcha_result, true);
+        
+        if ($recaptcha_json && isset($recaptcha_json['success']) && $recaptcha_json['success']) {
+            $recaptcha_valid = true;
+            log_debug("reCAPTCHA validation successful");
+        } else {
+            log_debug("reCAPTCHA validation failed: " . print_r($recaptcha_json, true));
+        }
+    } else {
+        log_debug("No reCAPTCHA response received");
+    }
     
     // デバッグログ - 処理されたデータ
     log_debug("Processed Data: name: $name, email: $email, attending: $attending, companions: $companions, guest_id: $guest_id, group_id: $group_id");
@@ -37,6 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (empty($email)) {
         $error = "メールアドレスは必須です。";
         log_debug("Validation Error: Email is empty");
+    } elseif (!$recaptcha_valid) {
+        $error = "reCAPTCHA認証に失敗しました。ロボットではないことを確認してください。";
+        log_debug("Validation Error: reCAPTCHA validation failed");
     } else {
         try {
             // 重複チェック - 同じメールアドレスと名前の組み合わせで既に返信がないか確認
