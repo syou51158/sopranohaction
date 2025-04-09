@@ -307,9 +307,9 @@ $page_title = 'QRコードチェックイン';
                 <?php if ($guest): ?>
                 <div class="guest-info">
                     <h3><?= htmlspecialchars($guest['group_name']) ?></h3>
-                    <p><strong>名前:</strong> <?= htmlspecialchars($guest['name']) ?></p>
+                    <p><strong>名前:</strong> <?= isset($guest['name']) ? htmlspecialchars($guest['name']) : '未設定' ?></p>
                     <p><strong>グループID:</strong> <?= htmlspecialchars($guest['group_id']) ?></p>
-                    <p><strong>メールアドレス:</strong> <?= htmlspecialchars($guest['email']) ?></p>
+                    <p><strong>メールアドレス:</strong> <?= isset($guest['email']) ? htmlspecialchars($guest['email']) : '未設定' ?></p>
                     
                     <!-- チェックインフォーム -->
                     <form class="checkin-form" method="post" action="checkin.php?token=<?= htmlspecialchars($token) ?>">
@@ -384,56 +384,158 @@ $page_title = 'QRコードチェックイン';
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const qrVideo = document.getElementById('qr-video');
+        const qrContainer = document.getElementById('qr-video');
         const scanResult = document.getElementById('scan-result');
+        
+        if (!qrContainer) {
+            console.error('QRコードスキャナーコンテナが見つかりません');
+            return;
+        }
+        
+        // カメラ入力に関するステータス表示
+        scanResult.innerHTML = `
+            <div class="info-message">
+                <i class="fas fa-camera"></i> カメラへのアクセス許可を確認しています...
+            </div>
+        `;
+        
+        // 利用可能なカメラデバイスを取得
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+            scanResult.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i> お使いのブラウザはカメラデバイスの検出をサポートしていません。
+                </div>
+                <p>代わりに下部のトークン入力フォームをご利用ください。</p>
+            `;
+            return;
+        }
         
         // HTML5 QRコードスキャナーを初期化
         const html5QrCode = new Html5Qrcode("qr-video");
-        const qrConfig = { fps: 10, qrbox: 250 };
         
-        // カメラの起動
-        html5QrCode.start(
-            { facingMode: "environment" }, // 背面カメラを優先
-            qrConfig,
-            onScanSuccess,
-            onScanFailure
-        ).catch(err => {
-            scanResult.innerHTML = `
-                <div class="error-message">
-                    <i class="fas fa-exclamation-circle"></i> カメラへのアクセスに失敗しました: ${err}
-                </div>
-                <p>カメラへのアクセス許可を確認してください。</p>
-            `;
-        });
+        // カメラデバイスの一覧を取得
+        navigator.mediaDevices.enumerateDevices()
+            .then(devices => {
+                // カメラデバイスのみをフィルタリング
+                const cameras = devices.filter(device => device.kind === 'videoinput');
+                
+                if (cameras.length === 0) {
+                    scanResult.innerHTML = `
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i> カメラデバイスが見つかりません。
+                        </div>
+                        <p>代わりに下部のトークン入力フォームをご利用ください。</p>
+                    `;
+                    return;
+                }
+                
+                // カメラの起動（背面カメラを優先）
+                let selectedCamera = null;
+                // モバイルデバイスの場合、背面カメラを探す
+                for (const camera of cameras) {
+                    if (camera.label.toLowerCase().includes('back') || 
+                        camera.label.toLowerCase().includes('rear') ||
+                        camera.label.toLowerCase().includes('環境') || 
+                        camera.label.toLowerCase().includes('背面')) {
+                        selectedCamera = camera.deviceId;
+                        break;
+                    }
+                }
+                
+                // 背面カメラが見つからない場合は最初のカメラを使用
+                if (!selectedCamera && cameras.length > 0) {
+                    selectedCamera = cameras[0].deviceId;
+                }
+                
+                const qrConfig = { 
+                    fps: 10, 
+                    qrbox: { width: 250, height: 250 },
+                    experimentalFeatures: {
+                        useBarCodeDetectorIfSupported: true
+                    }
+                };
+                
+                let cameraConfig = { deviceId: selectedCamera };
+                if (!selectedCamera) {
+                    cameraConfig = { facingMode: "environment" };
+                }
+                
+                // カメラの起動
+                html5QrCode.start(
+                    cameraConfig,
+                    qrConfig,
+                    onScanSuccess,
+                    onScanFailure
+                ).catch(err => {
+                    scanResult.innerHTML = `
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i> カメラへのアクセスに失敗しました: ${err}
+                        </div>
+                        <p>カメラへのアクセス許可を確認するか、下部のトークン入力フォームをご利用ください。</p>
+                    `;
+                });
+            })
+            .catch(err => {
+                scanResult.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> カメラデバイスの取得に失敗しました: ${err}
+                    </div>
+                    <p>代わりに下部のトークン入力フォームをご利用ください。</p>
+                `;
+            });
         
         // スキャン成功時のコールバック
         function onScanSuccess(decodedText, decodedResult) {
+            console.log("QRコード検出: ", decodedText);
+            
             // URLからトークンを抽出
-            const url = new URL(decodedText);
-            const token = url.searchParams.get('token');
+            let token = null;
+            
+            // URLの場合はパラメータから抽出
+            if (decodedText.includes('?token=')) {
+                try {
+                    const url = new URL(decodedText);
+                    token = url.searchParams.get('token');
+                } catch (e) {
+                    // URL解析に失敗した場合は文字列からトークンを探す
+                    const matches = decodedText.match(/[?&]token=([^&]+)/);
+                    if (matches && matches.length > 1) {
+                        token = matches[1];
+                    }
+                }
+            } else {
+                // トークンそのものと仮定
+                token = decodedText;
+            }
             
             if (token) {
-                // 音を鳴らす
-                const beepSound = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU...'); // Base64エンコードされた短い音声
-                beepSound.play();
+                // 成功音を鳴らす (短いビープ音)
+                try {
+                    const beepSound = new Audio('data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAFAAAGUACFhYWFhYWFhYWFhYWFhYWFhYWFvb29vb29vb29vb29vb29vb29vb3p6enp6enp6enp6enp6enp6enp6f////////////////////////////////8AAAA5TEFNRTMuOTlyAm4AAAAALgkAABRGJAN3TQAARgABhZBqUm3YAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//vAxAAABLQDe7QQAAI8AKz3AiAA0qAXBMQwAAhIAAYRgJAAAoHTDxs1JmboZkS5qzS5m+JnmEJKeMTjtFx45COPEQiERwQiPocEIQgIYcEIjw4IRHBCEQQEJUOCEcEJCEqHBCB8vOV+X5/4QhAQlflQ4/KgfLzlB8uV9wQhCXX7Bf/BA45Xv4ICE/BA45QQOCEIfBAQOCEuEQh4IRCAgY5QfLz//l+dfl5/X5/oQhAQn+gIHHKCBc5XnLzgcrnK/+XnK84fBA4IRCIQEBAQn//wf///wfwQhDggggggccEDghEIhAQEBA5');
+                    beepSound.play();
+                } catch (e) {
+                    console.error("ビープ音の再生に失敗しました: ", e);
+                }
                 
                 // スキャン結果を表示
                 scanResult.innerHTML = `
                     <div class="success-message">
                         <i class="fas fa-check-circle"></i> QRコードを検出しました！
                     </div>
+                    <p>トークン: ${token}</p>
                     <p>リダイレクトしています...</p>
                 `;
                 
                 // 検出したトークンでページをリロード
                 setTimeout(() => {
-                    window.location.href = `checkin.php?token=${token}${<?= $scanner_mode ? "'&scanner=1'" : "''"; ?>}`;
+                    window.location.href = `checkin.php?token=${encodeURIComponent(token)}${<?= $scanner_mode ? "'&scanner=1'" : "''"; ?>}`;
                 }, 1000);
             } else {
                 scanResult.innerHTML = `
                     <div class="error-message">
                         <i class="fas fa-exclamation-circle"></i> 無効なQRコードです。トークンが見つかりません。
                     </div>
+                    <p>スキャンされた値: ${decodedText}</p>
                 `;
             }
         }
@@ -441,7 +543,7 @@ $page_title = 'QRコードチェックイン';
         // スキャン失敗時のコールバック
         function onScanFailure(error) {
             // エラーは表示しない（連続的にスキャンするため）
-            console.log(`QRコードスキャンエラー: ${error}`);
+            console.log(`QRコードスキャン処理中: ${error}`);
         }
     });
     </script>

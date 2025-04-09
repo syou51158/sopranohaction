@@ -18,6 +18,16 @@ $menu_items = [
         'text' => 'ゲストブック管理'
     ],
     [
+        'href' => 'checkin.php',
+        'icon' => 'fas fa-qrcode',
+        'text' => 'QRチェックイン'
+    ],
+    [
+        'href' => 'checkin_list.php',
+        'icon' => 'fas fa-clipboard-check',
+        'text' => 'チェックイン履歴'
+    ],
+    [
         'href' => 'dashboard.php#guests',
         'icon' => 'fas fa-users',
         'text' => 'ゲスト管理'
