@@ -74,8 +74,8 @@ if ($is_local) {
     $db_pass = getenv('DB_PASSWORD') ?: 'syou108810';
     $site_url = "https://sopranohaction.fun/";  // 本番環境のURL（HTTPSに変更）
     $site_email = "info-wedding@sopranohaction.fun";  // 送信元メールアドレス
-    $debug_mode = getenv('APP_DEBUG') === 'true';
-    define('DEBUG_MODE', $debug_mode);
+    $debug_mode = false; // 本番環境ではデバッグモードを必ず無効化
+    define('DEBUG_MODE', false);
     $mail_debug = false;     // メールデバッグ出力は無効
     define('MAIL_DEBUG', false); // メールデバッグ出力定数
 }
