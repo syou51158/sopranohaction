@@ -8,112 +8,122 @@ $request_uri = $_SERVER['REQUEST_URI'];
 // 各メニュー項目の定義
 $menu_items = [
     [
-        'href' => 'dashboard.php',
+        'link' => 'dashboard.php',
         'icon' => 'fas fa-tachometer-alt',
         'text' => 'ダッシュボード'
     ],
     [
-        'href' => 'guestbook.php',
+        'link' => 'guestbook.php',
         'icon' => 'fas fa-book',
         'text' => 'ゲストブック管理'
     ],
     [
-        'href' => 'checkin.php',
+        'link' => 'checkin.php',
         'icon' => 'fas fa-qrcode',
         'text' => 'QRチェックイン'
     ],
     [
-        'href' => 'checkin_list.php',
+        'link' => 'checkin_list.php',
         'icon' => 'fas fa-clipboard-check',
         'text' => 'チェックイン履歴'
     ],
     [
-        'href' => 'dashboard.php#guests',
+        'link' => 'dashboard.php#guests',
         'icon' => 'fas fa-users',
         'text' => 'ゲスト管理'
     ],
     [
-        'href' => 'dashboard.php#responses',
+        'link' => 'dashboard.php#responses',
         'icon' => 'fas fa-reply-all',
         'text' => '回答一覧'
     ],
     [
-        'href' => 'dashboard.php#add-guest',
+        'link' => 'dashboard.php#add-guest',
         'icon' => 'fas fa-user-plus',
         'text' => '招待グループ追加'
     ],
     [
-        'href' => 'seating.php',
+        'link' => 'seating.php',
         'icon' => 'fas fa-chair',
         'text' => '席次表管理'
     ],
     [
-        'href' => 'guidance_settings.php',
+        'link' => 'seating_chart/seating_new.php',
+        'icon' => 'fas fa-th',
+        'text' => '新席次表管理'
+    ],
+    [
+        'link' => 'seating_chart/seating_layout.php',
+        'icon' => 'fas fa-vector-square',
+        'text' => '会場レイアウト'
+    ],
+    [
+        'link' => 'guidance_settings.php',
         'icon' => 'fas fa-info-circle',
         'text' => 'チェックイン案内設定'
     ],
     [
-        'href' => 'schedule.php',
+        'link' => 'schedule.php',
         'icon' => 'fas fa-calendar-day',
         'text' => 'タイムスケジュール'
     ],
     [
-        'href' => 'gifts.php',
+        'link' => 'gifts.php',
         'icon' => 'fas fa-gift',
         'text' => 'ギフト管理'
     ],
     [
-        'href' => 'photos.php',
+        'link' => 'photos.php',
         'icon' => 'fas fa-images',
         'text' => '写真管理'
     ],
     [
-        'href' => 'videos.php',
+        'link' => 'videos.php',
         'icon' => 'fas fa-video',
         'text' => '動画管理'
     ],
     [
-        'href' => 'faq.php',
+        'link' => 'faq.php',
         'icon' => 'fas fa-question-circle',
         'text' => 'Q&A管理'
     ],
     [
-        'href' => 'travel.php',
+        'link' => 'travel.php',
         'icon' => 'fas fa-map-marked-alt',
         'text' => '交通・宿泊情報'
     ],
     [
-        'href' => 'group_types.php',
+        'link' => 'group_types.php',
         'icon' => 'fas fa-tags',
         'text' => 'グループタイプ'
     ],
     [
-        'href' => 'fusen_settings.php',
+        'link' => 'fusen_settings.php',
         'icon' => 'fas fa-sticky-note',
         'text' => '付箋設定'
     ],
     [
-        'href' => 'notifications.php',
+        'link' => 'notifications.php',
         'icon' => 'fas fa-bell',
         'text' => '通知設定'
     ],
     [
-        'href' => 'wedding_settings.php',
+        'link' => 'wedding_settings.php',
         'icon' => 'fas fa-cog',
         'text' => '結婚式設定'
     ],
     [
-        'href' => 'manage_users.php',
+        'link' => 'manage_users.php',
         'icon' => 'fas fa-users-cog',
         'text' => 'ユーザー管理'
     ],
     [
-        'href' => 'setup.php',
+        'link' => 'setup.php',
         'icon' => 'fas fa-cogs',
         'text' => 'セットアップ'
     ],
     [
-        'href' => 'remarks.php',
+        'link' => 'remarks.php',
         'icon' => 'fas fa-sticky-note',
         'text' => '備考・お願い管理'
     ],
@@ -128,16 +138,16 @@ $menu_items = [
                     <?php
                     // 現在のページをチェック
                     $is_active = false;
-                    if ($item['href'] === $current_page || 
-                        (strpos($item['href'], '#') !== false && 
-                         strpos($item['href'], $current_page) === 0) ||
-                        (strpos($request_uri, $item['href']) !== false)
+                    if ($item['link'] === $current_page || 
+                        (strpos($item['link'], '#') !== false && 
+                         strpos($item['link'], $current_page) === 0) ||
+                        (strpos($request_uri, $item['link']) !== false)
                     ) {
                         $is_active = true;
                     }
                     ?>
                     <li class="<?php echo $is_active ? 'active' : ''; ?>">
-                        <a href="<?php echo $item['href']; ?>">
+                        <a href="<?php echo $item['link']; ?>">
                             <i class="<?php echo $item['icon']; ?>"></i>
                             <?php echo $item['text']; ?>
                         </a>
