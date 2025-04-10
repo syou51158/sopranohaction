@@ -293,361 +293,305 @@
 .venue-layout {
     background-color: #fff;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-    margin-bottom: 30px;
-    overflow: auto; /* スクロール可能に変更 */
-    max-height: 1200px; /* 最大高さを設定 */
-    min-width: 1200px; /* 最小幅を設定して横スクロールを可能に */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .venue-header {
     text-align: center;
     margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
 }
 
-.venue-header h2 {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 10px;
+.venue-header h4 {
+    margin-bottom: 5px;
     color: #333;
 }
 
-.venue-date, .venue-place {
-    margin: 5px 0;
-    color: #666;
-    font-size: 16px;
+/* 高砂（新郎新婦）テーブル */
+.high-table-area {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
 }
 
-.seating-area {
-    position: relative;
-    padding: 30px 0;
-}
-
-/* 高砂（新郎新婦席） */
 .high-table {
-    margin: 0 auto 50px;
-    text-align: center;
-    width: 300px;
+    width: 200px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .high-table-box {
-    padding: 15px;
-    background-color: #fff5e6;
-    border: 2px solid #ffcb8c;
+    width: 100%;
+    height: 100%;
+    background-color: #e6f7ff;
+    border: 2px solid #a3d8ff;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    color: #8a5a44;
-    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* 上座・下座ラベル */
+.bride-groom-label {
+    font-weight: bold;
+    color: #0066cc;
+}
+
+/* 上座・下座の表示 */
 .position-labels {
     display: flex;
-    justify-content: flex-end;
-    margin-right: 30px;
-    position: relative;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
 .kamiza, .shimoza {
+    padding: 5px 15px;
+    background-color: #f0f0f0;
+    border-radius: 20px;
     font-weight: bold;
-    padding: 5px 10px;
-    background-color: #f8f9fa;
-    border: 1px dashed #ced4da;
-    border-radius: 5px;
-    color: #495057;
-    display: inline-block;
 }
 
 /* グループラベル */
 .group-labels {
     display: flex;
     justify-content: space-around;
-    margin: 20px 0;
+    margin-bottom: 20px;
 }
 
 .group-label {
     font-weight: bold;
-    color: #666;
-    padding: 5px 15px;
-    background-color: #f8f9fa;
-    border-radius: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: #555;
+    padding: 5px 10px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
 }
 
-/* テーブル配置エリア */
+/* テーブルエリア */
 .tables-area {
     display: grid;
-    grid-template-columns: repeat(4, minmax(300px, 1fr)); /* 最小幅を設定 */
-    gap: 40px; /* 間隔を均等に調整 */
-    position: relative;
-    z-index: 1;
-    padding: 30px;
-    width: 100%; /* 幅を100%に */
-    margin: 0 auto;
-    min-height: 800px; /* 最小の高さを設定 */
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    margin-bottom: 30px;
 }
 
-/* カード本体のスタイル調整 */
-.card-body {
-    overflow: auto; /* スクロール可能に設定 */
-    max-height: 1300px; /* 最大高さを設定 */
-}
-
-/* 右側コンテンツのスタイル調整 */
-.col-md-9 .card {
-    height: calc(100vh - 200px); /* 画面高さに合わせて調整 */
+/* 円形テーブル */
+.round-table-container {
     display: flex;
     flex-direction: column;
-}
-
-.col-md-9 .card-body {
-    flex: 1;
-    overflow: auto; /* スクロール可能に設定 */
-    padding: 15px;
-}
-
-/* 丸テーブル */
-.round-table-container {
-    padding: 20px;
-    display: flex;
-    justify-content: center;
     align-items: center;
-    position: relative;
-    margin: 40px 0; /* 上下の余白を調整 */
-    width: 100%;
 }
 
 .round-table {
-    width: 140px; /* テーブルサイズを調整 */
-    height: 140px;
-    background-color: #fff;
-    border: 2px solid #ddd;
+    position: relative;
+    width: 200px;
+    height: 200px;
+    background-color: #f0f0f0;
     border-radius: 50%;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    position: relative;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s;
-}
-
-.round-table:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    border: 2px solid #ccc;
 }
 
 .table-number {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(255, 255, 255, 0.9);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     font-weight: bold;
-    font-size: 20px;
-    color: #333;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    z-index: 10;
+    font-size: 24px;
+    color: #555;
+    z-index: 1;
 }
 
-/* 親席ラベル */
-.parent-note {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 3px 8px;
-    border-radius: 10px;
-    font-size: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.parent-note.father {
-    top: 10px;
-    left: 10px;
-    color: #007bff;
-}
-
-.parent-note.mother {
-    top: 10px;
-    right: 10px;
-    color: #e83e8c;
-}
-
-/* 座席スタイル */
+/* 席のスタイル */
 .seat {
     position: absolute;
-    width: 100px; /* カードの幅を拡大 */
-    padding: 10px;
-    background-color: #fff;
-    border: 1px solid #ddd;
+    width: 80px;
+    height: 80px;
+    background-color: #f9f9f9;
+    border: 2px solid #ddd;
     border-radius: 8px;
-    text-align: center;
-    transition: all 0.2s;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    overflow: visible; /* 内容がはみ出ても表示 */
-    font-size: 13px;
-    z-index: 15;
+    transition: all 0.3s;
+    z-index: 2;
 }
 
 .seat:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 20;
+    background-color: #e6f7ff;
+    border-color: #a3d8ff;
+    transform: scale(1.05);
 }
 
 .seat.occupied {
-    background-color: #d1ecf1;
-    border-color: #bee5eb;
-}
-
-.seat.respondent {
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-}
-
-.seat.companion {
-    background-color: #fff3cd;
-    border-color: #ffeeba;
-}
-
-/* 座席配置調整 - 画像のレイアウトに合わせて調整 */
-.seat-pos-1 {
-    top: -85px; /* 上方向に配置 */
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.seat-pos-2 {
-    top: 0;
-    right: -85px; /* 右方向に配置 */
-    transform: none;
-}
-
-.seat-pos-3 {
-    bottom: 0;
-    right: -85px; /* 右方向に配置 */
-    transform: none;
-}
-
-.seat-pos-4 {
-    bottom: -85px; /* 下方向に配置 */
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.seat-pos-5 {
-    bottom: 0;
-    left: -85px; /* 左方向に配置 */
-    transform: none;
-}
-
-.seat-pos-6 {
-    top: 0;
-    left: -85px; /* 左方向に配置 */
-    transform: none;
+    background-color: #e6f7ff;
+    border-color: #a3d8ff;
 }
 
 .seat-number {
-    display: inline-block;
-    width: 22px;
-    height: 22px;
-    line-height: 22px;
-    text-align: center;
-    background-color: #f8f9fa;
-    border-radius: 50%;
-    margin-bottom: 4px;
-    font-weight: bold;
+    position: absolute;
+    top: 2px;
+    left: 5px;
     font-size: 12px;
-    color: #666;
+    font-weight: bold;
+    color: #555;
 }
 
 .seat-layer {
     font-size: 11px;
-    color: #888;
-    margin-top: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: #666;
+    margin-bottom: 2px;
 }
 
 .seat-guest {
+    font-size: 13px;
     font-weight: bold;
-    margin-top: 3px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: #333;
+    text-align: center;
 }
 
 .seat-guest.empty {
-    font-weight: normal;
     color: #aaa;
-    font-style: italic;
 }
 
-/* モバイル対応 */
-@media (max-width: 992px) {
-    .venue-layout {
-        max-height: none; /* 最大高さの制限を解除 */
-        min-width: auto; /* モバイルでは最小幅を設定しない */
-        width: 100%;
-        overflow-x: auto; /* 横スクロール可能に */
-    }
-    
+/* ステータスカード */
+.status-cards {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.status-card {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+}
+
+.status-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+    font-size: 20px;
+}
+
+.status-icon.seated {
+    background-color: #e6f7ff;
+    color: #0066cc;
+}
+
+.status-icon.unassigned {
+    background-color: #fff0f0;
+    color: #ff4d4f;
+}
+
+.status-info h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.status-count {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* 未割り当てエリア */
+.unassigned-area {
+    margin-bottom: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.unassigned-area h5 {
+    margin-bottom: 15px;
+}
+
+.unassigned-guests {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.guest-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px;
+    width: calc(33.333% - 10px);
+    min-width: 150px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.guest-card:hover {
+    background-color: #e6f7ff;
+}
+
+.guest-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.guest-info {
+    font-size: 12px;
+    color: #666;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 1200px) {
     .tables-area {
-        grid-template-columns: repeat(2, minmax(250px, 1fr));
-        gap: 60px 20px; /* 間隔調整 */
-        min-height: auto; /* 最小高さの制限を解除 */
-        padding: 20px;
-        width: 100%;
+        grid-template-columns: repeat(3, 1fr);
     }
-    
-    .seat {
-        width: 85px; /* モバイル用にサイズ調整 */
-    }
-    
-    .seat-pos-1 { top: -70px; }
-    .seat-pos-2 { right: -70px; }
-    .seat-pos-3 { right: -70px; }
-    .seat-pos-4 { bottom: -70px; }
-    .seat-pos-5 { left: -70px; }
-    .seat-pos-6 { left: -70px; }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 992px) {
+    .tables-area {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .status-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .status-card {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .guest-card {
+        width: calc(50% - 10px);
+    }
+}
+
+@media (max-width: 768px) {
     .tables-area {
         grid-template-columns: 1fr;
-        gap: 80px 0; /* 縦方向のみ間隔を設定 */
-        width: 300px; /* 幅を固定 */
-        margin: 0 auto;
     }
     
-    .round-table {
-        width: 120px;
-        height: 120px;
-    }
-    
-    .seat {
-        width: 75px;
-    }
-    
-    .seat-pos-1 { top: -60px; }
-    .seat-pos-2 { right: -60px; }
-    .seat-pos-3 { right: -60px; }
-    .seat-pos-4 { bottom: -60px; }
-    .seat-pos-5 { left: -60px; }
-    .seat-pos-6 { left: -60px; }
-    
-    .high-table-box {
-        width: 200px;
+    .guest-card {
+        width: 100%;
     }
 }
 
