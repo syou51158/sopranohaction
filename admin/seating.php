@@ -617,8 +617,14 @@ include 'inc/header.php';
 
 <script>
 $(document).ready(function() {
+    // モーダルの初期化 - 最上部に表示されるように設定
+    $('#assignSeatModal, #removeSeatModal').each(function(){
+        $(this).appendTo('body');
+    });
+    
     // 空席クリック時のイベント - 割り当てモーダル表示
-    $('.seat:not(.occupied)').on('click', function() {
+    $('.seat:not(.occupied)').on('click', function(e) {
+        e.stopPropagation(); // イベントの伝播を止める
         var tableId = $(this).data('table-id');
         var seatNumber = $(this).data('seat-number');
         
@@ -628,7 +634,8 @@ $(document).ready(function() {
     });
     
     // 既に割り当てられた座席クリック時 - 解除モーダル表示
-    $('.seat.occupied').on('click', function() {
+    $('.seat.occupied').on('click', function(e) {
+        e.stopPropagation(); // イベントの伝播を止める
         var assignmentId = $(this).data('assignment-id');
         $('#remove_assignment_id').val(assignmentId);
         $('#removeSeatModal').modal('show');
