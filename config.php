@@ -76,6 +76,16 @@ try {
 $site_name = "翔 & あかね - Wedding Invitation";
 $base_url = $site_url;    // サイトのベースURL
 
+// タイムゾーンを日本時間に設定
+date_default_timezone_set('Asia/Tokyo');
+
+// MySQLのセッションタイムゾーンも日本時間に設定
+try {
+    $pdo->exec("SET time_zone = '+09:00'");
+} catch (PDOException $e) {
+    error_log("MySQLタイムゾーン設定エラー: " . $e->getMessage());
+}
+
 // メールヘルパー関数を読み込み
 require_once __DIR__ . '/includes/mail_helper.php';
 

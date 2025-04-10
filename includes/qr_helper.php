@@ -176,32 +176,68 @@ function record_guest_checkin($guest_id, $checked_by = '', $notes = '') {
     global $pdo;
     
     try {
+        // デバッグ情報をログに記録
+        error_log("チェックイン処理開始: guest_id=$guest_id, checked_by=$checked_by");
+        
+        // ゲストが存在するか確認
+        $check_guest = $pdo->prepare("SELECT id, group_name FROM guests WHERE id = ?");
+        $check_guest->execute([$guest_id]);
+        $guest_info = $check_guest->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$guest_info) {
+            error_log("チェックイン失敗: ゲストID $guest_id が見つかりません");
+            return false;
+        }
+        
+        error_log("ゲスト情報取得成功: " . json_encode($guest_info, JSON_UNESCAPED_UNICODE));
+        
         // すでにチェックイン済みか確認
         $check_stmt = $pdo->prepare("
             SELECT COUNT(*) FROM checkins 
             WHERE guest_id = ? AND DATE(checkin_time) = CURDATE()
         ");
         $check_stmt->execute([$guest_id]);
+        $already_checked_in = $check_stmt->fetchColumn() > 0;
         
-        if ($check_stmt->fetchColumn() > 0) {
+        error_log("チェックイン状況: 既にチェックイン済み=" . ($already_checked_in ? 'はい' : 'いいえ'));
+        
+        if ($already_checked_in) {
             // 既にチェックイン済みの場合は注記を更新
             $update_stmt = $pdo->prepare("
                 UPDATE checkins 
-                SET notes = CONCAT(notes, ' / ', ?) 
+                SET notes = CONCAT(IFNULL(notes, ''), ' / ', ?) 
                 WHERE guest_id = ? AND DATE(checkin_time) = CURDATE()
             ");
-            $update_notes = "再チェックイン: " . date('H:i:s') . ($notes ? " - $notes" : "");
-            return $update_stmt->execute([$update_notes, $guest_id]);
+            $update_notes = "再チェックイン: " . date('Y-m-d H:i:s') . ($notes ? " - $notes" : "");
+            $result = $update_stmt->execute([$update_notes, $guest_id]);
+            error_log("チェックイン更新結果: " . ($result ? '成功' : '失敗'));
+            return $result;
         } else {
             // 新規チェックイン
             $stmt = $pdo->prepare("
-                INSERT INTO checkins (guest_id, checked_by, notes) 
-                VALUES (?, ?, ?)
+                INSERT INTO checkins (guest_id, checked_by, notes, checkin_time) 
+                VALUES (?, ?, ?, NOW())
             ");
-            return $stmt->execute([$guest_id, $checked_by, $notes]);
+            $result = $stmt->execute([$guest_id, $checked_by, $notes]);
+            
+            if ($result) {
+                $last_id = $pdo->lastInsertId();
+                error_log("新規チェックイン成功: ID=$last_id, guest_id=$guest_id");
+            } else {
+                error_log("新規チェックイン失敗: " . json_encode($stmt->errorInfo()));
+            }
+            
+            return $result;
         }
     } catch (PDOException $e) {
         error_log("チェックイン記録エラー: " . $e->getMessage());
+        error_log("SQL実行エラー詳細: " . json_encode([
+            'guest_id' => $guest_id,
+            'checked_by' => $checked_by,
+            'notes' => $notes,
+            'error_code' => $e->getCode(),
+            'error_message' => $e->getMessage()
+        ], JSON_UNESCAPED_UNICODE));
         return false;
     }
 }
