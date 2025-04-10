@@ -327,3 +327,7 @@ git push origin main
 git add .
 git commit -m "期限の更新"
 git push origin main
+
+git add .
+git commit -m "様の削除"
+git push origin main

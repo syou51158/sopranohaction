@@ -296,7 +296,7 @@ if (empty($fusens)) {
             
             <div class="fusen-header">
                 <h1>ご案内</h1>
-                <p><?= htmlspecialchars($guest_info['group_name']) ?>様へのメッセージ</p>
+                <p><?= htmlspecialchars($guest_info['group_name']) ?>へのメッセージ</p>
             </div>
             
             <div class="decoration">
