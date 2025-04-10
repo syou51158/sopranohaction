@@ -1,238 +1,207 @@
 <?php
 /**
- * 席次表管理システム - 新UI
- * 円卓レイアウトでの席次表管理画面
+ * 新席次表管理システム - メイン画面
+ * 円卓式テーブルレイアウトと座席割り当て管理
  */
-require_once '../../config.php';
-require_once '../inc/functions.php';
 
-// 管理者権限チェック
-check_admin();
+// 設定ファイルの読み込み
+require_once '../../config.php';
+
+// 関数ファイルの読み込み
+require_once '../functions.php';
+
+// 管理者かどうかのチェック
+check_admin_auth();
 
 // データベース接続
-$db = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8", $db_user, $db_pass);
-$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$db = db_connect();
 
-// テーブルの数と1テーブルあたりの最大席数を設定
-$max_tables = 10; // テーブル数
-$seats_per_table = 6; // 1テーブルあたりの最大席数
-
-// 1. 出席するゲスト情報を取得
-$guests_query = $db->prepare("
+// 参加するゲスト情報を取得
+$stmt = $db->prepare("
     SELECT 
-        g.id, 
-        g.name, 
-        g.group_name,
-        s.table_number,
-        s.seat_number
+        g.id, g.name, g.name_kana, g.email, g.group_id, 
+        gr.name as group_name,
+        CASE WHEN s.guest_id IS NOT NULL THEN 1 ELSE 0 END AS is_seated
     FROM 
         guests g
+    LEFT JOIN 
+        groups gr ON g.group_id = gr.id
     LEFT JOIN 
         seats s ON g.id = s.guest_id
     WHERE 
         g.is_attending = 1
     ORDER BY 
-        g.group_name, 
-        g.name
+        gr.id, g.name_kana
 ");
-$guests_query->execute();
-$guests = $guests_query->fetchAll(PDO::FETCH_ASSOC);
+$stmt->execute();
+$all_guests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// 2. 割り当て済みの席情報を取得
-$seated_query = $db->prepare("
+// 席情報を取得
+$stmt = $db->prepare("
     SELECT 
-        s.table_number,
-        s.seat_number,
-        g.id as guest_id,
-        g.name,
-        g.group_name
+        s.guest_id, s.table_number, s.seat_number, 
+        g.name, g.name_kana, g.group_id,
+        gr.name as group_name
     FROM 
         seats s
     JOIN 
         guests g ON s.guest_id = g.id
+    LEFT JOIN 
+        groups gr ON g.group_id = gr.id
     ORDER BY 
-        s.table_number, 
-        s.seat_number
+        s.table_number, s.seat_number
 ");
-$seated_query->execute();
-$seated_guests = $seated_query->fetchAll(PDO::FETCH_ASSOC);
+$stmt->execute();
+$seated_guests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// 3. 未割り当てのゲストを抽出
-$unassigned_guests = [];
-foreach ($guests as $guest) {
-    if (empty($guest['table_number'])) {
-        $unassigned_guests[] = $guest;
+// グループ情報を取得
+$stmt = $db->prepare("
+    SELECT id, name, color
+    FROM groups
+    ORDER BY id
+");
+$stmt->execute();
+$groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// テーブル情報を取得（今回は固定で8テーブル）
+$table_count = 8;
+$seats_per_table = 6; // 各テーブルの席数
+
+// 座席ごとのゲスト情報をマッピング
+$seating_map = [];
+foreach ($seated_guests as $guest) {
+    $table_number = $guest['table_number'];
+    $seat_number = $guest['seat_number'];
+    $key = $table_number . '_' . $seat_number;
+    $seating_map[$key] = $guest;
+}
+
+// 未着席ゲストを取得
+$unseated_guests = array_filter($all_guests, function($guest) {
+    return $guest['is_seated'] == 0;
+});
+
+// グループIDでグループ分け
+$guests_by_group = [];
+foreach ($unseated_guests as $guest) {
+    $group_id = $guest['group_id'];
+    if (!isset($guests_by_group[$group_id])) {
+        $guests_by_group[$group_id] = [];
+    }
+    $guests_by_group[$group_id][] = $guest;
+}
+
+// 着席済みゲスト数とテーブルごとの統計
+$seated_count = count($seated_guests);
+$total_guests = count($all_guests);
+$tables_stats = [];
+
+for ($i = 1; $i <= $table_count; $i++) {
+    $tables_stats[$i] = 0;
+}
+
+foreach ($seated_guests as $guest) {
+    $table_number = $guest['table_number'];
+    if (isset($tables_stats[$table_number])) {
+        $tables_stats[$table_number]++;
     }
 }
 
-// 4. 統計情報の集計
-$total_guests = count($guests);
-$total_assigned = count($seated_guests);
-$total_unassigned = $total_guests - $total_assigned;
-
-// 5. グループ情報の集計
-$groups = [];
-foreach ($guests as $guest) {
-    $group_name = $guest['group_name'] ?: '未分類';
-    if (!isset($groups[$group_name])) {
-        $groups[$group_name] = [
-            'total' => 0,
-            'assigned' => 0,
-            'name' => $group_name
-        ];
-    }
-    $groups[$group_name]['total']++;
-    if (!empty($guest['table_number'])) {
-        $groups[$group_name]['assigned']++;
-    }
-}
-
-// ページタイトル
-$page_title = "新席次表管理";
-include '../inc/header.php';
 ?>
-
-<div class="container-fluid">
-    <div class="row">
-        <?php include '../inc/sidebar.php'; ?>
-        
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">新席次表管理</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-sm btn-outline-primary" id="print-seating">
-                            <i class="bi bi-printer"></i> 印刷
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" id="export-csv">
-                            <i class="bi bi-file-earmark-excel"></i> CSVエクスポート
-                        </button>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-danger" id="reset-all-seats" data-bs-toggle="modal" data-bs-target="#resetAllSeatsModal">
-                        <i class="bi bi-trash"></i> 全席リセット
-                    </button>
-                </div>
-            </div>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新席次表管理 - 管理画面</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/seating.css">
+    <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <?php include '../inc/header.php'; ?>
+    
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <?php include '../inc/sidebar.php'; ?>
             
-            <!-- 統計情報カード -->
-            <div class="row mb-4">
-                <div class="col-md-4 col-lg-3 mb-3">
-                    <div class="status-card">
-                        <div class="status-icon total">
-                            <i class="bi bi-people-fill"></i>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">新席次表管理</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0 no-print">
+                        <div class="btn-group mr-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="print-seating">
+                                <i class="fas fa-print"></i> 印刷
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="export-csv">
+                                <i class="fas fa-file-csv"></i> CSVエクスポート
+                            </button>
                         </div>
-                        <div class="status-info">
-                            <h3>総ゲスト数</h3>
-                            <div class="status-count"><?php echo $total_guests; ?></div>
-                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" id="reset-all-seats">
+                            <i class="fas fa-trash-alt"></i> 全席リセット
+                        </button>
                     </div>
                 </div>
-                <div class="col-md-4 col-lg-3 mb-3">
-                    <div class="status-card">
-                        <div class="status-icon seated">
-                            <i class="bi bi-check-circle-fill"></i>
-                        </div>
-                        <div class="status-info">
-                            <h3>割り当て済み</h3>
-                            <div class="status-count"><?php echo $total_assigned; ?></div>
-                        </div>
-                    </div>
+
+                <div class="alert alert-info no-print">
+                    <p><strong>席次表の使い方:</strong></p>
+                    <ul>
+                        <li>未割り当てゲストを席にドラッグして割り当てができます</li>
+                        <li>割り当て済みの席をクリックすると、割り当て解除ができます</li>
+                        <li>グループごとにゲストが色分けされています</li>
+                    </ul>
                 </div>
-                <div class="col-md-4 col-lg-3 mb-3">
-                    <div class="status-card">
-                        <div class="status-icon unassigned">
-                            <i class="bi bi-exclamation-circle-fill"></i>
-                        </div>
-                        <div class="status-info">
-                            <h3>未割り当て</h3>
-                            <div class="status-count"><?php echo $total_unassigned; ?></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-lg-3 mb-3">
-                    <div class="status-card">
-                        <div class="status-icon percentage">
-                            <i class="bi bi-pie-chart-fill"></i>
-                        </div>
-                        <div class="status-info">
-                            <h3>完了率</h3>
-                            <div class="status-count">
-                                <?php 
-                                $percentage = $total_guests > 0 ? round(($total_assigned / $total_guests) * 100) : 0;
-                                echo $percentage . '%'; 
-                                ?>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">席割り当て状況</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="progress mb-3">
+                                    <div class="progress-bar" role="progressbar" style="width: <?php echo ($seated_count / $total_guests) * 100; ?>%;" 
+                                         aria-valuenow="<?php echo $seated_count; ?>" aria-valuemin="0" aria-valuemax="<?php echo $total_guests; ?>">
+                                        <?php echo $seated_count; ?> / <?php echo $total_guests; ?>
+                                    </div>
+                                </div>
+                                <p class="card-text">配席済み: <?php echo $seated_count; ?> 名 / 全参加者: <?php echo $total_guests; ?> 名</p>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            
-            <div class="row">
-                <!-- 会場レイアウト -->
-                <div class="col-lg-8 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>会場レイアウト</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="venue-layout">
-                                <div class="venue-header">
-                                    <h4>席次表</h4>
-                                </div>
-                                
-                                <!-- 高砂（メインテーブル） -->
-                                <div class="high-table-area mb-4">
-                                    <div class="high-table">
-                                        <div class="high-table-box">
-                                            <div class="bride-groom-label">新郎新婦</div>
-                                        </div>
-                                    </div>
-                                    <div class="position-labels">
-                                        <div class="kamiza">上座</div>
-                                        <div class="shimoza">下座</div>
-                                    </div>
-                                </div>
-                                
-                                <!-- グループラベル -->
-                                <div class="group-labels mb-3">
-                                    <div class="group-label">新郎側</div>
-                                    <div class="group-label">新婦側</div>
-                                </div>
-                                
-                                <!-- テーブルエリア -->
-                                <div class="tables-area">
-                                    <?php for ($table = 1; $table <= $max_tables; $table++): ?>
-                                    <div class="round-table-container">
-                                        <div class="table-number">テーブル<?php echo $table; ?></div>
-                                        <div class="round-table" data-table="<?php echo $table; ?>">
-                                            <?php for ($seat = 1; $seat <= $seats_per_table; $seat++): 
-                                                // 席に割り当てられているゲストを検索
-                                                $assigned_guest = null;
-                                                foreach ($seated_guests as $seated) {
-                                                    if ($seated['table_number'] == $table && $seated['seat_number'] == $seat) {
-                                                        $assigned_guest = $seated;
-                                                        break;
-                                                    }
-                                                }
-                                                
-                                                $occupied_class = $assigned_guest ? 'occupied' : '';
-                                            ?>
-                                            <div class="seat <?php echo $occupied_class; ?>" 
-                                                 data-table-id="<?php echo $table; ?>" 
-                                                 data-seat-number="<?php echo $seat; ?>">
-                                                <div class="seat-number"><?php echo $seat; ?></div>
-                                                <?php if ($assigned_guest): ?>
-                                                <div class="seat-guest">
-                                                    <div class="guest-name"><?php echo htmlspecialchars($assigned_guest['name']); ?></div>
-                                                    <div class="guest-group"><?php echo htmlspecialchars($assigned_guest['group_name']); ?></div>
-                                                </div>
-                                                <?php else: ?>
-                                                <div class="seat-guest empty">
-                                                    <div>空席</div>
-                                                </div>
-                                                <?php endif; ?>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">テーブル別状況</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <?php for ($i = 1; $i <= $table_count; $i++): ?>
+                                    <div class="col-3 mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <div class="table-status table-<?php echo $i; ?> mr-2">
+                                                <?php echo $i; ?>
                                             </div>
-                                            <?php endfor; ?>
+                                            <div>
+                                                <?php echo $tables_stats[$i]; ?>/<?php echo $seats_per_table; ?>
+                                            </div>
                                         </div>
                                     </div>
                                     <?php endfor; ?>
@@ -241,150 +210,178 @@ include '../inc/header.php';
                         </div>
                     </div>
                 </div>
-                
-                <!-- 未割り当てゲスト -->
-                <div class="col-lg-4 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>未割り当てゲスト</h5>
-                            <div class="input-group mt-2">
-                                <input type="text" class="form-control" id="guest-search" placeholder="ゲスト検索...">
-                                <button class="btn btn-outline-secondary" type="button" id="search-btn">
-                                    <i class="bi bi-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="unassigned-area">
-                                <?php if (empty($unassigned_guests)): ?>
-                                <div class="alert alert-success">
-                                    <i class="bi bi-check-circle-fill"></i> 全てのゲストが席に割り当てられています。
-                                </div>
-                                <?php else: ?>
-                                <div class="unassigned-guests">
-                                    <?php foreach ($unassigned_guests as $guest): ?>
-                                    <div class="guest-card" data-guest-id="<?php echo $guest['id']; ?>">
-                                        <div class="guest-card-name"><?php echo htmlspecialchars($guest['name']); ?></div>
-                                        <div class="guest-card-group"><?php echo htmlspecialchars($guest['group_name']); ?></div>
-                                    </div>
-                                    <?php endforeach; ?>
-                                </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
+
+                <!-- 会場レイアウト -->
+                <div class="venue-layout">
+                    <div class="venue-header no-print">
+                        <h3>会場レイアウト</h3>
                     </div>
                     
-                    <!-- グループ一覧 -->
-                    <div class="card mt-3">
-                        <div class="card-header">
-                            <h5>グループ別状況</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>グループ</th>
-                                            <th>割当/合計</th>
-                                            <th>進捗</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($groups as $group): ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars($group['name']); ?></td>
-                                            <td><?php echo $group['assigned']; ?>/<?php echo $group['total']; ?></td>
-                                            <td>
-                                                <?php 
-                                                $group_percentage = $group['total'] > 0 ? round(($group['assigned'] / $group['total']) * 100) : 0;
-                                                ?>
-                                                <div class="progress">
-                                                    <div class="progress-bar <?php echo $group_percentage == 100 ? 'bg-success' : 'bg-primary'; ?>" 
-                                                         role="progressbar" 
-                                                         style="width: <?php echo $group_percentage; ?>%" 
-                                                         aria-valuenow="<?php echo $group_percentage; ?>" 
-                                                         aria-valuemin="0" 
-                                                         aria-valuemax="100">
-                                                        <?php echo $group_percentage; ?>%
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
+                    <!-- 高砂（メインテーブル） -->
+                    <div class="high-table">
+                        <div class="high-table-box">高砂</div>
+                    </div>
+                    
+                    <!-- テーブルエリア -->
+                    <div class="tables-area">
+                        <?php for ($table_num = 1; $table_num <= $table_count; $table_num++): ?>
+                        <div class="table-container">
+                            <div class="table-number"><?php echo $table_num; ?>番テーブル</div>
+                            <div class="round-table">
+                                <?php for ($seat_num = 1; $seat_num <= $seats_per_table; $seat_num++): 
+                                    $key = $table_num . '_' . $seat_num;
+                                    $is_occupied = isset($seating_map[$key]);
+                                    $guest_data = $is_occupied ? $seating_map[$key] : null;
+                                    $seat_position = get_seat_position($seat_num, $seats_per_table);
+                                    $guest_group = $is_occupied ? $guest_data['group_id'] : 0;
+                                    $group_color = $is_occupied ? get_group_color($groups, $guest_group) : '';
+                                ?>
+                                <div class="seat seat-<?php echo $seat_num; ?> <?php echo $is_occupied ? 'occupied' : ''; ?>" 
+                                     style="<?php echo $is_occupied ? "background-color: $group_color;" : ''; ?>"
+                                     data-table-id="<?php echo $table_num; ?>" 
+                                     data-seat-number="<?php echo $seat_num; ?>">
+                                    <?php if ($is_occupied): ?>
+                                    <div class="guest-name"><?php echo $guest_data['name']; ?></div>
+                                    <?php else: ?>
+                                    <div class="seat-number"><?php echo $seat_num; ?></div>
+                                    <?php endif; ?>
+                                </div>
+                                <?php endfor; ?>
                             </div>
                         </div>
+                        <?php endfor; ?>
                     </div>
                 </div>
-            </div>
-        </main>
-    </div>
-</div>
 
-<!-- 席割り当てモーダル -->
-<div class="modal fade" id="assignSeatModal" tabindex="-1" aria-labelledby="assignSeatModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="assignSeatModalLabel">席の割り当て</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>テーブル <span id="selected-table"></span> の席 <span id="selected-seat"></span> に以下のゲストを割り当てますか？</p>
-                <div id="selected-guest-info"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                <button type="button" class="btn btn-primary" id="confirm-assign">割り当て</button>
-            </div>
+                <!-- 未割り当てゲスト一覧 -->
+                <div class="mt-5 no-print">
+                    <h3>未割り当てゲスト</h3>
+                    
+                    <div class="unassigned-guests">
+                        <?php foreach ($groups as $group): 
+                            if (!isset($guests_by_group[$group['id']])) continue;
+                            $group_guests = $guests_by_group[$group['id']];
+                            if (empty($group_guests)) continue;
+                        ?>
+                        <div class="group-container">
+                            <div class="group-header" style="background-color: <?php echo $group['color']; ?>">
+                                <?php echo $group['name']; ?> (<?php echo count($group_guests); ?>名)
+                            </div>
+                            <div class="group-guests">
+                                <?php foreach ($group_guests as $guest): ?>
+                                <div class="guest-item" draggable="true" 
+                                     data-guest-id="<?php echo $guest['id']; ?>"
+                                     data-guest-name="<?php echo htmlspecialchars($guest['name']); ?>"
+                                     data-group-id="<?php echo $guest['group_id']; ?>"
+                                     style="border-left-color: <?php echo $group['color']; ?>">
+                                    <?php echo htmlspecialchars($guest['name']); ?>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
-</div>
 
-<!-- 席解除モーダル -->
-<div class="modal fade" id="resetSeatModal" tabindex="-1" aria-labelledby="resetSeatModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="resetSeatModalLabel">席の割り当て解除</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>テーブル <span id="reset-table"></span> の席 <span id="reset-seat"></span> のゲストの割り当てを解除しますか？</p>
-                <div id="reset-guest-info"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                <button type="button" class="btn btn-danger" id="confirm-reset">割り当て解除</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 全席リセットモーダル -->
-<div class="modal fade" id="resetAllSeatsModal" tabindex="-1" aria-labelledby="resetAllSeatsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="resetAllSeatsModalLabel">全席リセット確認</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-danger">
-                    <p><strong>警告:</strong> この操作は全ての席の割り当てを削除します。この操作は元に戻せません。</p>
-                    <p>本当に全席の割り当てをリセットしますか？</p>
+    <!-- 席割り当てモーダル -->
+    <div class="modal fade" id="assignSeatModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">席の割り当て</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>以下のゲストを割り当てますか？</p>
+                    <div id="assign-guest-info"></div>
+                    <p>テーブル: <span id="assign-table-id"></span>, 席番号: <span id="assign-seat-number"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" id="confirm-assign">割り当て</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                <button type="button" class="btn btn-danger" id="confirm-reset-all">全席リセット</button>
+        </div>
+    </div>
+
+    <!-- 席割り当て解除モーダル -->
+    <div class="modal fade" id="resetSeatModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">席の割り当て解除</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>以下のゲストの席割り当てを解除しますか？</p>
+                    <div id="reset-guest-info"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-danger" id="confirm-reset">割り当て解除</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- JavaScriptの読み込み -->
-<script src="../js/seating_new.js"></script>
+    <!-- 全席リセット確認モーダル -->
+    <div class="modal fade" id="resetAllSeatsModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">全席リセット確認</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <p><strong>警告:</strong> すべての席割り当てがリセットされます。この操作は元に戻せません。</p>
+                        <p>現在、<?php echo $seated_count; ?>名のゲストに席が割り当てられています。</p>
+                    </div>
+                    <p>本当にすべての席割り当てをリセットしますか？</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-danger" id="confirm-reset-all">リセット実行</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<?php include '../inc/footer.php'; ?> 
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="../js/seating_new.js"></script>
+
+    <?php
+    /**
+     * 席の位置を計算する関数
+     * 円形テーブルで6席の場合の座標を返す
+     */
+    function get_seat_position($seat_number, $total_seats) {
+        $angle = ($seat_number - 1) * (360 / $total_seats);
+        return $angle;
+    }
+
+    /**
+     * グループの色を取得する関数
+     */
+    function get_group_color($groups, $group_id) {
+        foreach ($groups as $group) {
+            if ($group['id'] == $group_id) {
+                return $group['color'];
+            }
+        }
+        return '#cccccc'; // デフォルト色
+    }
+    ?>
+</body>
+</html> 
