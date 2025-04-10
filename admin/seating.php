@@ -99,6 +99,7 @@ try {
     $seating_plan = [];
     foreach ($tables as $table) {
         $seating_plan[$table['id']] = [
+            'id' => $table['id'],
             'table_name' => $table['table_name'],
             'capacity' => $table['capacity'],
             'table_type' => $table['table_type'],
@@ -285,304 +286,244 @@ include 'inc/header.php';
         </div>
     </div>
     
-    <?php if (isset($_GET['debug']) && $_GET['debug'] == 1): ?>
-    <div class="alert alert-info mb-4">
-        <h4>デバッグ情報</h4>
-        <p>以下はデータ構造のダンプです：</p>
-        <pre><?php 
-            // 新郎テーブルの構造を確認
-            $groom_table = array_filter($seating_plan, function($t) { 
-                return $t['table_name'] === '新郎'; 
-            });
-            if (!empty($groom_table)) {
-                echo "新郎テーブル:\n";
-                print_r(current($groom_table));
-            }
-            
-            // 割り当てられた座席の一部を表示
-            echo "\n割り当て済み座席の例（先頭3件）:\n";
-            $count = 0;
-            foreach ($assignments as $assignment) {
-                if ($count++ < 3) {
-                    print_r($assignment);
-                }
-            }
-        ?></pre>
-    </div>
-    <?php endif; ?>
-    
     <div class="row">
-        <div class="col-md-8">
-            <div class="card">
+        <!-- 左側：未割り当てゲスト一覧 -->
+        <div class="col-md-3">
+            <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">テーブル配置</h5>
+                    <h5 class="mb-0">未割り当てゲスト (<?php echo count($unassigned_people); ?>名)</h5>
+                </div>
+                <div class="card-body unassigned-guests">
+                    <?php if (count($unassigned_people) > 0): ?>
+                        <?php foreach ($unassigned_people as $person): ?>
+                            <div class="guest-card <?php echo $person['person_type']; ?>" 
+                                 draggable="true"
+                                 data-person-id="<?php echo $person['person_id']; ?>"
+                                 data-person-type="<?php echo $person['person_type']; ?>">
+                                <div class="guest-name"><?php echo htmlspecialchars($person['person_name']); ?></div>
+                                <div class="guest-group"><?php echo htmlspecialchars($person['group_name'] ?? ''); ?></div>
+                                <?php if ($person['person_type'] === 'companion'): ?>
+                                    <div class="guest-relationship">
+                                        <?php echo htmlspecialchars($person['relationship'] ?? ''); ?>の同伴者
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="text-center">未割り当てのゲストはいません</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
+            <!-- 席次表説明 -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">席次表のご案内</h5>
                 </div>
                 <div class="card-body">
-                    <div class="venue-layout">
-                        <div class="venue-header">
-                            <h2>村岡家・健野家 結婚披露宴席次表</h2>
-                            <p class="venue-date">2025年4月30日</p>
-                            <p class="venue-place">スイートテラスに於いて</p>
-                        </div>
-                        
-                        <div class="bridal-table-area">
-                            <div class="bridal-table-container">
-                                <div class="bridal-table groom">
-                                    <div class="table-name">新郎</div>
-                                    <div class="table-seats">
-                                        <?php 
-                                        // 新郎テーブルの座席を表示
-                                        $groom_table = array_filter($seating_plan, function($t) { 
-                                            return $t['table_name'] === '新郎'; 
-                                        });
-                                        
-                                        if ($groom_table) {
-                                            $table_id = key($groom_table);
-                                            $table = current($groom_table);
-                                            for ($i = 1; $i <= $table['capacity']; $i++): 
-                                                // 座席データを取得
-                                                $seat_data = getSeatData($table_id, $i, $assignments);
-                                                
-                                                // 肩書と名前を取得
-                                                $seat_title = isset($seat_data['layer_text']) ? htmlspecialchars($seat_data['layer_text']) : '肩書';
-                                                
-                                                // 同伴者かどうかでデータの取得元を変える
-                                                $seat_name = '';
-                                                if (!empty($seat_data)) {
-                                                    if ($seat_data['is_companion'] == 1 && isset($companion_data[$seat_data['companion_id']])) {
-                                                        $seat_name = htmlspecialchars($companion_data[$seat_data['companion_id']]['name']);
-                                                    } elseif (isset($response_data[$seat_data['response_id']])) {
-                                                        $seat_name = htmlspecialchars($response_data[$seat_data['response_id']]['name']);
-                                                    }
-                                                }
-                                                
-                                                if (empty($seat_name)) {
-                                                    $seat_name = 'お名前';
-                                                }
-                                                
-                                                $is_occupied = !empty($seat_data);
-                                                $is_empty_class = !$is_occupied ? 'empty' : '';
-                                        ?>
-                                        <div class="seat <?php echo $is_occupied ? 'occupied' : ''; ?>" 
-                                             data-seat-number="<?php echo $i; ?>"
-                                             data-table-id="<?php echo $table_id; ?>"
-                                             data-assignment-id="<?php echo $seat_data['id'] ?? ''; ?>">
-                                            <div class="seat-layer">
-                                                <?php echo $seat_title; ?>
-                                            </div>
-                                            <div class="seat-guest <?php echo $is_empty_class; ?>">
-                                                <?php echo $seat_name; ?>
-                                            </div>
-                                            <!-- デバッグ情報 -->
-                                            <?php if (isset($_GET['debug']) && $_GET['debug'] == 1): ?>
-                                            <div class="debug-info" style="display:none;">
-                                                <?php if ($is_occupied): ?>
-                                                <small>ID: <?php echo $seat_data['id']; ?></small><br>
-                                                <small>Title: <?php echo $seat_title; ?></small><br>
-                                                <small>Name: <?php echo $seat_name; ?></small><br>
-                                                <small>Response ID: <?php echo $seat_data['response_id'] ?? 'none'; ?></small><br>
-                                                <small>Companion ID: <?php echo $seat_data['companion_id'] ?? 'none'; ?></small><br>
-                                                <small>Is Companion: <?php echo $seat_data['is_companion'] ?? '0'; ?></small>
-                                                <?php else: ?>
-                                                <small>Empty Seat</small>
-                                                <?php endif; ?>
-                                            </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <?php endfor; } ?>
-                                    </div>
-                                </div>
-                                
-                                <div class="bridal-table bride">
-                                    <div class="table-name">新婦</div>
-                                    <div class="table-seats">
-                                        <?php 
-                                        // 新婦テーブルの座席を表示
-                                        $bride_table = array_filter($seating_plan, function($t) { 
-                                            return $t['table_name'] === '新婦'; 
-                                        });
-                                        
-                                        if ($bride_table) {
-                                            $table_id = key($bride_table);
-                                            $table = current($bride_table);
-                                            for ($i = 1; $i <= $table['capacity']; $i++): 
-                                                // 座席データを取得
-                                                $seat_data = getSeatData($table_id, $i, $assignments);
-                                                
-                                                // 肩書と名前を取得
-                                                $seat_title = isset($seat_data['layer_text']) ? htmlspecialchars($seat_data['layer_text']) : '肩書';
-                                                
-                                                // 同伴者かどうかでデータの取得元を変える
-                                                $seat_name = '';
-                                                if (!empty($seat_data)) {
-                                                    if ($seat_data['is_companion'] == 1 && isset($companion_data[$seat_data['companion_id']])) {
-                                                        $seat_name = htmlspecialchars($companion_data[$seat_data['companion_id']]['name']);
-                                                    } elseif (isset($response_data[$seat_data['response_id']])) {
-                                                        $seat_name = htmlspecialchars($response_data[$seat_data['response_id']]['name']);
-                                                    }
-                                                }
-                                                
-                                                if (empty($seat_name)) {
-                                                    $seat_name = 'お名前';
-                                                }
-                                                
-                                                $is_occupied = !empty($seat_data);
-                                                $is_empty_class = !$is_occupied ? 'empty' : '';
-                                        ?>
-                                        <div class="seat <?php echo $is_occupied ? 'occupied' : ''; ?>" 
-                                             data-seat-number="<?php echo $i; ?>"
-                                             data-table-id="<?php echo $table_id; ?>"
-                                             data-assignment-id="<?php echo $seat_data['id'] ?? ''; ?>">
-                                            <div class="seat-layer">
-                                                <?php echo $seat_title; ?>
-                                            </div>
-                                            <div class="seat-guest <?php echo $is_empty_class; ?>">
-                                                <?php echo $seat_name; ?>
-                                            </div>
-                                        </div>
-                                        <?php endfor; } ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="guest-tables-area">
-                            <div class="guest-tables-grid">
-                                <?php 
-                                // 一般テーブル（A-L）を表示
-                                $regular_tables = array_filter($seating_plan, function($t) use($seating_plan) { 
-                                    $table_name = $t['table_name'];
-                                    return $table_name !== '新郎' && $table_name !== '新婦' && strlen($table_name) === 1;
-                                });
-                                
-                                // テーブル名でソート
-                                uksort($regular_tables, function($a, $b) use($seating_plan) {
-                                    return strcmp($seating_plan[$a]['table_name'], $seating_plan[$b]['table_name']);
-                                });
-                                
-                                foreach ($regular_tables as $table_id => $table):
-                                ?>
-                                <div class="guest-table" data-table-id="<?php echo $table_id; ?>">
-                                    <div class="table-name"><?php echo htmlspecialchars($table['table_name']); ?></div>
-                                    <div class="table-seats">
-                                        <?php for ($i = 1; $i <= $table['capacity']; $i++): 
-                                            // 座席データを取得
-                                            $seat_data = getSeatData($table_id, $i, $assignments);
-                                            
-                                            // 肩書と名前を取得
-                                            $seat_title = isset($seat_data['layer_text']) ? htmlspecialchars($seat_data['layer_text']) : '肩書';
-                                            
-                                            // 同伴者かどうかでデータの取得元を変える
-                                            $seat_name = '';
-                                            if (!empty($seat_data)) {
-                                                if ($seat_data['is_companion'] == 1 && isset($companion_data[$seat_data['companion_id']])) {
-                                                    $seat_name = htmlspecialchars($companion_data[$seat_data['companion_id']]['name']);
-                                                } elseif (isset($response_data[$seat_data['response_id']])) {
-                                                    $seat_name = htmlspecialchars($response_data[$seat_data['response_id']]['name']);
-                                                }
-                                            }
-                                            
-                                            if (empty($seat_name)) {
-                                                $seat_name = 'お名前';
-                                            }
-                                            
-                                            $is_occupied = !empty($seat_data);
-                                            $is_empty_class = !$is_occupied ? 'empty' : '';
-                                        ?>
-                                        <div class="seat <?php echo $is_occupied ? 'occupied' : ''; ?>" 
-                                             data-seat-number="<?php echo $i; ?>"
-                                             data-table-id="<?php echo $table_id; ?>"
-                                             data-assignment-id="<?php echo $seat_data['id'] ?? ''; ?>">
-                                            <div class="seat-layer">
-                                                <?php echo $seat_title; ?>
-                                            </div>
-                                            <div class="seat-guest <?php echo $is_empty_class; ?>">
-                                                <?php echo $seat_name; ?>
-                                            </div>
-                                        </div>
-                                        <?php endfor; ?>
-                                    </div>
-                                </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                        
-                        <div class="seating-instructions">
-                            <ul>
-                                <li>★四角の上の細い欄に層書きを、下の広い欄にお名前をフルネームでご記入ください。</li>
-                                <li>★ご両親へは敬称はつけません。お子様は「ちゃん・君」です。</li>
-                                <li>★ご両親のテーブルの位置は一番下に配置してください。</li>
-                                <li>★引出物の配り当てを見ながら、お名前の横に「引出物組み合わせパターンをご記入ください」</li>
-                            </ul>
-                        </div>
+                    <div class="seating-instructions">
+                        <ul>
+                            <li>○の中の数字が上座のテーブルの順番です。</li>
+                            <li>上座より職場→友人→親族の順に配置しましょう。</li>
+                            <li>1テーブル4～6名掛けです。①②③④⑤⑥の順で上座の席の順番です。</li>
+                            <li>ゲストの名様に『様』をおつけください。</li>
+                            <li>小さなお子様には「くん、ちゃん」をつけてください。</li>
+                            <li>近い親戚の方ほどより上座、遠い親戚の方ほどより下座です。</li>
+                            <li>ご同席者同士の会話が弾むように組みましょう！</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="col-md-4">
-            <div class="card mb-4">
+        <!-- 右側：席次表レイアウト -->
+        <div class="col-md-9">
+            <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">未割り当てゲスト</h5>
+                    <h5 class="mb-0">席次表レイアウト</h5>
                 </div>
                 <div class="card-body">
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="guestSearch" placeholder="ゲスト名や所属で検索...">
-                        <div class="input-group-append">
-                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <div class="venue-layout">
+                        <div class="venue-header">
+                            <h2>結婚披露宴席次表</h2>
+                            <?php
+                            // 結婚式情報を取得（エラー処理を追加）
+                            try {
+                                // テーブルの存在確認
+                                $check_table = $pdo->query("SHOW TABLES LIKE 'wedding_details'");
+                                if ($check_table->rowCount() > 0) {
+                                    $wedding_info = $pdo->query("SELECT wedding_date, venue_name FROM wedding_details LIMIT 1")->fetch();
+                                    $wedding_date = isset($wedding_info['wedding_date']) ? date('Y年n月j日', strtotime($wedding_info['wedding_date'])) : '2023年12月10日';
+                                    $venue_name = isset($wedding_info['venue_name']) ? $wedding_info['venue_name'] : 'ホテルグランドパレス';
+                                } else {
+                                    // テーブルが存在しない場合はデフォルト値を使用
+                                    $wedding_date = '2023年12月10日';
+                                    $venue_name = 'ホテルグランドパレス';
+                                }
+                            } catch (PDOException $e) {
+                                // エラー発生時もデフォルト値を使用
+                                $wedding_date = '2023年12月10日';
+                                $venue_name = 'ホテルグランドパレス';
+                            }
+                            ?>
+                            <p class="venue-date"><?php echo $wedding_date; ?></p>
+                            <p class="venue-place"><?php echo htmlspecialchars($venue_name); ?>に於いて</p>
                         </div>
-                    </div>
-                    
-                    <div class="guests-list">
-                        <?php if (count($unassigned_people) > 0): ?>
-                            <div class="list-group">
-                                <?php foreach ($unassigned_people as $person): ?>
-                                    <div class="list-group-item list-group-item-action guest-item <?php echo $person['person_type']; ?>" 
-                                         data-guest-id="<?php echo $person['person_id']; ?>"
-                                         data-guest-name="<?php echo htmlspecialchars($person['person_name']); ?>"
-                                         data-guest-title="<?php echo htmlspecialchars($person['person_title'] ?? ''); ?>"
-                                         data-guest-group="<?php echo htmlspecialchars($person['group_name'] ?? ''); ?>"
-                                         data-is-companion="<?php echo $person['person_type'] === 'companion' ? '1' : '0'; ?>"
-                                         <?php if ($person['person_type'] === 'companion'): ?>
-                                         data-response-id="<?php echo $person['response_id']; ?>"
-                                         <?php endif; ?>>
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1"><?php echo htmlspecialchars($person['person_name']); ?></h6>
-                                            <?php if ($person['person_type'] === 'companion'): ?>
-                                                <span class="badge badge-info">
-                                                    <?php
-                                                    switch ($person['age_group']) {
-                                                        case 'adult':
-                                                            echo '同伴者（大人）';
-                                                            break;
-                                                        case 'child':
-                                                            echo '同伴者（子供）';
-                                                            break;
-                                                        case 'infant':
-                                                            echo '同伴者（幼児）';
-                                                            break;
-                                                        default:
-                                                            echo '同伴者';
-                                                    }
-                                                    ?>
-                                                </span>
-                                            <?php endif; ?>
-                                        </div>
-                                        <small>
-                                            <?php if ($person['person_title']): ?>
-                                                <span class="guest-title"><?php echo htmlspecialchars($person['person_title']); ?></span> | 
-                                            <?php endif; ?>
-                                            <?php if ($person['person_type'] === 'companion'): ?>
-                                                <?php echo htmlspecialchars($person['relationship']); ?>の同伴者 | 
-                                            <?php endif; ?>
-                                            グループ: <?php echo htmlspecialchars($person['group_name'] ?? '未設定'); ?>
-                                        </small>
-                                    </div>
-                                <?php endforeach; ?>
+                        
+                        <div class="seating-area">
+                            <!-- 高砂（新郎新婦席） -->
+                            <div class="high-table">
+                                <div class="high-table-box">
+                                    <span>新郎・新婦</span>
+                                </div>
                             </div>
-                        <?php else: ?>
-                            <div class="alert alert-success">未割り当てのゲストはいません。</div>
-                        <?php endif; ?>
+                            
+                            <!-- 上座の表示 -->
+                            <div class="position-labels">
+                                <div class="kamiza">上座</div>
+                            </div>
+                            
+                            <!-- カテゴリラベル -->
+                            <div class="group-labels">
+                                <div class="group-label">職場</div>
+                                <div class="group-label">友人</div>
+                                <div class="group-label">親族</div>
+                            </div>
+                            
+                            <!-- 背景エリア -->
+                            <div class="tables-background"></div>
+                            
+                            <!-- 丸テーブルの配置 -->
+                            <div class="tables-area">
+                                <?php
+                                // 1〜10までのテーブル用の配列を作成
+                                $table_positions = [];
+                                for ($i = 1; $i <= 10; $i++) {
+                                    $table_positions[$i] = null;
+                                }
+                                
+                                // 既存のテーブルをテーブル番号別に整理
+                                foreach ($seating_plan as $table_id => $table) {
+                                    $table_num = intval($table['table_name']);
+                                    if ($table_num >= 1 && $table_num <= 10) {
+                                        $table_positions[$table_num] = [
+                                            'id' => $table_id,
+                                            'data' => $table
+                                        ];
+                                    }
+                                }
+                                
+                                // テーブル位置の指定（左上から右下へ、列ごとに）
+                                $position_map = [
+                                    2, 1, 1, 2,    // 1行目: テーブル2,1,1,2
+                                    4, 3, 3, 4,    // 2行目: テーブル4,3,3,4
+                                    6, 5, 5, 6,    // 3行目: テーブル6,5,5,6
+                                    8, 7, 7, 8,    // 4行目: テーブル8,7,7,8
+                                    10, 9, 9, 10   // 5行目: テーブル10,9,9,10
+                                ];
+                                
+                                // 表示するテーブル数の調整（実際のゲスト数に応じて）
+                                $max_tables = 10; // 最大で10テーブル
+                                
+                                // グリッドセルを生成
+                                $cell_count = 0;
+                                foreach ($position_map as $table_num) {
+                                    $cell_count++;
+                                    
+                                    // テーブル数を超えたら空白セルを表示
+                                    if ($table_num > $max_tables) {
+                                        echo '<div class="empty-cell"></div>';
+                                        continue;
+                                    }
+                                    
+                                    // テーブルデータの取得
+                                    $table_data = $table_positions[$table_num] ?? null;
+                                    
+                                    // テーブルが存在しない場合、ダミーテーブルを作成
+                                    if ($table_data === null) {
+                                        echo '<div class="round-table-container">';
+                                        echo '<div class="round-table">';
+                                        echo '<div class="table-number">' . $table_num . '</div>';
+                                        
+                                        // テーブル10の場合、親の席を表示
+                                        if ($table_num == 10) {
+                                            echo '<div class="parent-note father">(父)</div>';
+                                            echo '<div class="parent-note mother">(母)</div>';
+                                        }
+                                        
+                                        // 6つの席を表示
+                                        for ($seat = 1; $seat <= 6; $seat++) {
+                                            echo '<div class="seat seat-pos-' . $seat . '" data-table-num="' . $table_num . '" data-seat-number="' . $seat . '">';
+                                            echo '<div class="seat-number">' . $seat . '</div>';
+                                            echo '<div class="seat-layer">肩書</div>';
+                                            echo '<div class="seat-guest empty">お名前</div>';
+                                            echo '</div>';
+                                        }
+                                        
+                                        echo '</div>'; // round-table
+                                        echo '</div>'; // round-table-container
+                                        continue;
+                                    }
+                                    
+                                    // 実際のテーブルを表示
+                                    $table_id = $table_data['id'];
+                                    $table = $table_data['data'];
+                                    
+                                    echo '<div class="round-table-container">';
+                                    echo '<div class="round-table" data-table-id="' . $table_id . '">';
+                                    echo '<div class="table-number">' . $table['table_name'] . '</div>';
+                                    
+                                    // テーブル10の場合、親の席を表示
+                                    if ($table_num == 10) {
+                                        echo '<div class="parent-note father">(父)</div>';
+                                        echo '<div class="parent-note mother">(母)</div>';
+                                    }
+                                    
+                                    // 座席を表示
+                                    $max_seats = min(6, $table['capacity']); // 最大6席まで
+                                    for ($seat = 1; $seat <= $max_seats; $seat++) {
+                                        $seat_data = $table['seats'][$seat] ?? null;
+                                        $is_occupied = !empty($seat_data);
+                                        $seat_class = 'seat seat-pos-' . $seat;
+                                        
+                                        if ($is_occupied) {
+                                            $seat_class .= ' occupied';
+                                            if (isset($seat_data['is_companion']) && $seat_data['is_companion']) {
+                                                $seat_class .= ' companion';
+                                            } else {
+                                                $seat_class .= ' respondent';
+                                            }
+                                        }
+                                        
+                                        echo '<div class="' . $seat_class . '" ' . 
+                                             'data-table-id="' . $table_id . '" ' .
+                                             'data-seat-number="' . $seat . '" ' .
+                                             'data-assignment-id="' . ($seat_data['id'] ?? '') . '">';
+                                        
+                                        echo '<div class="seat-number">' . $seat . '</div>';
+                                        
+                                        if ($is_occupied) {
+                                            echo '<div class="seat-layer">' . htmlspecialchars($seat_data['title'] ?? '肩書') . '</div>';
+                                            echo '<div class="seat-guest">' . htmlspecialchars($seat_data['name']) . ' 様</div>';
+                                        } else {
+                                            echo '<div class="seat-layer">肩書</div>';
+                                            echo '<div class="seat-guest empty">お名前</div>';
+                                        }
+                                        
+                                        echo '</div>'; // seat
+                                    }
+                                    
+                                    echo '</div>'; // round-table
+                                    echo '</div>'; // round-table-container
+                                }
+                                ?>
+                            </div>
+                            
+                            <!-- 下座の表示 -->
+                            <div class="position-labels" style="margin-top: 20px;">
+                                <div class="shimoza">下座</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -590,9 +531,8 @@ include 'inc/header.php';
     </div>
 </div>
 
-<!-- 座席割り当てモーダル -->
-<div class="modal fade custom-modal" id="assignSeatModal" tabindex="-1" 
-     aria-labelledby="assignSeatModalLabel">
+<!-- モーダル - 座席割り当て -->
+<div class="modal fade" id="assignSeatModal" tabindex="-1" role="dialog" aria-labelledby="assignSeatModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -602,57 +542,53 @@ include 'inc/header.php';
                 </button>
             </div>
             <div class="modal-body">
-                <form id="assignSeatForm" method="post">
-                    <input type="hidden" name="assign_seat" value="1">
-                    <input type="hidden" name="table_id" id="modal_table_id">
-                    <input type="hidden" name="seat_number" id="modal_seat_number">
-                    <input type="hidden" name="is_companion" id="modal_is_companion" value="0">
+                <form id="assignSeatForm">
+                    <input type="hidden" id="assign_table_id" name="table_id" value="">
+                    <input type="hidden" id="assign_seat_number" name="seat_number" value="">
                     
                     <div class="form-group">
-                        <label for="guest_select">ゲストを選択:</label>
-                        <select class="form-control select2-dropdown" name="guest_select" id="guest_select" required>
-                            <option value="">-- ゲストを選択 --</option>
-                            <?php foreach ($unassigned_people as $person): ?>
-                                <option value="<?php echo $person['person_id']; ?>" 
-                                        data-is-companion="<?php echo $person['person_type'] === 'companion' ? '1' : '0'; ?>"
-                                        <?php if ($person['person_type'] === 'companion'): ?>
-                                        data-response-id="<?php echo $person['response_id']; ?>"
-                                        <?php endif; ?>>
-                                    <?php echo htmlspecialchars($person['person_name']); ?>
-                                    <?php if ($person['person_type'] === 'companion'): ?>
-                                        (<?php echo htmlspecialchars($person['relationship']); ?>の同伴者)
+                        <label for="person_select">ゲスト選択:</label>
+                        <select id="person_select" class="form-control">
+                            <option value="">--- 選択してください ---</option>
+                            <optgroup label="回答者">
+                                <?php foreach ($unassigned_people as $person): ?>
+                                    <?php if ($person['person_type'] === 'respondent'): ?>
+                                        <option value="<?php echo $person['person_type']; ?>_<?php echo $person['person_id']; ?>">
+                                            <?php echo htmlspecialchars($person['person_name']); ?> 
+                                            (<?php echo htmlspecialchars($person['group_name'] ?? ''); ?>)
+                                        </option>
                                     <?php endif; ?>
-                                    - <?php echo htmlspecialchars($person['group_name'] ?? '未設定'); ?>
-                                </option>
-                            <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            </optgroup>
+                            <optgroup label="同伴者">
+                                <?php foreach ($unassigned_people as $person): ?>
+                                    <?php if ($person['person_type'] === 'companion'): ?>
+                                        <option value="<?php echo $person['person_type']; ?>_<?php echo $person['person_id']; ?>">
+                                            <?php echo htmlspecialchars($person['person_name']); ?> 
+                                            (<?php echo htmlspecialchars($person['relationship'] ?? ''); ?>の同伴者)
+                                        </option>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </optgroup>
                         </select>
                     </div>
                     
-                    <input type="hidden" name="response_id" id="modal_response_id">
-                    <input type="hidden" name="companion_id" id="modal_companion_id">
-                    
-                    <div class="seat-info mt-3 text-center">
-                        <p>テーブル <span id="modal_table_name"></span> - 座席番号 <span id="modal_seat_number_display"></span></p>
-                    </div>
-                    
-                    <div class="selected-guest-info mt-3 d-none">
-                        <div class="alert alert-info">
-                            <strong>選択中のゲスト: </strong><span id="selected_guest_name"></span>
-                        </div>
-                    </div>
+                    <input type="hidden" id="response_id" name="response_id" value="">
+                    <input type="hidden" id="companion_id" name="companion_id" value="">
+                    <input type="hidden" id="is_companion" name="is_companion" value="0">
+                    <input type="hidden" name="assign_seat" value="1">
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">キャンセル</button>
-                <button type="submit" form="assignSeatForm" class="btn btn-primary">割り当て</button>
+                <button type="button" class="btn btn-primary" id="submitAssignment">割り当て</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 座席解除モーダル -->
-<div class="modal fade custom-modal" id="removeSeatModal" tabindex="-1" 
-     aria-labelledby="removeSeatModalLabel">
+<!-- モーダル - 座席解除確認 -->
+<div class="modal fade" id="removeSeatModal" tabindex="-1" role="dialog" aria-labelledby="removeSeatModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -662,251 +598,170 @@ include 'inc/header.php';
                 </button>
             </div>
             <div class="modal-body">
-                <form id="removeSeatForm" method="post">
+                <p>この座席の割り当てを解除しますか？</p>
+                <form id="removeSeatForm">
+                    <input type="hidden" id="remove_assignment_id" name="assignment_id" value="">
                     <input type="hidden" name="remove_assignment" value="1">
-                    <input type="hidden" name="assignment_id" id="modal_assignment_id">
-                    
-                    <p>次のゲストの座席割り当てを解除しますか？</p>
-                    <div class="seat-info mt-3 text-center">
-                        <p>ゲスト: <span id="modal_guest_name"></span></p>
-                        <p>テーブル <span id="modal_remove_table_name"></span> - 座席番号 <span id="modal_remove_seat_number"></span></p>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">キャンセル</button>
-                <button type="submit" form="removeSeatForm" class="btn btn-danger">割り当て解除</button>
+                <button type="button" class="btn btn-danger" id="submitRemoval">解除</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- jQuery UI ライブラリの読み込み -->
+<!-- jQuery UI JSを読み込み - ドラッグアンドドロップに必要 -->
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
-<!-- 外部JavaScriptファイルを読み込み -->
-<script src="js/seating.js"></script>
-
-<!-- Select2ライブラリの読み込み -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-theme@0.1.0-beta.10/dist/select2-bootstrap.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-<!-- 追加のスタイル -->
-<style>
-.select2-container--bootstrap .select2-results__option--highlighted[aria-selected] {
-    background-color: #007bff;
-    color: white;
-}
-
-.select2-container--bootstrap .select2-selection--single {
-    height: 38px;
-    padding: 8px 12px;
-    font-size: 1rem;
-}
-
-.selected-guest-info {
-    margin-top: 15px;
-    padding: 10px;
-    border-radius: 5px;
-}
-</style>
-
 <script>
-// コンソールデバッグ用関数
-function debugLog(message, data) {
-    console.log('[DEBUG] ' + message, data || '');
-}
-
-// 既存のJavaScriptコードの後に追加
 $(document).ready(function() {
-    debugLog('DOM読み込み完了');
-    
-    // 座席のクリックイベントをデバッグ
-    $('.seat').each(function(index) {
-        debugLog(`座席要素 ${index+1} データ属性:`, {
-            tableId: $(this).data('table-id'),
-            seatNumber: $(this).data('seat-number'),
-            assignmentId: $(this).data('assignment-id')
-        });
+    // 空席クリック時のイベント - 割り当てモーダル表示
+    $('.seat:not(.occupied)').on('click', function() {
+        var tableId = $(this).data('table-id');
+        var seatNumber = $(this).data('seat-number');
+        
+        $('#assign_table_id').val(tableId);
+        $('#assign_seat_number').val(seatNumber);
+        $('#assignSeatModal').modal('show');
     });
     
-    // Select2の初期化
-    if ($.fn.select2) {
-        $('.select2-dropdown').select2({
-            dropdownParent: $('#assignSeatModal'),
-            width: '100%',
-            theme: 'bootstrap'
-        });
-    }
+    // 既に割り当てられた座席クリック時 - 解除モーダル表示
+    $('.seat.occupied').on('click', function() {
+        var assignmentId = $(this).data('assignment-id');
+        $('#remove_assignment_id').val(assignmentId);
+        $('#removeSeatModal').modal('show');
+    });
     
-    // 座席をクリックした時の処理
-    $('.seat').on('click', function(e) {
-        debugLog('座席クリックイベント発生', e);
-        const seat = $(this);
-        const assignmentId = seat.data('assignment-id');
-        debugLog('クリックされた座席:', {
-            tableId: seat.data('table-id'),
-            seatNumber: seat.data('seat-number'),
-            assignmentId: assignmentId
-        });
+    // ゲスト選択時の処理
+    $('#person_select').on('change', function() {
+        var selected = $(this).val();
         
-        if (assignmentId) {
-            // 割り当て済みの座席の場合は解除モーダルを表示
-            debugLog('座席割り当て解除モーダルを表示');
-            showRemoveSeatModal(seat);
-        } else {
-            // 空席の場合は割り当てモーダルを表示
-            debugLog('座席割り当てモーダルを表示');
-            showAssignSeatModal(seat);
+        if (selected) {
+            var parts = selected.split('_');
+            var personType = parts[0];
+            var personId = parts[1];
+            
+            // フォームフィールドをリセット
+            $('#response_id').val('');
+            $('#companion_id').val('');
+            $('#is_companion').val('0');
+            
+            // 選択したゲストタイプに応じてフィールドを設定
+            if (personType === 'respondent') {
+                $('#response_id').val(personId);
+                $('#is_companion').val('0');
+            } else if (personType === 'companion') {
+                $('#companion_id').val(personId);
+                $('#is_companion').val('1');
+            }
         }
     });
     
-    // ドラッグ可能な要素の設定
-    $('.guest-item').draggable({
+    // 割り当てフォーム送信
+    $('#submitAssignment').on('click', function() {
+        var selected = $('#person_select').val();
+        
+        if (!selected) {
+            alert('ゲストを選択してください');
+            return;
+        }
+        
+        $.ajax({
+            url: 'seating.php',
+            type: 'POST',
+            data: $('#assignSeatForm').serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    location.reload(); // ページを再読み込みして最新状態を表示
+                } else {
+                    alert('エラー: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('通信エラーが発生しました');
+            }
+        });
+    });
+    
+    // 解除フォーム送信
+    $('#submitRemoval').on('click', function() {
+        $.ajax({
+            url: 'seating.php',
+            type: 'POST',
+            data: $('#removeSeatForm').serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    location.reload(); // ページを再読み込みして最新状態を表示
+                } else {
+                    alert('エラー: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('通信エラーが発生しました');
+            }
+        });
+    });
+    
+    // ドラッグ＆ドロップの実装
+    $('.guest-card').draggable({
         helper: 'clone',
-        appendTo: 'body',
-        zIndex: 1000,
         opacity: 0.7,
-        cursor: 'move',
-        cursorAt: { top: 20, left: 20 },
+        zIndex: 100,
         start: function(event, ui) {
-            debugLog('ドラッグ開始');
             $(this).addClass('dragging');
         },
         stop: function(event, ui) {
-            debugLog('ドラッグ終了');
             $(this).removeClass('dragging');
         }
     });
     
-    // ドロップ可能な座席の設定
     $('.seat:not(.occupied)').droppable({
-        accept: '.guest-item',
-        hoverClass: 'drop-active',
+        accept: '.guest-card',
+        hoverClass: 'drop-hover',
         drop: function(event, ui) {
-            debugLog('ドロップイベント発生');
-            const seat = $(this);
-            const tableId = seat.data('table-id');
-            const seatNumber = seat.data('seat-number');
-            const tableName = seat.closest('.guest-table, .bridal-table').find('.table-name').text();
+            var tableId = $(this).data('table-id');
+            var seatNumber = $(this).data('seat-number');
+            var personType = $(ui.draggable).data('person-type');
+            var personId = $(ui.draggable).data('person-id');
             
-            const guest = $(ui.draggable);
-            const guestId = guest.data('guest-id');
-            const guestName = guest.data('guest-name');
-            const isCompanion = guest.data('is-companion');
+            // Ajaxリクエストでドロップされたゲストを座席に割り当て
+            var formData = {
+                'assign_seat': 1,
+                'table_id': tableId,
+                'seat_number': seatNumber
+            };
             
-            debugLog('ドロップ情報:', { 
-                tableId, 
-                seatNumber, 
-                tableName, 
-                guestId, 
-                guestName, 
-                isCompanion 
-            });
-            
-            // AJAX処理で割り当てを実行
-            assignSeatByDragDrop(tableId, seatNumber, guestId, isCompanion, guestName, tableName);
-        }
-    });
-    
-    // 割り当てモーダルのゲスト選択変更時の処理
-    $('#guest_select').on('change', function() {
-        debugLog('ゲスト選択変更');
-        const selectedOption = $(this).find('option:selected');
-        const isCompanion = selectedOption.data('is-companion');
-        const personId = selectedOption.val();
-        const guestName = selectedOption.text();
-        
-        $('#modal_is_companion').val(isCompanion);
-        
-        if (isCompanion === 1) {
-            $('#modal_companion_id').val(personId);
-            $('#modal_response_id').val(selectedOption.data('response-id'));
-            debugLog('同伴者を選択', { companionId: personId, responseId: selectedOption.data('response-id') });
-        } else {
-            $('#modal_response_id').val(personId);
-            $('#modal_companion_id').val('');
-            debugLog('回答者を選択', { responseId: personId });
-        }
-        
-        // 選択したゲスト情報を表示
-        if (personId) {
-            $('#selected_guest_name').text(guestName);
-            $('.selected-guest-info').removeClass('d-none');
-        } else {
-            $('.selected-guest-info').addClass('d-none');
-        }
-    });
-    
-    // フォーム送信のデバッグ
-    $('#assignSeatForm').on('submit', function(e) {
-        debugLog('座席割り当てフォーム送信', {
-            tableId: $('#modal_table_id').val(),
-            seatNumber: $('#modal_seat_number').val(),
-            isCompanion: $('#modal_is_companion').val(),
-            responseId: $('#modal_response_id').val(),
-            companionId: $('#modal_companion_id').val()
-        });
-    });
-    
-    $('#removeSeatForm').on('submit', function(e) {
-        debugLog('座席解除フォーム送信', {
-            assignmentId: $('#modal_assignment_id').val()
-        });
-    });
-    
-    // ゲスト検索機能
-    $('#guestSearch').on('keyup', function() {
-        const searchText = $(this).val().toLowerCase();
-        $('.guest-item').each(function() {
-            const guestName = $(this).data('guest-name').toLowerCase();
-            const guestGroup = $(this).data('guest-group').toLowerCase();
-            
-            if (guestName.includes(searchText) || guestGroup.includes(searchText)) {
-                $(this).show();
-            } else {
-                $(this).hide();
+            if (personType === 'respondent') {
+                formData.response_id = personId;
+                formData.is_companion = 0;
+            } else if (personType === 'companion') {
+                formData.companion_id = personId;
+                formData.is_companion = 1;
             }
-        });
+            
+            $.ajax({
+                url: 'seating.php',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        location.reload(); // ページを再読み込みして最新状態を表示
+                    } else {
+                        alert('エラー: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('通信エラーが発生しました');
+                }
+            });
+        }
     });
 });
-
-function showAssignSeatModal(seatElement) {
-    const tableId = seatElement.data('table-id');
-    const seatNumber = seatElement.data('seat-number');
-    const tableName = seatElement.closest('.guest-table, .bridal-table').find('.table-name').text();
-    
-    debugLog('座席割り当てモーダル表示準備', { tableId, seatNumber, tableName });
-    
-    $('#modal_table_id').val(tableId);
-    $('#modal_seat_number').val(seatNumber);
-    $('#modal_table_name').text(tableName);
-    $('#modal_seat_number_display').text(seatNumber);
-    
-    // ゲスト選択をリセット
-    $('#guest_select').val('').trigger('change');
-    $('.selected-guest-info').addClass('d-none');
-    
-    $('#assignSeatModal').modal('show');
-}
-
-function showRemoveSeatModal(seatElement) {
-    const assignmentId = seatElement.data('assignment-id');
-    const tableId = seatElement.data('table-id');
-    const seatNumber = seatElement.data('seat-number');
-    const tableName = seatElement.closest('.guest-table, .bridal-table').find('.table-name').text();
-    const guestName = seatElement.find('.seat-guest').text().trim();
-    
-    debugLog('座席解除モーダル表示準備', { assignmentId, tableId, seatNumber, tableName, guestName });
-    
-    $('#modal_assignment_id').val(assignmentId);
-    $('#modal_remove_table_name').text(tableName);
-    $('#modal_remove_seat_number').text(seatNumber);
-    $('#modal_guest_name').text(guestName);
-    
-    $('#removeSeatModal').modal('show');
-}
 </script>
 
 <?php include 'inc/footer.php'; ?> 

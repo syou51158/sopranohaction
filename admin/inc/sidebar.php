@@ -48,16 +48,6 @@ $menu_items = [
         'text' => '席次表管理'
     ],
     [
-        'link' => 'seating_chart/seating_new.php',
-        'icon' => 'fas fa-th',
-        'text' => '新席次表管理'
-    ],
-    [
-        'link' => 'seating_chart/seating_layout.php',
-        'icon' => 'fas fa-vector-square',
-        'text' => '会場レイアウト'
-    ],
-    [
         'link' => 'guidance_settings.php',
         'icon' => 'fas fa-info-circle',
         'text' => 'チェックイン案内設定'

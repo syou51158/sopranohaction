@@ -291,305 +291,328 @@
 
 /* 会場レイアウト */
 .venue-layout {
-    background-color: #f9f9f9;
+    background-color: #fff;
+    padding: 20px;
     border-radius: 10px;
-    padding: 2rem;
-    position: relative;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+    overflow: hidden;
 }
 
 .venue-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.venue-header h2 {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
 }
 
 .venue-date, .venue-place {
-    margin-top: 5px;
+    margin: 5px 0;
     color: #666;
+    font-size: 16px;
 }
 
-/* 上座・下座のラベル */
+.seating-area {
+    position: relative;
+    padding: 30px 0;
+}
+
+/* 高砂（新郎新婦席） */
+.high-table {
+    margin: 0 auto 50px;
+    text-align: center;
+    width: 300px;
+}
+
+.high-table-box {
+    padding: 15px;
+    background-color: #fff5e6;
+    border: 2px solid #ffcb8c;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: #8a5a44;
+    font-weight: bold;
+}
+
+/* 上座・下座ラベル */
 .position-labels {
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
+    justify-content: flex-end;
+    margin-right: 30px;
+    position: relative;
 }
 
 .kamiza, .shimoza {
-    padding: 5px 15px;
-    background-color: #6c757d;
-    color: white;
-    border-radius: 20px;
     font-weight: bold;
+    padding: 5px 10px;
+    background-color: #f8f9fa;
+    border: 1px dashed #ced4da;
+    border-radius: 5px;
+    color: #495057;
+    display: inline-block;
 }
 
 /* グループラベル */
 .group-labels {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 1rem;
+    margin: 20px 0;
 }
 
 .group-label {
-    padding: 3px 10px;
-    background-color: #e9ecef;
-    border-radius: 15px;
-    font-size: 0.9rem;
-}
-
-/* テーブル背景エリア */
-.tables-background {
-    background-color: rgba(0, 0, 0, 0.03);
-    border-radius: 10px;
-    padding: 10px;
-    position: relative;
-    margin-bottom: 20px;
-}
-
-/* 高砂（新郎新婦）テーブル */
-.high-table {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 3rem;
-}
-
-.high-table-box {
-    width: 200px;
-    padding: 10px;
-    background-color: #f8d7da;
-    border: 2px solid #f5c6cb;
-    border-radius: 5px;
-    text-align: center;
     font-weight: bold;
+    color: #666;
+    padding: 5px 15px;
+    background-color: #f8f9fa;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* テーブルエリア */
-.seating-area {
-    margin-top: 2rem;
+/* テーブル配置エリア */
+.tables-background {
+    position: absolute;
+    top: 150px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #fafafa;
+    border-radius: 10px;
+    z-index: 0;
 }
 
 .tables-area {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 /* 丸テーブル */
 .round-table-container {
-    position: relative;
-    width: 200px;
-    height: 200px;
-    margin-bottom: 30px;
-}
-
-.round-table {
-    width: 120px;
-    height: 120px;
-    background-color: #f0f0f0;
-    border: 2px solid #ddd;
-    border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    padding: 15px;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.3s ease;
 }
 
-.round-table:hover {
-    background-color: #e6e6e6;
-}
-
-.table-number {
-    font-size: 24px;
-    font-weight: bold;
-    color: #495057;
-}
-
-/* 席のスタイル */
-.seat {
-    width: 60px;
-    height: 60px;
+.round-table {
+    width: 200px;
+    height: 200px;
     background-color: #fff;
     border: 2px solid #ddd;
     border-radius: 50%;
-    position: absolute;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 0.7rem;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.round-table:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.table-number {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.8);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 20px;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+/* 親席ラベル */
+.parent-note {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.parent-note.father {
+    top: 10px;
+    left: 10px;
+    color: #007bff;
+}
+
+.parent-note.mother {
+    top: 10px;
+    right: 10px;
+    color: #e83e8c;
+}
+
+/* 座席スタイル */
+.seat {
+    position: absolute;
+    width: 70px;
+    padding: 8px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
     text-align: center;
+    transition: all 0.2s;
     cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     overflow: hidden;
+    font-size: 13px;
 }
 
 .seat:hover {
-    transform: scale(1.1);
-    z-index: 2;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 20;
 }
 
-/* 席の位置 */
+.seat.occupied {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+.seat.respondent {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.seat.companion {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+/* 座席配置（丸テーブルの周り） */
 .seat-pos-1 {
     top: 0;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(-50%);
 }
 
 .seat-pos-2 {
     top: 25%;
     right: 0;
-    transform: translateY(-50%);
+    transform: translateX(50%);
 }
 
 .seat-pos-3 {
     bottom: 25%;
     right: 0;
-    transform: translateY(50%);
+    transform: translateX(50%);
 }
 
 .seat-pos-4 {
     bottom: 0;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(50%);
 }
 
 .seat-pos-5 {
     bottom: 25%;
     left: 0;
-    transform: translateY(50%);
+    transform: translateX(-50%);
 }
 
 .seat-pos-6 {
     top: 25%;
     left: 0;
-    transform: translateY(-50%);
+    transform: translateX(-50%);
 }
 
 .seat-number {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 50%;
+    margin-right: 5px;
     font-weight: bold;
-    font-size: 1rem;
-    color: #495057;
+    font-size: 12px;
+    color: #666;
 }
 
 .seat-layer {
-    font-size: 0.7rem;
-    color: #6c757d;
-    margin-top: -2px;
-}
-
-.seat-guest {
+    font-size: 11px;
+    color: #888;
     margin-top: 2px;
-    font-size: 0.7rem;
-    color: #212529;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 50px;
+}
+
+.seat-guest {
+    font-weight: bold;
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .seat-guest.empty {
-    color: #adb5bd;
+    font-weight: normal;
+    color: #aaa;
     font-style: italic;
 }
 
-/* 席の状態 */
-.seat.occupied {
-    border-color: #28a745;
-    background-color: rgba(40, 167, 69, 0.1);
+/* モバイル対応 */
+@media (max-width: 992px) {
+    .tables-area {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .round-table {
+        width: 160px;
+        height: 160px;
+    }
+    
+    .seat {
+        width: 60px;
+        font-size: 12px;
+    }
 }
 
-.seat.respondent {
-    border-color: #007bff;
-    background-color: rgba(0, 123, 255, 0.1);
-}
-
-.seat.companion {
-    border-color: #6f42c1;
-    background-color: rgba(111, 66, 193, 0.1);
-}
-
-.seat.drop-hover {
-    background-color: rgba(255, 193, 7, 0.2);
-    border-color: #ffc107;
-}
-
-/* 未割り当てゲスト */
-.unassigned-guests {
-    max-height: 500px;
-    overflow-y: auto;
-    padding-right: 5px;
-}
-
-.group-header {
-    font-weight: bold;
-    color: #495057;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 2px;
-}
-
-.guest-card {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 10px;
-    cursor: grab;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.guest-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.guest-card.dragging {
-    opacity: 0.5;
-}
-
-.guest-card.respondent {
-    border-left: 3px solid #007bff;
-}
-
-.guest-card.companion {
-    border-left: 3px solid #6f42c1;
-}
-
-.guest-name {
-    font-weight: bold;
-    margin-bottom: 3px;
-}
-
-.guest-group {
-    font-size: 0.8rem;
-    color: #6c757d;
-}
-
-.guest-relationship {
-    font-size: 0.8rem;
-    color: #6c757d;
-    margin-top: 3px;
-}
-
-/* 席次表ガイド */
-.seating-instructions {
-    font-size: 14px;
-}
-
-.seating-instructions ul {
-    padding-left: 1rem;
-    margin-bottom: 0;
-}
-
-.seating-instructions li {
-    margin-bottom: 10px;
-    font-size: 0.9rem;
+@media (max-width: 576px) {
+    .tables-area {
+        grid-template-columns: repeat(1, 1fr);
+    }
+    
+    .round-table {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .seat {
+        width: 50px;
+        font-size: 11px;
+    }
+    
+    .high-table-box {
+        width: 200px;
+    }
 }
 
 /* 印刷モードのスタイル */
