@@ -170,9 +170,10 @@ function get_guest_by_qr_token($token) {
  * @param int $guest_id ゲストID
  * @param string $checked_by チェックインを記録したスタッフ名
  * @param string $notes 備考
+ * @param bool $redirect_to_guidance チェックイン後に案内ページにリダイレクトするかどうか
  * @return bool 成功時はtrue、失敗時はfalse
  */
-function record_guest_checkin($guest_id, $checked_by = '', $notes = '') {
+function record_guest_checkin($guest_id, $checked_by = '', $notes = '', $redirect_to_guidance = false) {
     global $pdo;
     
     try {
@@ -180,7 +181,7 @@ function record_guest_checkin($guest_id, $checked_by = '', $notes = '') {
         error_log("チェックイン処理開始: guest_id=$guest_id, checked_by=$checked_by");
         
         // ゲストが存在するか確認
-        $check_guest = $pdo->prepare("SELECT id, group_name FROM guests WHERE id = ?");
+        $check_guest = $pdo->prepare("SELECT id, group_name, qr_code_token FROM guests WHERE id = ?");
         $check_guest->execute([$guest_id]);
         $guest_info = $check_guest->fetch(PDO::FETCH_ASSOC);
         
@@ -211,6 +212,13 @@ function record_guest_checkin($guest_id, $checked_by = '', $notes = '') {
             $update_notes = "再チェックイン: " . date('Y-m-d H:i:s') . ($notes ? " - $notes" : "");
             $result = $update_stmt->execute([$update_notes, $guest_id]);
             error_log("チェックイン更新結果: " . ($result ? '成功' : '失敗'));
+            
+            // 案内ページへのリダイレクトが要求された場合
+            if ($redirect_to_guidance && $result && isset($guest_info['qr_code_token'])) {
+                header("Location: checkin_complete.php?token=" . urlencode($guest_info['qr_code_token']));
+                exit;
+            }
+            
             return $result;
         } else {
             // 新規チェックイン
@@ -223,6 +231,12 @@ function record_guest_checkin($guest_id, $checked_by = '', $notes = '') {
             if ($result) {
                 $last_id = $pdo->lastInsertId();
                 error_log("新規チェックイン成功: ID=$last_id, guest_id=$guest_id");
+                
+                // 案内ページへのリダイレクトが要求された場合
+                if ($redirect_to_guidance && isset($guest_info['qr_code_token'])) {
+                    header("Location: checkin_complete.php?token=" . urlencode($guest_info['qr_code_token']));
+                    exit;
+                }
             } else {
                 error_log("新規チェックイン失敗: " . json_encode($stmt->errorInfo()));
             }

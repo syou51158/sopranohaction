@@ -36,12 +36,44 @@ if (isset($_GET['token'])) {
     // トークンからゲスト情報を取得
     $guest = get_guest_by_qr_token($token);
     
-    // チェックイン処理
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin']) && $guest) {
+    // 自動チェックイン（scan_actionパラメータがある場合）
+    if (isset($_GET['scan_action']) && $_GET['scan_action'] === 'auto_checkin' && $guest) {
+        // 自動チェックイン処理
+        $notes = "QRコードスキャン自動チェックイン";
+        $checked_by = isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : '管理者';
+        
+        // 第4引数にtrueを渡してリダイレクトを有効にする
+        $redirect_to_guidance = !isset($_GET['no_redirect']) || $_GET['no_redirect'] !== '1';
+        $result = record_guest_checkin($guest['id'], $checked_by, $notes, $redirect_to_guidance);
+        
+        if ($result) {
+            $success = htmlspecialchars($guest['group_name']) . ' のチェックインを自動記録しました！';
+            
+            // 同伴者情報を取得（該当する場合）
+            try {
+                $stmt = $pdo->prepare("
+                    SELECT * FROM guests 
+                    WHERE group_id = ? AND id != ?
+                ");
+                $stmt->execute([$guest['group_id'], $guest['id']]);
+                $companions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (PDOException $e) {
+                $companions = [];
+                error_log("同伴者情報取得エラー: " . $e->getMessage());
+            }
+        } else {
+            $error = 'チェックインの自動記録に失敗しました。';
+            error_log("自動チェックイン失敗: token=$token, guest_id=" . ($guest ? $guest['id'] : 'なし'));
+        }
+    }
+    // 通常のPOSTによるチェックイン処理
+    else if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin']) && $guest) {
         $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
         $checked_by = isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : '管理者';
         
-        $result = record_guest_checkin($guest['id'], $checked_by, $notes);
+        // 第4引数にtrueを渡してリダイレクトを有効にする
+        $redirect_to_guidance = isset($_POST['show_guidance']) && $_POST['show_guidance'] === '1';
+        $result = record_guest_checkin($guest['id'], $checked_by, $notes, $redirect_to_guidance);
         
         if ($result) {
             $success = htmlspecialchars($guest['group_name']) . ' のチェックインを記録しました！';
@@ -56,10 +88,15 @@ if (isset($_GET['token'])) {
                 $companions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (PDOException $e) {
                 $companions = [];
+                error_log("同伴者情報取得エラー: " . $e->getMessage());
             }
         } else {
             $error = 'チェックインの記録に失敗しました。';
+            error_log("チェックイン失敗: token=$token, guest_id=" . ($guest ? $guest['id'] : 'なし'));
         }
+    } else if (!$guest) {
+        $error = '無効なQRコードです。このトークンに対応するゲスト情報が見つかりません。';
+        error_log("無効なQRコード: token=$token");
     }
 }
 
@@ -330,6 +367,14 @@ $page_title = 'QRコードチェックイン';
                             <label for="notes">備考:</label>
                             <textarea name="notes" id="notes" rows="3" placeholder="必要に応じてメモを入力"></textarea>
                         </div>
+                        
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="show_guidance" name="show_guidance" value="1" checked>
+                            <label class="form-check-label" for="show_guidance">
+                                チェックイン後に案内画面を表示する
+                            </label>
+                        </div>
+                        
                         <button type="submit" name="checkin" class="admin-button">
                             <i class="fas fa-user-check"></i> チェックイン記録
                         </button>
@@ -551,7 +596,7 @@ $page_title = 'QRコードチェックイン';
                 
                 // ページ遷移
                 setTimeout(() => {
-                    window.location.href = `checkin.php?token=${encodeURIComponent(token)}${<?= $scanner_mode ? "'&scanner=1'" : "''"; ?>}`;
+                    window.location.href = `checkin.php?token=${encodeURIComponent(token)}${<?= $scanner_mode ? "'&scanner=1'" : "''"; ?>}&scan_action=auto_checkin`;
                 }, 1000);
             } else {
                 scanResult.innerHTML = `
