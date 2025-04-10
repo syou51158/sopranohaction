@@ -37,7 +37,7 @@ if (isset($_GET['debug_env']) && $_GET['debug_env'] === '1') {
 }
 
 // デバッグモード（本番環境ではfalseにする）
-$debug_mode = true;
+$debug_mode = $is_local ? true : false;
 
 // データベース接続情報
 if ($is_local) {

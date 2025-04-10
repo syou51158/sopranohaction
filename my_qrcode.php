@@ -392,7 +392,7 @@ if ($guest_info && isset($guest_info['group_id'])) {
                 <div id="qrcode" style="margin: 0 auto; padding: 15px; background: #fff; border-radius: 10px; display: inline-block;"></div>
                 <p class="qr-instructions">結婚式当日、このQRコードをスキャンして、会場案内や席次情報を確認できます</p>
                 
-                <?php if ($debug_mode): ?>
+                <?php if (isset($debug_mode) && $debug_mode === true): ?>
                 <!-- デバッグ情報 -->
                 <div style="margin-top: 20px; padding: 10px; background: #f8f8f8; border: 1px solid #ddd; text-align: left; font-size: 12px;">
                     <h4>デバッグ情報:</h4>
@@ -415,7 +415,7 @@ if ($guest_info && isset($guest_info['group_id'])) {
                 <p>・このコードは招待状に記載されたグループ専用です</p>
             </div>
             
-            <?php if ($debug_mode): ?>
+            <?php if (isset($debug_mode) && $debug_mode === true): ?>
             <!-- デバッグ用：リダイレクト機能テスト -->
             <div style="margin-top: 20px; padding: 10px; background: #f0f0f0; border: 1px solid #ddd; text-align: center;">
                 <h4>デバッグ用：自動リダイレクト機能テスト</h4>
@@ -565,7 +565,7 @@ if ($guest_info && isset($guest_info['group_id'])) {
             clearInterval(pollingInterval);
         });
         
-        <?php if ($debug_mode): ?>
+        <?php if (isset($debug_mode) && $debug_mode === true): ?>
         // デバッグ用：通知テスト機能
         const testButton = document.getElementById('test-notification');
         const testResult = document.getElementById('test-result');
