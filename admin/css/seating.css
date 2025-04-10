@@ -652,18 +652,43 @@
 
 /* モーダルのスタイル調整 */
 .modal-dialog {
-    max-width: 90%;
+    max-width: 500px;
     width: auto;
     margin: 30px auto;
 }
 
 .modal-content {
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .modal-body {
-    overflow-x: auto;
+    padding: 20px;
+    overflow-x: visible;
+}
+
+/* モーダルを最前面に表示 */
+.modal {
+    z-index: 9999 !important;
+}
+
+.modal-backdrop {
+    z-index: 9998 !important;
+}
+
+/* 席次表の要素がモーダルを覆わないようにする */
+.venue-layout, .seat, .round-table, .high-table {
+    z-index: auto !important;
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 992px) {
+    .modal-dialog {
+        max-width: 95%;
+        margin: 20px auto;
+    }
 }
 
 /* 全体のコンテナ設定 */
@@ -676,14 +701,6 @@
     max-height: 500px;
     overflow-y: auto;
     width: 100%;
-}
-
-/* レスポンシブ調整 */
-@media (max-width: 992px) {
-    .modal-dialog {
-        max-width: 95%;
-        margin: 20px auto;
-    }
 }
 
 /* テーブルとフォームの調整 */
