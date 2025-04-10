@@ -390,9 +390,6 @@ include 'inc/header.php';
                                 <div class="group-label">親族</div>
                             </div>
                             
-                            <!-- 背景エリア -->
-                            <div class="tables-background"></div>
-                            
                             <!-- 丸テーブルの配置 -->
                             <div class="tables-area">
                                 <?php

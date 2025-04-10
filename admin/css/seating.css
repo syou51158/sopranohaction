@@ -296,7 +296,8 @@
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
     margin-bottom: 30px;
-    overflow: hidden;
+    overflow: auto; /* スクロール可能に変更 */
+    max-height: 1200px; /* 最大高さを設定 */
 }
 
 .venue-header {
@@ -376,17 +377,6 @@
 }
 
 /* テーブル配置エリア */
-.tables-background {
-    position: absolute;
-    top: 150px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #fafafa;
-    border-radius: 10px;
-    z-index: 0;
-}
-
 .tables-area {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -396,6 +386,26 @@
     padding: 50px;
     max-width: 1200px;
     margin: 0 auto;
+    min-height: 800px; /* 最小の高さを設定 */
+}
+
+/* カード本体のスタイル調整 */
+.card-body {
+    overflow: auto; /* スクロール可能に設定 */
+    max-height: 1300px; /* 最大高さを設定 */
+}
+
+/* 右側コンテンツのスタイル調整 */
+.col-md-9 .card {
+    height: calc(100vh - 200px); /* 画面高さに合わせて調整 */
+    display: flex;
+    flex-direction: column;
+}
+
+.col-md-9 .card-body {
+    flex: 1;
+    overflow: auto; /* スクロール可能に設定 */
+    padding: 15px;
 }
 
 /* 丸テーブル */
@@ -583,9 +593,24 @@
 
 /* モバイル対応 */
 @media (max-width: 992px) {
+    .venue-layout {
+        max-height: none; /* 最大高さの制限を解除 */
+        overflow: visible; /* スマホ/タブレットではスクロールなしで全体表示 */
+    }
+    
     .tables-area {
         grid-template-columns: repeat(2, 1fr);
         gap: 100px 30px; /* 間隔調整 */
+        min-height: auto; /* 最小高さの制限を解除 */
+        padding: 30px 15px; /* パディングを調整 */
+    }
+    
+    .col-md-9 .card {
+        height: auto; /* 自動高さに変更 */
+    }
+    
+    .col-md-9 .card-body {
+        max-height: none; /* 最大高さの制限を解除 */
     }
     
     .round-table-container {
