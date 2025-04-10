@@ -68,7 +68,7 @@ function get_qr_code_url($token, $size = 200) {
     // QRコードに埋め込むURL（チェックインページへのリンク）
     $checkin_url = $site_url . "admin/checkin.php?token=" . urlencode($token);
     
-    // Google Chart APIを使用してQRコードを生成
+    // Google Chart APIを使用してQRコードを生成（HTTPSを強制）
     $qr_url = "https://chart.googleapis.com/chart?";
     $qr_url .= "chs={$size}x{$size}";  // サイズ指定
     $qr_url .= "&cht=qr";              // QRコードタイプ
@@ -121,7 +121,14 @@ function get_qr_code_html($guest_id, $options = []) {
     $html = '<div class="' . htmlspecialchars($options['class']) . '-container">';
     $html .= '<img src="' . htmlspecialchars($qr_url) . '" ';
     $html .= 'alt="チェックインQRコード" ';
-    $html .= 'class="' . htmlspecialchars($options['class']) . '" />';
+    $html .= 'class="' . htmlspecialchars($options['class']) . '" ';
+    $html .= 'onerror="this.onerror=null; this.src=\'images/qr-error.png\'; console.error(\'QRコード読み込みエラー: ' . addslashes(htmlspecialchars($qr_url)) . '\');" ';
+    $html .= '/>';
+    
+    // QRコードのURL（デバッグ用）
+    if (defined('DEBUG_MODE') && DEBUG_MODE) {
+        $html .= '<div style="display:none;" class="qr-debug-url">' . htmlspecialchars($qr_url) . '</div>';
+    }
     
     // 説明テキストを含める場合
     if ($options['include_instructions']) {

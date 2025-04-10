@@ -51,7 +51,7 @@ $params = [];
 
 // 基本クエリ
 $base_query = "
-    SELECT c.*, g.name as guest_name, g.group_name, g.group_id
+    SELECT c.*, g.group_name as guest_name, g.group_name, g.group_id
     FROM checkins c
     JOIN guests g ON c.guest_id = g.id
 ";
