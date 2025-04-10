@@ -298,6 +298,7 @@
     margin-bottom: 30px;
     overflow: auto; /* スクロール可能に変更 */
     max-height: 1200px; /* 最大高さを設定 */
+    min-width: 1200px; /* 最小幅を設定して横スクロールを可能に */
 }
 
 .venue-header {
@@ -379,12 +380,12 @@
 /* テーブル配置エリア */
 .tables-area {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 80px 40px; /* 行と列の間隔を調整 */
+    grid-template-columns: repeat(4, minmax(300px, 1fr)); /* 最小幅を設定 */
+    gap: 40px; /* 間隔を均等に調整 */
     position: relative;
     z-index: 1;
-    padding: 50px;
-    max-width: 1200px;
+    padding: 30px;
+    width: 100%; /* 幅を100%に */
     margin: 0 auto;
     min-height: 800px; /* 最小の高さを設定 */
 }
@@ -410,17 +411,18 @@
 
 /* 丸テーブル */
 .round-table-container {
-    padding: 30px;
+    padding: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
-    margin: 60px 0; /* 上下に余白を大きく追加 */
+    margin: 40px 0; /* 上下の余白を調整 */
+    width: 100%;
 }
 
 .round-table {
-    width: 160px; /* サイズを調整 */
-    height: 160px;
+    width: 140px; /* テーブルサイズを調整 */
+    height: 140px;
     background-color: #fff;
     border: 2px solid #ddd;
     border-radius: 50%;
@@ -482,8 +484,8 @@
 /* 座席スタイル */
 .seat {
     position: absolute;
-    width: 80px;
-    padding: 8px;
+    width: 100px; /* カードの幅を拡大 */
+    padding: 10px;
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -517,41 +519,41 @@
     border-color: #ffeeba;
 }
 
-/* 座席配置調整 - 位置を画像に合わせて調整 */
+/* 座席配置調整 - 画像のレイアウトに合わせて調整 */
 .seat-pos-1 {
-    top: -60px; /* 位置調整 */
+    top: -85px; /* 上方向に配置 */
     left: 50%;
     transform: translateX(-50%);
 }
 
 .seat-pos-2 {
-    top: 20%;
-    right: -60px; /* 位置調整 */
-    transform: translateY(-50%);
+    top: 0;
+    right: -85px; /* 右方向に配置 */
+    transform: none;
 }
 
 .seat-pos-3 {
-    bottom: 20%;
-    right: -60px; /* 位置調整 */
-    transform: translateY(50%);
+    bottom: 0;
+    right: -85px; /* 右方向に配置 */
+    transform: none;
 }
 
 .seat-pos-4 {
-    bottom: -60px; /* 位置調整 */
+    bottom: -85px; /* 下方向に配置 */
     left: 50%;
     transform: translateX(-50%);
 }
 
 .seat-pos-5 {
-    bottom: 20%;
-    left: -60px; /* 位置調整 */
-    transform: translateY(50%);
+    bottom: 0;
+    left: -85px; /* 左方向に配置 */
+    transform: none;
 }
 
 .seat-pos-6 {
-    top: 20%;
-    left: -60px; /* 位置調整 */
-    transform: translateY(-50%);
+    top: 0;
+    left: -85px; /* 左方向に配置 */
+    transform: none;
 }
 
 .seat-number {
@@ -595,54 +597,54 @@
 @media (max-width: 992px) {
     .venue-layout {
         max-height: none; /* 最大高さの制限を解除 */
-        overflow: visible; /* スマホ/タブレットではスクロールなしで全体表示 */
+        min-width: auto; /* モバイルでは最小幅を設定しない */
+        width: 100%;
+        overflow-x: auto; /* 横スクロール可能に */
     }
     
     .tables-area {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 100px 30px; /* 間隔調整 */
+        grid-template-columns: repeat(2, minmax(250px, 1fr));
+        gap: 60px 20px; /* 間隔調整 */
         min-height: auto; /* 最小高さの制限を解除 */
-        padding: 30px 15px; /* パディングを調整 */
-    }
-    
-    .col-md-9 .card {
-        height: auto; /* 自動高さに変更 */
-    }
-    
-    .col-md-9 .card-body {
-        max-height: none; /* 最大高さの制限を解除 */
-    }
-    
-    .round-table-container {
         padding: 20px;
-        margin: 40px 0;
+        width: 100%;
     }
     
-    .seat-pos-1 { top: -55px; }
-    .seat-pos-2 { right: -55px; }
-    .seat-pos-3 { right: -55px; }
-    .seat-pos-4 { bottom: -55px; }
-    .seat-pos-5 { left: -55px; }
-    .seat-pos-6 { left: -55px; }
+    .seat {
+        width: 85px; /* モバイル用にサイズ調整 */
+    }
+    
+    .seat-pos-1 { top: -70px; }
+    .seat-pos-2 { right: -70px; }
+    .seat-pos-3 { right: -70px; }
+    .seat-pos-4 { bottom: -70px; }
+    .seat-pos-5 { left: -70px; }
+    .seat-pos-6 { left: -70px; }
 }
 
 @media (max-width: 576px) {
     .tables-area {
-        grid-template-columns: repeat(1, 1fr);
-        gap: 120px 15px; /* 縦方向の間隔を大きくする */
+        grid-template-columns: 1fr;
+        gap: 80px 0; /* 縦方向のみ間隔を設定 */
+        width: 300px; /* 幅を固定 */
+        margin: 0 auto;
     }
     
-    .round-table-container {
-        padding: 15px;
-        margin: 30px 0;
+    .round-table {
+        width: 120px;
+        height: 120px;
     }
     
-    .seat-pos-1 { top: -50px; }
-    .seat-pos-2 { right: -50px; }
-    .seat-pos-3 { right: -50px; }
-    .seat-pos-4 { bottom: -50px; }
-    .seat-pos-5 { left: -50px; }
-    .seat-pos-6 { left: -50px; }
+    .seat {
+        width: 75px;
+    }
+    
+    .seat-pos-1 { top: -60px; }
+    .seat-pos-2 { right: -60px; }
+    .seat-pos-3 { right: -60px; }
+    .seat-pos-4 { bottom: -60px; }
+    .seat-pos-5 { left: -60px; }
+    .seat-pos-6 { left: -60px; }
     
     .high-table-box {
         width: 200px;
