@@ -326,12 +326,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     
                                     <div class='qr-section'>
                                         <div class='qr-title'>📱 スマートチェックイン用QRコード</div>
-                                        $qr_code_html
-                                        <p class='qr-instructions'>
-                                            ※当日の受付をスムーズにするために、こちらのQRコードを保存しておいてください。<br>
+                                        <p>多くのメールクライアントではセキュリティのため画像が自動的に表示されません。</p>
+                                        <div class='qr-button-container'>
+                                            <a href='{$site_url}my_qrcode.php?group={$group_id}' class='qr-link-button' style='display:inline-block; padding:12px 20px; background-color:#4285F4; color:white; text-decoration:none; border-radius:5px; font-weight:bold; margin:15px 0;'>
+                                                QRコードを表示する（ブラウザで開きます）
+                                            </a>
+                                        </div>
+                                        <p class='qr-instructions' style='margin-top:15px; font-size:14px; color:#555;'>
+                                            ※当日の受付をスムーズにするために、リンク先のQRコードを保存しておいてください。<br>
                                             会場の受付でこのQRコードをご提示いただくとスムーズにご案内いたします。
                                         </p>
                                     </div>
+                                    
+                                    <style>
+                                    .qr-section {
+                                        background-color: #f0f8ff;
+                                        border-radius: 10px;
+                                        padding: 20px;
+                                        margin: 20px 0;
+                                        text-align: center;
+                                        border: 2px dashed #4285F4;
+                                    }
+                                    .qr-title {
+                                        font-size: 18px;
+                                        font-weight: bold;
+                                        color: #4285F4;
+                                        margin-bottom: 15px;
+                                    }
+                                    .qr-instructions {
+                                        margin-top: 15px;
+                                        font-size: 14px;
+                                        color: #555;
+                                    }
+                                    .qr-link-container {
+                                        margin-top: 15px;
+                                    }
+                                    .qr-link-button {
+                                        display: inline-block;
+                                        padding: 10px 20px;
+                                        background-color: #4285F4;
+                                        color: white;
+                                        text-decoration: none;
+                                        border-radius: 5px;
+                                        font-weight: bold;
+                                    }
+                                    </style>
                                     
                                     <p>お会いできることを楽しみにしております。何かご不明な点がありましたら、ご連絡ください。</p>
                                     
@@ -345,8 +384,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ";
                         
                         // メール送信
-                        $mail_result = send_mail($email, $name, $subject, $body, true);
-                        log_debug("QR code email sent to $email: " . ($mail_result ? "Success" : "Failed"));
+                        $mail_result = send_mail(
+                            $email,                                  // 宛先
+                            $subject,                                // 件名
+                            $body,                                   // 本文
+                            $site_email,                             // 送信元メールアドレス
+                            $wedding_settings['couple_name'] ?? '翔＆あかね'  // 送信元名
+                        );
+                        log_debug("QR code email sent to $email: " . ($mail_result['success'] ? "Success" : "Failed - " . $mail_result['message']));
                     }
                     
                     log_debug("Notification sent for response ID: " . $guest_id);
