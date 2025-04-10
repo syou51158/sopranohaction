@@ -323,7 +323,7 @@ if ($group_id) {
                 <div class="thank-you-message">
                     <h2>ご回答ありがとうございます</h2>
                     <p>大切なご返信をいただき、心より感謝申し上げます。</p>
-                    <?php if (isset($guest_info['attending']) && $guest_info['attending'] == 1): ?>
+                    <?php if (isset($response_status) && $response_status == 1): ?>
                     <p class="special-message">ご出席のご連絡をいただき、とても嬉しく思います。<br>当日お会いできることを楽しみにしております。</p>
                     
                     <!-- QRコードチェックイン案内 -->

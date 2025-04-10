@@ -300,3 +300,26 @@ fd197d3
 git add .
 git commit -m "管理画面に回答削除機能を追加し、フォームにreCAPTCHAを追加"
 git push origin main
+
+2025年3月27日
+【変更内容】
+- thank_you.phpの出席/欠席判定ロジックを修正
+  - 誤った変数参照（$guest_info['attending']）を修正
+  - 正しい変数（$response_status）を使用するよう変更
+- wedding_extension_tasks.mdを更新
+  - 完了した機能にチェックマークを付加
+  - 実装済みの項目を詳細に記録
+  - 発生した問題と解決策をドキュメント化
+  - 今後の課題と改善点を追加
+
+【目的】
+- 欠席回答者に誤ってQRコード案内が表示される問題を修正
+- プロジェクト進捗状況の明確化と実装履歴の記録
+- 今後の開発計画の整理
+
+【コミットID】
+（コミット後に記入）
+
+git add .
+git commit -m "thank_you.phpの欠席判定を修正し、wedding_extension_tasks.mdを更新"
+git push origin main
