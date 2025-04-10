@@ -318,8 +318,58 @@ git push origin main
 - 今後の開発計画の整理
 
 【コミットID】
-（コミット後に記入）
+f749052
 
 git add .
 git commit -m "thank_you.phpの欠席判定を修正し、wedding_extension_tasks.mdを更新"
 git push origin main
+
+2025年3月27日（その2）
+【変更内容】
+- my_qrcode.phpのデバッグ情報表示を制御
+  - config.phpのデバッグモード設定を環境依存に修正（ローカル環境のみtrue）
+  - my_qrcode.phpでのデバッグ情報表示条件をより厳密に設定
+  - デバッグ情報と通知テスト機能を本番環境では表示しないように修正
+
+【目的】
+- 本番環境での不要なデバッグ情報の表示を防止
+- セキュリティとユーザーエクスペリエンスの向上
+- 開発環境と本番環境の分離を明確化
+
+【コミットID】
+fb8a6d8
+
+git add config.php my_qrcode.php
+git commit -m "本番環境でのデバッグ情報表示を無効化"
+git push origin main
+
+2025年3月27日（その3）
+【変更内容】
+- config.phpの本番環境設定を修正
+  - 本番環境のデバッグモード設定を強制的にfalseに変更
+  - 環境変数APP_DEBUGによる条件分岐を削除
+  - DEBUG_MODE定数も同様に強制的にfalseに設定
+
+【目的】
+- 本番環境でのデバッグ情報表示問題を確実に修正
+- 前回のコミットで発生したデバッグモード設定の競合を解決
+- 設定内容の明確化と簡素化
+
+【コミットID】
+a3703d8
+
+git add config.php
+git commit -m "本番環境のデバッグモードを強制的に無効化"
+git push origin main
+
+コミットID: 8bfdd29
+ブランチ: feature/seating-improve
+コミットメッセージ: 席次表機能の改善: ドラッグ可能なテーブルレイアウト管理画面を追加
+変更内容:
+- 新しい席次表管理機能を追加
+- テーブルをドラッグして配置できるレイアウト管理画面を追加
+- サイドバーメニューにリンクを追加
+- CSSを拡張して新機能をサポート
+- 席次表のUIを改善
+実行者: muraokashou
+実行日: 2024年7月X日
