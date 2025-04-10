@@ -970,7 +970,8 @@ $datetime_info = get_wedding_datetime();
                     <div class="title-underline"></div>
                 </div>
                 <div class="rsvp-intro">
-                    <p>お手数ですが、<strong>2025年4月15日</strong>までにご返信をお願いいたします。</p>
+                    <p>お忙しい中恐縮ですが、なるべくお早めにご出欠のご連絡をいただけますと嬉しいです。どうぞよろしくお願いいたします。</p>
+                    
                 </div>
                 <form id="rsvp-form" action="process_rsvp.php" method="post" class="scale-in">
                     <?php if ($group_id && isset($guest_info['id'])): ?>

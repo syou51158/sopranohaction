@@ -323,3 +323,7 @@ git push origin main
 git add .
 git commit -m "thank_you.phpの欠席判定を修正し、wedding_extension_tasks.mdを更新"
 git push origin main
+
+git add .
+git commit -m "期限の更新"
+git push origin main
