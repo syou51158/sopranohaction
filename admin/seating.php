@@ -12,24 +12,26 @@ check_admin();
 $db = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8", $db_user, $db_pass);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// 1. 出席するゲストの情報を取得
+// 1. 出席するゲスト情報の取得 (responsesテーブルから出席者を取得)
 $guests_query = $db->prepare("
     SELECT 
-        g.id, 
-        g.name, 
-        g.email, 
+        r.id, 
+        r.name, 
+        r.email, 
         g.group_name,
         sa.table_number,
         sa.seat_number
     FROM 
-        guests g
+        responses r
+    LEFT JOIN
+        guests g ON r.guest_id = g.id
     LEFT JOIN 
-        seat_assignments sa ON g.id = sa.guest_id
+        seating_assignments sa ON r.id = sa.guest_id
     WHERE 
-        g.is_attending = 1
+        r.attending = 1
     ORDER BY 
         g.group_name, 
-        g.name
+        r.name
 ");
 $guests_query->execute();
 $guests = $guests_query->fetchAll(PDO::FETCH_ASSOC);
@@ -47,13 +49,15 @@ $seating_query = $db->prepare("
     SELECT 
         sa.table_number,
         sa.seat_number,
-        g.id as guest_id,
-        g.name as guest_name,
+        r.id as guest_id,
+        r.name as guest_name,
         g.group_name
     FROM 
-        seat_assignments sa
+        seating_assignments sa
     JOIN 
-        guests g ON sa.guest_id = g.id
+        responses r ON sa.guest_id = r.id
+    LEFT JOIN
+        guests g ON r.guest_id = g.id
     ORDER BY 
         sa.table_number, 
         sa.seat_number
