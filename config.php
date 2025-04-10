@@ -36,6 +36,9 @@ if (isset($_GET['debug_env']) && $_GET['debug_env'] === '1') {
     echo '</pre>';
 }
 
+// デバッグモード（本番環境ではfalseにする）
+$debug_mode = true;
+
 // データベース接続情報
 if ($is_local) {
     // ローカル環境用設定
@@ -43,12 +46,26 @@ if ($is_local) {
     $db_name = getenv('DB_NAME') ?: 'wedding';    // ローカルデータベース名
     $db_user = getenv('DB_USER') ?: 'root';       // XAMPPデフォルトユーザー
     $db_pass = getenv('DB_PASSWORD') ?: '';       // XAMPPデフォルトパスワード（空）
-    $site_url = "http://localhost/wedding/";      // ローカル環境のURL
+    
+    // ローカル環境のURL（IPアドレスベース）
+    // 自動的にサーバーのIPアドレスを取得
+    $server_ip = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '';
+    if (empty($server_ip) || $server_ip == '::1' || $server_ip == '127.0.0.1') {
+        // IP取得失敗時や localhost の場合はネットワークIPを使用
+        $server_ip = gethostbyname(gethostname());
+    }
+    
+    // IPアドレスを使用したサイトURL
+    $site_url = "http://{$server_ip}/wedding/";
+    
     $site_email = "info-wedding@sopranohaction.fun";  // 送信元メールアドレス
     $debug_mode = true;      // デバッグモード有効
     define('DEBUG_MODE', true);  // デバッグモード定数
     $mail_debug = false;     // メールデバッグ出力は無効
     define('MAIL_DEBUG', false); // メールデバッグ出力定数
+    
+    // デバッグ情報をログに出力
+    error_log("ローカル環境URL: " . $site_url);
 } else {
     // 本番環境用設定（.envから読み込み）
     $db_host = getenv('DB_HOST') ?: 'mysql307.phy.lolipop.lan';

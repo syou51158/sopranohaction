@@ -17,6 +17,7 @@ $group_id = isset($_GET['group']) ? htmlspecialchars($_GET['group']) : null;
 $guest_info = null;
 $qr_code_html = '';
 $error_message = '';
+$attending = false;
 
 // グループIDをチェック
 if (!$group_id) {
@@ -33,23 +34,39 @@ if ($group_id) {
         if ($guest_data) {
             $guest_info = $guest_data;
             
-            // QRコードトークンを確認または生成
-            if (empty($guest_info['qr_code_token'])) {
-                $token = generate_qr_token($guest_info['id']);
-                if ($token) {
-                    $guest_info['qr_code_token'] = $token;
-                } else {
-                    $error_message = 'QRコードの生成に失敗しました。';
-                }
-            }
+            // 出席回答を確認
+            $stmt = $pdo->prepare("
+                SELECT attending FROM responses 
+                WHERE guest_id = ? 
+                ORDER BY created_at DESC 
+                LIMIT 1
+            ");
+            $stmt->execute([$guest_info['id']]);
+            $attending_result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $attending = ($attending_result && $attending_result['attending'] == 1);
             
-            // QRコードHTMLを生成
-            if (!empty($guest_info['qr_code_token'])) {
-                $qr_code_html = get_qr_code_html($guest_info['id'], [
-                    'size' => 300,
-                    'include_instructions' => true,
-                    'instruction_text' => '結婚式当日、このQRコードを会場受付でご提示ください'
-                ]);
+            // 出席回答がある場合のみQRコード生成
+            if ($attending) {
+                // QRコードトークンを確認または生成
+                if (empty($guest_info['qr_code_token'])) {
+                    $token = generate_qr_token($guest_info['id']);
+                    if ($token) {
+                        $guest_info['qr_code_token'] = $token;
+                    } else {
+                        $error_message = 'QRコードの生成に失敗しました。';
+                    }
+                }
+                
+                // QRコードHTMLを生成
+                if (!empty($guest_info['qr_code_token'])) {
+                    $qr_code_html = get_qr_code_html($guest_info['id'], [
+                        'size' => 300,
+                        'include_instructions' => true,
+                        'instruction_text' => '結婚式当日、このQRコードを会場受付でご提示ください'
+                    ]);
+                }
+            } else {
+                $error_message = 'QRコードを表示するには、先に招待状から出席のご回答をお願いいたします。';
             }
         } else {
             $error_message = '指定されたグループIDのゲスト情報が見つかりませんでした。';
@@ -269,6 +286,88 @@ if ($guest_info && isset($guest_info['group_id'])) {
                 font-size: 1rem;
             }
         }
+        
+        /* チェックインダイアログのスタイル */
+        .checkin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .checkin-dialog {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 80%;
+            transform: translateY(20px);
+            transition: transform 0.4s ease;
+        }
+        
+        .checkin-success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+        }
+        
+        .checkin-success-icon svg {
+            width: 50px;
+            height: 50px;
+            stroke-dasharray: 80;
+            stroke-dashoffset: 80;
+            animation: check-draw 1s forwards;
+        }
+        
+        @keyframes check-draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        .checkin-message {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .checkin-submessage {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        
+        .checkin-dialog-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .checkin-dialog-button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -287,11 +386,11 @@ if ($guest_info && isset($guest_info['group_id'])) {
         <?php if ($guest_info && !empty($qr_code_html)): ?>
         <div class="qr-section">
             <h2><?= htmlspecialchars($guest_info['group_name']) ?></h2>
-            <p>以下のQRコードを結婚式当日にご提示ください</p>
+            <p>以下のQRコードで席次案内や会場情報を確認できます</p>
             
             <div class="qr-code-container">
                 <div id="qrcode" style="margin: 0 auto; padding: 15px; background: #fff; border-radius: 10px; display: inline-block;"></div>
-                <p class="qr-instructions">結婚式当日、このQRコードを会場受付でご提示ください</p>
+                <p class="qr-instructions">結婚式当日、このQRコードをスキャンして、会場案内や席次情報を確認できます</p>
                 
                 <?php if ($debug_mode): ?>
                 <!-- デバッグ情報 -->
@@ -300,10 +399,10 @@ if ($guest_info && isset($guest_info['group_id'])) {
                     <p>ゲストID: <?= $guest_info['id'] ?></p>
                     <p>QRトークン: <?= htmlspecialchars($guest_info['qr_code_token']) ?></p>
                     <?php
-                    // QRコードに埋め込むURL（チェックインページへのリンク）
-                    $checkin_url = $site_url . "admin/checkin.php?token=" . urlencode($guest_info['qr_code_token']);
+                    // QRコードに埋め込むURL（ゲスト用案内ページへのリンク）
+                    $guidance_url = $site_url . "guidance.php?token=" . urlencode($guest_info['qr_code_token']);
                     ?>
-                    <p>埋め込みURL: <?= htmlspecialchars($checkin_url) ?></p>
+                    <p>埋め込みURL: <?= htmlspecialchars($guidance_url) ?></p>
                 </div>
                 <?php endif; ?>
             </div>
@@ -311,9 +410,21 @@ if ($guest_info && isset($guest_info['group_id'])) {
             <div class="note-box">
                 <h4>ご注意</h4>
                 <p>・QRコードは結婚式当日まで保存してください</p>
+                <p>・ご自身のスマホでQRコードをスキャンして席次情報などを確認できます</p>
                 <p>・スクリーンショットの保存や印刷も可能です</p>
                 <p>・このコードは招待状に記載されたグループ専用です</p>
             </div>
+            
+            <?php if ($debug_mode): ?>
+            <!-- デバッグ用：リダイレクト機能テスト -->
+            <div style="margin-top: 20px; padding: 10px; background: #f0f0f0; border: 1px solid #ddd; text-align: center;">
+                <h4>デバッグ用：自動リダイレクト機能テスト</h4>
+                <button id="test-notification" style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    通知をテスト送信
+                </button>
+                <div id="test-result" style="margin-top: 10px; font-size: 12px;"></div>
+            </div>
+            <?php endif; ?>
         </div>
         
         <div class="guest-info-section">
@@ -356,18 +467,159 @@ if ($guest_info && isset($guest_info['group_id'])) {
     document.addEventListener('DOMContentLoaded', function() {
         // QRコードを生成
         <?php if ($guest_info && !empty($guest_info['qr_code_token'])): ?>
-        // QRコードに埋め込むURL（チェックインページへのリンク）
-        const checkinUrl = '<?= $site_url . "admin/checkin.php?token=" . urlencode($guest_info['qr_code_token']) ?>';
+        // QRコードに埋め込むURL（ゲスト用案内ページへのリンク）
+        const guidanceUrl = '<?= $site_url . "guidance.php?token=" . urlencode($guest_info['qr_code_token']) ?>';
         
         // QRコードを生成
         new QRCode(document.getElementById("qrcode"), {
-            text: checkinUrl,
+            text: guidanceUrl,
             width: 256,
             height: 256,
             colorDark: "#000000",
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.H
         });
+        
+        // チェックイン完了ダイアログを表示する関数
+        function showCheckinDialog() {
+            // ダイアログ要素を作成
+            const overlay = document.createElement('div');
+            overlay.className = 'checkin-overlay';
+            
+            overlay.innerHTML = `
+                <div class="checkin-dialog">
+                    <div class="checkin-success-icon">
+                        <svg viewBox="0 0 32 32" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6,16 L13,23 L26,9"></path>
+                        </svg>
+                    </div>
+                    <h2 class="checkin-message">チェックイン完了</h2>
+                    <p class="checkin-submessage">案内ページに移動します</p>
+                    <button class="checkin-dialog-button">OK</button>
+                </div>
+            `;
+            
+            // ボディに追加
+            document.body.appendChild(overlay);
+            
+            // アニメーション用に少し遅延させる
+            setTimeout(() => {
+                overlay.style.opacity = '1';
+                overlay.querySelector('.checkin-dialog').style.transform = 'translateY(0)';
+            }, 10);
+            
+            // OKボタンのイベント
+            overlay.querySelector('.checkin-dialog-button').addEventListener('click', function() {
+                window.location.href = guidanceUrl;
+            });
+            
+            // 3秒後に自動的にリダイレクト
+            setTimeout(() => {
+                window.location.href = guidanceUrl;
+            }, 3000);
+        }
+        
+        // 通知をポーリングするための関数
+        function checkForNotifications() {
+            const token = '<?= urlencode($guest_info['qr_code_token']) ?>';
+            const checkUrl = '<?= $site_url ?>check_notification.php?token=' + token;
+            
+            console.log('通知チェック中...', checkUrl);
+            document.getElementById('test-result').innerHTML = '最終チェック: ' + new Date().toLocaleTimeString();
+            
+            fetch(checkUrl)
+                .then(response => {
+                    console.log('サーバーからの応答があります:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('通知チェック結果:', data);
+                    // 通知がある場合の処理
+                    if (data.success && data.has_notification) {
+                        console.log('通知を受信しました - リダイレクト開始:', data);
+                        
+                        // アクションに応じた処理
+                        if (data.action === 'redirect_to_guidance') {
+                            // ポーリングを停止
+                            clearInterval(pollingInterval);
+                            
+                            // おしゃれなダイアログを表示
+                            showCheckinDialog();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('通知チェックエラー:', error);
+                    document.getElementById('test-result').innerHTML = 'エラー: ' + error.message;
+                });
+        }
+        
+        // 初回チェック（ページ読み込み時）
+        checkForNotifications();
+        
+        // 2秒ごとにポーリング（間隔を短く）
+        const pollingInterval = setInterval(checkForNotifications, 2000);
+        
+        // ページがアンロードされる際にインターバルをクリア
+        window.addEventListener('beforeunload', function() {
+            clearInterval(pollingInterval);
+        });
+        
+        <?php if ($debug_mode): ?>
+        // デバッグ用：通知テスト機能
+        const testButton = document.getElementById('test-notification');
+        const testResult = document.getElementById('test-result');
+        
+        if (testButton && testResult) {
+            testButton.addEventListener('click', function() {
+                testResult.innerHTML = '通知を送信中...';
+                testResult.style.color = '#666';
+                
+                // 自分自身に通知を送信
+                const pushUrl = '<?= $site_url ?>push_notification.php';
+                testResult.innerHTML += '<br>送信先URL: ' + pushUrl;
+                
+                const pushData = new FormData();
+                pushData.append('token', '<?= urlencode($guest_info['qr_code_token']) ?>');
+                pushData.append('action', 'redirect_to_guidance');
+                
+                fetch(pushUrl, {
+                    method: 'POST',
+                    body: pushData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('サーバーエラー: ' + response.status + ' ' + response.statusText);
+                    }
+                    testResult.innerHTML += '<br>サーバーからの応答を受信しました';
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('通知送信結果:', data);
+                    testResult.innerHTML += '<br>応答データ: ' + JSON.stringify(data);
+                    
+                    if (data.success) {
+                        testResult.innerHTML = '通知を送信しました！ダイアログが表示されます。';
+                        testResult.style.color = '#4CAF50';
+                        
+                        // テスト用に直接ダイアログを表示
+                        showCheckinDialog();
+                    } else {
+                        testResult.innerHTML = '通知送信失敗: ' + data.message;
+                        if (data.debug) {
+                            testResult.innerHTML += '<br>デバッグ情報: ' + JSON.stringify(data.debug);
+                        }
+                        testResult.style.color = '#f44336';
+                    }
+                })
+                .catch(error => {
+                    console.error('通知送信エラー:', error);
+                    testResult.innerHTML = 'エラー: ' + error.message;
+                    testResult.style.color = '#f44336';
+                });
+            });
+        }
+        <?php endif; ?>
         <?php endif; ?>
         
         // QRコードを長押しで保存できるようにするヒント表示

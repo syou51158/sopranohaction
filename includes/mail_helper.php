@@ -77,9 +77,10 @@ function send_mail($to, $subject, $message, $from_email, $from_name = '', $reply
         $mail->addAddress($to);
         
         // 内容
-        $mail->isHTML(false);  // プレーンテキストとして送信
+        $mail->isHTML(true);  // HTMLメールとして送信
         $mail->Subject = $subject;
         $mail->Body    = $message;
+        $mail->AltBody = strip_tags($message); // HTML非対応クライアント用プレーンテキスト
         
         // 送信
         $mail->send();

@@ -676,3 +676,631 @@
 2025-03-25 01:29:00 Companion inserted: a
 2025-03-25 01:29:00 Companion inserted: b
 2025-03-25 01:29:02 Notification sent for response ID: 23
+2025-04-10 00:34:14 POST Data: Array
+(
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [companion_name] => Array
+        (
+            [0] => q
+        )
+
+    [companion_age] => Array
+        (
+            [0] => adult
+        )
+
+    [companion_dietary] => Array
+        (
+            [0] => q
+        )
+
+    [message] => qq
+    [dietary] => q
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFZGh2dxFSGS0jOn9DSkJSSwJ8IiomY251KS0QERgNbwUVYB8gZxMebh1oVzJWJwIzJmJHABsFTV1NLDkiRwlzFjQ1dkJRTDBAWzFLY3x8bydUcEopRmkLIUlrJBsSF2oSGWJqYUtDfgVnX0R_Qk8aEwgjWnwFM2QEa3oVYBY1DlwheS9z
+)
+
+2025-04-10 00:34:14 reCAPTCHA validation failed: Array
+(
+    [success] => 
+    [error-codes] => Array
+        (
+            [0] => browser-error
+        )
+
+)
+
+2025-04-10 00:34:14 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 1, guest_id: , group_id: 
+2025-04-10 00:34:14 Validation Error: reCAPTCHA validation failed
+2025-04-10 01:09:25 POST Data: Array
+(
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [companion_name] => Array
+        (
+            [0] => 2
+        )
+
+    [companion_age] => Array
+        (
+            [0] => adult
+        )
+
+    [companion_dietary] => Array
+        (
+            [0] => 2
+        )
+
+    [message] => 2
+    [dietary] => 2
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFaThxekFVFH0kNy9ERxJVRlJ7L3ohbj5yJH0XG0ALY1AWaUYnakMZY01vWmJRKlI0KzJADUsCQA1KIWklSll0G2QyexJWQWBHVmFMbix7YndTfRouSzkMLBlsKUsVGjoVFDJtbBtEc1VgUhR4Tx8dHlgkVywCPjQDZioSbUYyAwwmdH90
+)
+
+2025-04-10 01:09:25 reCAPTCHA validation skipped in development environment
+2025-04-10 01:09:25 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 1, guest_id: , group_id: 
+2025-04-10 01:09:25 Setting guest_id to NULL
+2025-04-10 01:09:25 SQL Parameters: Array
+(
+    [guest_id] => 
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [message] => 2
+    [dietary] => 2
+)
+
+2025-04-10 01:09:26 SQL Insert successful. Last Insert ID: 24
+2025-04-10 01:09:26 Companion Data: Array
+(
+    [names] => Array
+        (
+            [0] => 2
+        )
+
+    [ages] => Array
+        (
+            [0] => adult
+        )
+
+    [dietaries] => Array
+        (
+            [0] => 2
+        )
+
+)
+
+2025-04-10 01:09:26 Error saving companion: SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'response_id' cannot be null
+2025-04-10 01:09:26 Error creating guest record: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'name' in 'where clause'
+2025-04-10 01:09:27 Notification sent for response ID: 
+2025-04-10 01:16:49 POST Data: Array
+(
+    [guest_id] => 13
+    [group_id] => shin
+    [name] => 小山しん
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => おめでとう
+    [dietary] => うめ
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFYnp0cQNQHz8hPG1BTFBQTRB-JDgkZXx3Lz8SEAIKbBkTYgwiYQEcaA9qUSBUIRAxIHBFBgkHS09PKisgQRtxECY3cFBTSiJCXSNJZW5-aTVWdlgrQHsJJ1slfl9QWxVFRTIlNl5XJyF4YwsBbkIlUUNnHjtgaHRpFzhaNndjF1R7EHB6TVdgDgIvZnpUSQwKU2kFFgAaaWMTcQFD
+)
+
+2025-04-10 01:16:49 reCAPTCHA validation skipped in development environment
+2025-04-10 01:16:49 Processed Data: name: 小山しん, email: syo.t.company@gmail.com, attending: 1, companions: 0, guest_id: 13, group_id: shin
+2025-04-10 01:16:49 SQL Parameters: Array
+(
+    [guest_id] => 13
+    [name] => 小山しん
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => おめでとう
+    [dietary] => うめ
+)
+
+2025-04-10 01:16:49 SQL Insert successful. Last Insert ID: 25
+2025-04-10 01:16:49 QRコードトークン生成: 成功 - ゲストID: 13
+2025-04-10 01:16:49 Generated QR token for guest_id: 13, token: 4e616f4daec4f5ca4f0d4157d234bae4
+2025-04-10 01:16:50 QR code email sent to syo.t.company@gmail.com: Success
+2025-04-10 01:16:50 Notification sent for response ID: 13
+2025-04-10 10:47:13 POST Data: Array
+(
+    [guest_id] => 13
+    [group_id] => shin
+    [name] => 村岡翔
+    [email] => syou51158@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [companion_name] => Array
+        (
+            [0] => A
+        )
+
+    [companion_age] => Array
+        (
+            [0] => adult
+        )
+
+    [companion_dietary] => Array
+        (
+            [0] => A
+        )
+
+    [message] => A
+    [dietary] => A
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFcXZqYg9ODDM_L2FfX1xOXhxgNzQ6dnBpPDMMAwcVcRkFdAo8cg0CewN0QixKMhwvM3xbFQUZWENROSc-UhdvAyopYwEbCGEBEHgKMWlqBWsfR0c5WXRbaHZ3MXFCXlNORmBufmQLdQR0ck1ZSRhgb1I0Vmt-ewl3BEUJdQhkS0B8ZF1Dek9kXlUHKCZrRSYcZ0Z0f1wEeh4YdXspZXtj
+)
+
+2025-04-10 10:47:14 reCAPTCHA validation failed: Array
+(
+    [success] => 
+    [error-codes] => Array
+        (
+            [0] => browser-error
+        )
+
+)
+
+2025-04-10 10:47:14 Processed Data: name: 村岡翔, email: syou51158@gmail.com, attending: 1, companions: 1, guest_id: 13, group_id: shin
+2025-04-10 10:47:14 Validation Error: reCAPTCHA validation failed
+2025-04-10 10:47:31 POST Data: Array
+(
+    [guest_id] => 13
+    [group_id] => shin
+    [name] => 村岡翔
+    [email] => syou51158@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [companion_name] => Array
+        (
+            [0] => A
+        )
+
+    [companion_age] => Array
+        (
+            [0] => adult
+        )
+
+    [companion_dietary] => Array
+        (
+            [0] => A
+        )
+
+    [message] => A
+    [dietary] => A
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFcXZqYg9ODDM_L2FfX1xOXhxgNzQ6dnBpPDMMAwcVcRkFdAo8cg0CewN0QixKMhwvM3xbFQUZWENROSc-UhdvAyopYwEbCGEBEHgKMWlqBWsfR0c5WXRbaHZ3MXFCXlNORmBufmQLdQR0ck1ZSRhgb1I0Vmt-ewl3BEUJdQhkS0B8ZF1Dek9kXlUHKCZrRSYcZ0Z0f1wEeh4YdXspZXtj
+)
+
+2025-04-10 10:47:31 reCAPTCHA validation failed: Array
+(
+    [success] => 
+    [error-codes] => Array
+        (
+            [0] => browser-error
+        )
+
+)
+
+2025-04-10 10:47:31 Processed Data: name: 村岡翔, email: syou51158@gmail.com, attending: 1, companions: 1, guest_id: 13, group_id: shin
+2025-04-10 10:47:31 Validation Error: reCAPTCHA validation failed
+2025-04-10 10:48:33 POST Data: Array
+(
+    [guest_id] => 13
+    [group_id] => shin
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [companion_name] => Array
+        (
+            [0] => a
+        )
+
+    [companion_age] => Array
+        (
+            [0] => adult
+        )
+
+    [companion_dietary] => Array
+        (
+            [0] => a
+        )
+
+    [message] => aa
+    [dietary] => a
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFbzgzfEEXEn1mMS8GQRIXQFI5KXpjaD4wIn1VHUdKZlpWaU5lbENbZU0tXGITLFJ2LTICC0tARg0IJ2lnTFk2HWRwfRIUR2AFUGEOaCw5ZHcRexpsTTlOKhlicx0XVlcCSHBiOxwQKmM_bklGYwBiXAEgE3knZTYuGnodOzUkGhY8HTI9QBUnA0BoazgTRE5NXitCG0JdZCFUfEME
+)
+
+2025-04-10 10:48:33 reCAPTCHA validation skipped in development environment
+2025-04-10 10:48:33 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 1, guest_id: 13, group_id: shin
+2025-04-10 10:48:33 SQL Parameters: Array
+(
+    [guest_id] => 13
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [message] => aa
+    [dietary] => a
+)
+
+2025-04-10 10:48:33 SQL Insert successful. Last Insert ID: 26
+2025-04-10 10:48:33 QRコードトークン生成: 成功 - ゲストID: 13
+2025-04-10 10:48:33 Companion Data: Array
+(
+    [names] => Array
+        (
+            [0] => a
+        )
+
+    [ages] => Array
+        (
+            [0] => adult
+        )
+
+    [dietaries] => Array
+        (
+            [0] => a
+        )
+
+)
+
+2025-04-10 10:48:33 Error saving companion: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`wedding`.`companions`, CONSTRAINT `companions_ibfk_1` FOREIGN KEY (`response_id`) REFERENCES `responses` (`id`) ON DELETE CASCADE)
+2025-04-10 10:48:33 Generated QR token for guest_id: 13, token: 4e616f4daec4f5ca4f0d4157d234bae4
+2025-04-10 10:48:34 QR code email sent to syo.t.company@gmail.com: Success
+2025-04-10 10:48:34 Notification sent for response ID: 13
+2025-04-10 11:23:09 POST Data: Array
+(
+    [guest_id] => 13
+    [group_id] => shin
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [companion_name] => Array
+        (
+            [0] => a
+        )
+
+    [companion_age] => Array
+        (
+            [0] => adult
+        )
+
+    [companion_dietary] => Array
+        (
+            [0] => a
+        )
+
+    [message] => a
+    [dietary] => a
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFbWtufhJKEC47M3xbQ0FKQgFkKyk-am1tIC4IHhISYQEPbBI4bhAGZx5wXjFOLgErL2FfCRgdRF5VJTo6TgprHzctf0FJRTNYUjJTan9kZiRMeUkxT2oTKEo_cU5KVARfSiM_OU9NKDBibBobYVM_XlJ9ESp6Z2VzGClAOWZ5GEVhH2FgQkZ6ARM1aWtORh0QXHgfGREAZnIJfhBZ
+)
+
+2025-04-10 11:23:09 reCAPTCHA validation skipped in development environment
+2025-04-10 11:23:09 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 1, guest_id: 13, group_id: shin
+2025-04-10 11:23:09 SQL Parameters: Array
+(
+    [guest_id] => 13
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [message] => a
+    [dietary] => a
+)
+
+2025-04-10 11:23:09 SQL Insert successful. Last Insert ID: 27
+2025-04-10 11:23:09 QRコードトークン生成: 成功 - ゲストID: 13
+2025-04-10 11:23:09 Companion Data: Array
+(
+    [names] => Array
+        (
+            [0] => a
+        )
+
+    [ages] => Array
+        (
+            [0] => adult
+        )
+
+    [dietaries] => Array
+        (
+            [0] => a
+        )
+
+)
+
+2025-04-10 11:23:09 Error saving companion: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`wedding`.`companions`, CONSTRAINT `companions_ibfk_1` FOREIGN KEY (`response_id`) REFERENCES `responses` (`id`) ON DELETE CASCADE)
+2025-04-10 11:23:09 Generated QR token for guest_id: 13, token: 4e616f4daec4f5ca4f0d4157d234bae4
+2025-04-10 11:23:11 QR code email sent to syo.t.company@gmail.com: Success
+2025-04-10 11:23:11 Notification sent for response ID: 13
+2025-04-10 11:26:58 POST Data: Array
+(
+    [guest_id] => 14
+    [group_id] => akane_isono
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => a
+    [dietary] => a
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFNHY0Jw8QSTNhamEBGlwQGxw-cjRkM3A3eTNSRw9GOxRTNApiNw1cPgMqBywUdxxxdnwFUAVHHUMPfCdgFxcxRip3JlwTHC4CCy8JM2I-PzkWIFRrFndJcVdlKFMQDRkFEz5lYFIXcS04NQdBOFxmD09nJWx2Y1VjVjRAJwgRSTNhZGY0BBosHXN0D386JWw3LncHMFE-R2QBJwp1IHw6PBRxNg
+)
+
+2025-04-10 11:26:58 reCAPTCHA validation skipped in development environment
+2025-04-10 11:26:58 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 0, guest_id: 14, group_id: akane_isono
+2025-04-10 11:26:58 Duplicate submission detected: 村岡翔, syo.t.company@gmail.com
+2025-04-10 11:27:35 POST Data: Array
+(
+    [guest_id] => 14
+    [group_id] => akane_isono
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => a
+    [dietary] => a
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFNHY0Jw8QSTNhamEBGlwQGxw-cjRkM3A3eTNSRw9GOxRTNApiNw1cPgMqBywUdxxxdnwFUAVHHUMPfCdgFxcxRip3JlwTHC4CCy8JM2I-PzkWIFRrFndJcVdlKFMQDRkFEz5lYFIXcS04NQdBOFxmD09nJWx2Y1VjVjRAJwgRSTNhZGY0BBosHXN0D386JWw3LncHMFE-R2QBJwp1IHw6PBRxNg
+)
+
+2025-04-10 11:27:35 reCAPTCHA validation skipped in development environment
+2025-04-10 11:27:35 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 0, guest_id: 14, group_id: akane_isono
+2025-04-10 11:27:36 Duplicate submission detected: 村岡翔, syo.t.company@gmail.com
+2025-04-10 11:28:17 POST Data: Array
+(
+    [guest_id] => 14
+    [group_id] => akane_isono
+    [name] => おっぱい揉み揉み➕おまかせ
+    [email] => syou51158@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => q
+    [dietary] => a
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFY3NxcApVHjYkPWRETVlVTBl7JTEhZHVyLjYXEAkKbRoXYggnYAgZaQZvUClRIBk0IXlABwACSkZKKyIlQBJ0ES8ycVlWSytHXCpMZGd7aDxTd1EuQXIMJlIgf1ZVWhxARDsgN1dSJih9YgIEb1kjWEoicmkzNFAmATEFcA1UHjYkM2NxUx9pSnYxWHp_cmlyeXJCZ1R7EGFEcA8wd3l_axE0YQ
+)
+
+2025-04-10 11:28:17 reCAPTCHA validation skipped in development environment
+2025-04-10 11:28:17 Processed Data: name: おっぱい揉み揉み➕おまかせ, email: syou51158@gmail.com, attending: 1, companions: 0, guest_id: 14, group_id: akane_isono
+2025-04-10 11:28:17 SQL Parameters: Array
+(
+    [guest_id] => 14
+    [name] => おっぱい揉み揉み➕おまかせ
+    [email] => syou51158@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => q
+    [dietary] => a
+)
+
+2025-04-10 11:28:17 SQL Insert successful. Last Insert ID: 28
+2025-04-10 11:28:17 QRコードトークン生成: 成功 - ゲストID: 14
+2025-04-10 11:28:17 Generated QR token for guest_id: 14, token: aa9144b8be86ceb7661699971b91b128
+2025-04-10 11:28:18 QR code email sent to syou51158@gmail.com: Success
+2025-04-10 11:28:18 Notification sent for response ID: 14
+2025-04-10 11:30:15 POST Data: Array
+(
+    [guest_id] => 14
+    [group_id] => akane_isono
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => z
+    [dietary] => z
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFazFqeEhOFnQ_NSZfRRtORFtgLXM6bDdpJnQMGEsQa1kJZUY8aEoCYUR0WGtKKFsvKTtbD0IZQgRRI2A-SFBvGW0peRtNQ2lcVGhXbCVgYH5IfxM1STAXLhA7dxROUl5bTHk7PxVJLmpmakAfZxs4UAg5eisoPBI9CXMeeE9PFnQ_OyFqW11yQjQqUDhkeitpcTBZbxZgGCNfeE0rfztkY1MvaQ
+)
+
+2025-04-10 11:30:15 reCAPTCHA validation skipped in development environment
+2025-04-10 11:30:15 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 0, guest_id: 14, group_id: akane_isono
+2025-04-10 11:30:15 SQL Parameters: Array
+(
+    [guest_id] => 14
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => z
+    [dietary] => z
+)
+
+2025-04-10 11:30:15 SQL Insert successful. Last Insert ID: 29
+2025-04-10 11:30:15 QRコードトークン生成: 成功 - ゲストID: 14
+2025-04-10 11:30:15 Generated QR token for guest_id: 14, token: aa9144b8be86ceb7661699971b91b128
+2025-04-10 11:30:16 QR code email sent to syo.t.company@gmail.com: Success
+2025-04-10 11:30:16 Notification sent for response ID: 14
+2025-04-10 11:34:20 POST Data: Array
+(
+    [guest_id] => 14
+    [group_id] => akane_isono
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => q
+    [dietary] => q
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFNHNmJwpCSTYzamRTGllCGxlscjE2M3VleTYARwkZORkJNQQwNwgOPgZ4BylGdxkjdnlXUAAVHUZdfCIyFxJjRi8lJllBHCtQCypbM2dsPzxEIFE5FnIbcVI3KFZCDRxXEzs3YFdFcShqNQITOFk0D0o1JWkkY1AxVjESJw1DSTYzZGNmBB9-HXYmD3poJWllLnJVMFRsR2FTJw8nIHloPBEjNg
+)
+
+2025-04-10 11:34:20 reCAPTCHA validation skipped in development environment
+2025-04-10 11:34:20 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 0, guest_id: 14, group_id: akane_isono
+2025-04-10 11:34:20 SQL Parameters: Array
+(
+    [guest_id] => 14
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => q
+    [dietary] => q
+)
+
+2025-04-10 11:34:20 SQL Insert successful. Last Insert ID: 30
+2025-04-10 11:34:20 QRコードトークン生成: 成功 - ゲストID: 14
+2025-04-10 11:34:20 Generated QR token for guest_id: 14, token: aa9144b8be86ceb7661699971b91b128
+2025-04-10 11:34:22 QR code email sent to syo.t.company@gmail.com: Success
+2025-04-10 11:34:22 Notification sent for response ID: 14
+2025-04-10 11:38:23 POST Data: Array
+(
+    [guest_id] => 13
+    [group_id] => shin
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [companion_name] => Array
+        (
+            [0] => a
+        )
+
+    [companion_age] => Array
+        (
+            [0] => adult
+        )
+
+    [companion_dietary] => Array
+        (
+            [0] => a
+        )
+
+    [message] => a
+    [dietary] => a
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFajV3eUxTF3AiNCJCRB9TRV99LHcnbTN0J3ARGU8KZFoXbUghaU4fYEBpWW9XKV8yKD9GDkYEQwBMImQjSVRyGGk0eB9QQm1BVWxKbSF9YXpVfhcoSDQKLxQmdhBTU1pGTX0mPhFUL257a0QCZg0mWQxkFnRjYDtqH3dZPjhgHxt4GD95RRhjBk0sbjVXQUMJWyYGHk8ZYSwQeU5A
+)
+
+2025-04-10 11:38:23 reCAPTCHA validation skipped in development environment
+2025-04-10 11:38:23 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 1, guest_id: 13, group_id: shin
+2025-04-10 11:38:23 SQL Parameters: Array
+(
+    [guest_id] => 13
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [message] => a
+    [dietary] => a
+)
+
+2025-04-10 11:38:23 SQL Insert successful. Last Insert ID: 31
+2025-04-10 11:38:23 QRコードトークン生成: 成功 - ゲストID: 13
+2025-04-10 11:38:23 Companion Data: Array
+(
+    [names] => Array
+        (
+            [0] => a
+        )
+
+    [ages] => Array
+        (
+            [0] => adult
+        )
+
+    [dietaries] => Array
+        (
+            [0] => a
+        )
+
+)
+
+2025-04-10 11:38:23 Error saving companion: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`wedding`.`companions`, CONSTRAINT `companions_ibfk_1` FOREIGN KEY (`response_id`) REFERENCES `responses` (`id`) ON DELETE CASCADE)
+2025-04-10 11:38:23 Generated QR token for guest_id: 13, token: 4e616f4daec4f5ca4f0d4157d234bae4
+2025-04-10 11:38:25 QR code email sent to syo.t.company@gmail.com: Success
+2025-04-10 11:38:25 Notification sent for response ID: 13
+2025-04-10 11:40:41 POST Data: Array
+(
+    [guest_id] => 14
+    [group_id] => akane_isono
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [companion_name] => Array
+        (
+            [0] => a
+        )
+
+    [companion_age] => Array
+        (
+            [0] => adult
+        )
+
+    [companion_dietary] => Array
+        (
+            [0] => a
+        )
+
+    [message] => a
+    [dietary] => a
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFaW9iehZGFCo3N3hXR0VGRgVoLy0ybmlhJCoEGhURYQMMbRY0ahQKYxp8WjVCKgUnK2VTDRwRQFpZIT42Sg5nGzMhe0VFQTdUVjZfbntoYiBAfU09S24fLE4zdUpGUABTTiczPUtBLDRuaB4XZUUwUlYxeHUgPkw1Cy0WehFHFCo3OX9iWQN6QGoiUmZseHVhc25RbUhoGn1XehMjfWVsYQ0naw
+)
+
+2025-04-10 11:40:41 reCAPTCHA validation skipped in development environment
+2025-04-10 11:40:41 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 1, guest_id: 14, group_id: akane_isono
+2025-04-10 11:40:41 Duplicate submission detected: 村岡翔, syo.t.company@gmail.com
+2025-04-10 11:41:11 POST Data: Array
+(
+    [guest_id] => 14
+    [group_id] => akane_isono
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [message] => a
+    [dietary] => a
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFdjdkZU5AC3IxKCBRWB1AWV1uMHU0cTFnO3ICBU0XelgLdkkydUwMfEJ6RW1ENV0hND1VEkQXXwJfPmYwVVZhBGsnZB1DXm9SSW5ZcSNufXhGYhU7VDYZMxY1ahJAT1hVUX81IhNHM2xod0YReh02TQ43Zy0mIRQzFHUQZUlBC3IxJidkRlt8XzIkTT5qZy1nbDZXchBuBSVRZUslYj1qflUhdA
+)
+
+2025-04-10 11:41:11 reCAPTCHA validation skipped in development environment
+2025-04-10 11:41:11 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 1, guest_id: 14, group_id: akane_isono
+2025-04-10 11:41:11 SQL Parameters: Array
+(
+    [guest_id] => 14
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 1
+    [message] => a
+    [dietary] => a
+)
+
+2025-04-10 11:41:11 SQL Insert successful. Last Insert ID: 32
+2025-04-10 11:41:11 QRコードトークン生成: 成功 - ゲストID: 14
+2025-04-10 11:41:11 Companion Data: Array
+(
+    [names] => Array
+        (
+        )
+
+    [ages] => Array
+        (
+        )
+
+    [dietaries] => Array
+        (
+        )
+
+)
+
+2025-04-10 11:41:11 Generated QR token for guest_id: 14, token: aa9144b8be86ceb7661699971b91b128
+2025-04-10 11:41:13 QR code email sent to syo.t.company@gmail.com: Success
+2025-04-10 11:41:13 Notification sent for response ID: 14

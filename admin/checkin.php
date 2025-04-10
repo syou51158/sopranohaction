@@ -42,9 +42,8 @@ if (isset($_GET['token'])) {
         $notes = "QRコードスキャン自動チェックイン";
         $checked_by = isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : '管理者';
         
-        // 第4引数にtrueを渡してリダイレクトを有効にする
-        $redirect_to_guidance = !isset($_GET['no_redirect']) || $_GET['no_redirect'] !== '1';
-        $result = record_guest_checkin($guest['id'], $checked_by, $notes, $redirect_to_guidance);
+        // リダイレクト機能を無効化（常に false を渡す）
+        $result = record_guest_checkin($guest['id'], $checked_by, $notes, false);
         
         if ($result) {
             $success = htmlspecialchars($guest['group_name']) . ' のチェックインを自動記録しました！';
@@ -61,6 +60,24 @@ if (isset($_GET['token'])) {
                 $companions = [];
                 error_log("同伴者情報取得エラー: " . $e->getMessage());
             }
+            
+            // ゲストのスマホに通知を送信
+            $push_url = $site_url . 'push_notification.php';
+            $push_data = [
+                'token' => $token,
+                'action' => 'redirect_to_guidance'
+            ];
+            
+            // cURLを使用してPOSTリクエストを送信
+            $ch = curl_init($push_url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $push_data);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $push_response = curl_exec($ch);
+            curl_close($ch);
+            
+            // 通知送信結果をログに記録
+            error_log("プッシュ通知送信結果: " . $push_response);
         } else {
             $error = 'チェックインの自動記録に失敗しました。';
             error_log("自動チェックイン失敗: token=$token, guest_id=" . ($guest ? $guest['id'] : 'なし'));
@@ -71,9 +88,8 @@ if (isset($_GET['token'])) {
         $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
         $checked_by = isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : '管理者';
         
-        // 第4引数にtrueを渡してリダイレクトを有効にする
-        $redirect_to_guidance = isset($_POST['show_guidance']) && $_POST['show_guidance'] === '1';
-        $result = record_guest_checkin($guest['id'], $checked_by, $notes, $redirect_to_guidance);
+        // リダイレクト機能を無効化（常に false を渡す）
+        $result = record_guest_checkin($guest['id'], $checked_by, $notes, false);
         
         if ($result) {
             $success = htmlspecialchars($guest['group_name']) . ' のチェックインを記録しました！';
@@ -90,6 +106,24 @@ if (isset($_GET['token'])) {
                 $companions = [];
                 error_log("同伴者情報取得エラー: " . $e->getMessage());
             }
+            
+            // ゲストのスマホに通知を送信
+            $push_url = $site_url . 'push_notification.php';
+            $push_data = [
+                'token' => $token,
+                'action' => 'redirect_to_guidance'
+            ];
+            
+            // cURLを使用してPOSTリクエストを送信
+            $ch = curl_init($push_url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $push_data);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $push_response = curl_exec($ch);
+            curl_close($ch);
+            
+            // 通知送信結果をログに記録
+            error_log("プッシュ通知送信結果: " . $push_response);
         } else {
             $error = 'チェックインの記録に失敗しました。';
             error_log("チェックイン失敗: token=$token, guest_id=" . ($guest ? $guest['id'] : 'なし'));
@@ -366,13 +400,6 @@ $page_title = 'QRコードチェックイン';
                         <div class="form-group">
                             <label for="notes">備考:</label>
                             <textarea name="notes" id="notes" rows="3" placeholder="必要に応じてメモを入力"></textarea>
-                        </div>
-                        
-                        <div class="form-check mb-3">
-                            <input type="checkbox" class="form-check-input" id="show_guidance" name="show_guidance" value="1" checked>
-                            <label class="form-check-label" for="show_guidance">
-                                チェックイン後に案内画面を表示する
-                            </label>
                         </div>
                         
                         <button type="submit" name="checkin" class="admin-button">

@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Wedding Project Development Rules
+
+## Check MEMO folder for project status and tasks
+Before implementing any changes or new features, always check `MEMO/wedding_extension_tasks.md` for:
+- Current implementation status of features
+- Task priorities and what needs to be completed
+- Database changes required for deployment
+- Development workflow guidelines
+
+@MEMO/wedding_extension_tasks.md
+
+## Branching Strategy
+- All new features should be developed in feature branches
+- Format: `feature/{feature-name}`
+- Check current branches and their status before creating new ones
+- After testing, create a PR to merge into main 

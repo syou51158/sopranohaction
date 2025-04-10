@@ -65,14 +65,14 @@ function generate_qr_token($guest_id) {
 function get_qr_code_url($token, $size = 200) {
     global $site_url;
     
-    // QRコードに埋め込むURL（チェックインページへのリンク）
-    $checkin_url = $site_url . "admin/checkin.php?token=" . urlencode($token);
+    // QRコードに埋め込むURL（ゲスト用案内ページへのリンク）
+    $guidance_url = $site_url . "guidance.php?token=" . urlencode($token);
     
     // Google Chart APIを使用してQRコードを生成（HTTPSを強制）
     $qr_url = "https://chart.googleapis.com/chart?";
     $qr_url .= "chs={$size}x{$size}";  // サイズ指定
     $qr_url .= "&cht=qr";              // QRコードタイプ
-    $qr_url .= "&chl=" . urlencode($checkin_url); // データ
+    $qr_url .= "&chl=" . urlencode($guidance_url); // データ
     $qr_url .= "&choe=UTF-8";          // エンコーディング
     
     return $qr_url;
@@ -213,11 +213,7 @@ function record_guest_checkin($guest_id, $checked_by = '', $notes = '', $redirec
             $result = $update_stmt->execute([$update_notes, $guest_id]);
             error_log("チェックイン更新結果: " . ($result ? '成功' : '失敗'));
             
-            // 案内ページへのリダイレクトが要求された場合
-            if ($redirect_to_guidance && $result && isset($guest_info['qr_code_token'])) {
-                header("Location: checkin_complete.php?token=" . urlencode($guest_info['qr_code_token']));
-                exit;
-            }
+            // 管理者ページからのリダイレクトは行わない（この機能は削除）
             
             return $result;
         } else {
@@ -232,26 +228,16 @@ function record_guest_checkin($guest_id, $checked_by = '', $notes = '', $redirec
                 $last_id = $pdo->lastInsertId();
                 error_log("新規チェックイン成功: ID=$last_id, guest_id=$guest_id");
                 
-                // 案内ページへのリダイレクトが要求された場合
-                if ($redirect_to_guidance && isset($guest_info['qr_code_token'])) {
-                    header("Location: checkin_complete.php?token=" . urlencode($guest_info['qr_code_token']));
-                    exit;
-                }
+                // 管理者ページからのリダイレクトは行わない（この機能は削除）
             } else {
                 error_log("新規チェックイン失敗: " . json_encode($stmt->errorInfo()));
             }
             
             return $result;
         }
+        
     } catch (PDOException $e) {
         error_log("チェックイン記録エラー: " . $e->getMessage());
-        error_log("SQL実行エラー詳細: " . json_encode([
-            'guest_id' => $guest_id,
-            'checked_by' => $checked_by,
-            'notes' => $notes,
-            'error_code' => $e->getCode(),
-            'error_message' => $e->getMessage()
-        ], JSON_UNESCAPED_UNICODE));
         return false;
     }
 }

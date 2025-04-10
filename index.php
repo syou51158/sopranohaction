@@ -696,6 +696,28 @@ $datetime_info = get_wedding_datetime();
                     
                     <!-- QRコードチェックイン情報 -->
                     <?php if ($group_id): ?>
+                    <?php 
+                    // 出席回答を確認
+                    $attending = false;
+                    try {
+                        $stmt = $pdo->prepare("
+                            SELECT attending FROM responses 
+                            WHERE guest_id = ? 
+                            ORDER BY created_at DESC 
+                            LIMIT 1
+                        ");
+                        $stmt->execute([$guest_info['id']]);
+                        $attending_result = $stmt->fetch(PDO::FETCH_ASSOC);
+                        $attending = ($attending_result && $attending_result['attending'] == 1);
+                    } catch (PDOException $e) {
+                        // エラー処理（静かに失敗）
+                        if ($debug_mode) {
+                            error_log("出席回答確認エラー: " . $e->getMessage());
+                        }
+                    }
+                    
+                    if ($attending): 
+                    ?>
                     <div class="qr-checkin-info">
                         <h3><i class="fas fa-qrcode"></i> QRコードチェックイン</h3>
                         <p>結婚式当日の受付をスムーズに行うため、QRコードをご用意しています。</p>
@@ -743,6 +765,7 @@ $datetime_info = get_wedding_datetime();
                         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
                     }
                     </style>
+                    <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </section>
