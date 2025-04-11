@@ -8,10 +8,9 @@
  * - チェックイン処理
  */
 
-// 必要なライブラリのロード
-require_once __DIR__ . '/../config.php';
-
 /**
+require_once __DIR__ . '/../config.php'; // 設定ファイル
+
  * ゲスト用のQRコードトークンを生成・保存する
  *
  * @param int $guest_id ゲストID
@@ -53,6 +52,7 @@ function generate_qr_token($guest_id) {
     }
 }
 
+
 /**
  * QRコードの画像URLを生成する
  * 
@@ -65,10 +65,8 @@ function generate_qr_token($guest_id) {
 function get_qr_code_url($token, $size = 200) {
     global $site_url;
     
-    // QRコードに埋め込むURL（ゲスト用案内ページへのリンク）
     $guidance_url = $site_url . "guidance.php?token=" . urlencode($token);
     
-    // Google Chart APIを使用してQRコードを生成（HTTPSを強制）
     $qr_url = "https://chart.googleapis.com/chart?";
     $qr_url .= "chs={$size}x{$size}";  // サイズ指定
     $qr_url .= "&cht=qr";              // QRコードタイプ
@@ -77,6 +75,7 @@ function get_qr_code_url($token, $size = 200) {
     
     return $qr_url;
 }
+
 
 /**
  * QRコードのHTMLを生成する
@@ -102,6 +101,7 @@ function get_qr_code_html($guest_id, $options = []) {
     // ゲスト情報を取得
     $stmt = $pdo->prepare("SELECT qr_code_token FROM guests WHERE id = ?");
     $stmt->execute([$guest_id]);
+
     $token = $stmt->fetchColumn();
     
     // トークンがなければ新規生成
@@ -114,7 +114,6 @@ function get_qr_code_html($guest_id, $options = []) {
         return '';
     }
     
-    // QRコード画像URLを取得
     $qr_url = get_qr_code_url($token, $options['size']);
     
     // QRコードHTMLを生成
@@ -125,7 +124,6 @@ function get_qr_code_html($guest_id, $options = []) {
     $html .= 'onerror="this.onerror=null; this.src=\'images/qr-error.png\'; console.error(\'QRコード読み込みエラー: ' . addslashes(htmlspecialchars($qr_url)) . '\');" ';
     $html .= '/>';
     
-    // QRコードのURL（デバッグ用）
     if (defined('DEBUG_MODE') && DEBUG_MODE) {
         $html .= '<div style="display:none;" class="qr-debug-url">' . htmlspecialchars($qr_url) . '</div>';
     }
@@ -265,4 +263,4 @@ function get_qr_setting($key, $default = null) {
         error_log("QR設定取得エラー: " . $e->getMessage());
         return $default;
     }
-} 
+}               
