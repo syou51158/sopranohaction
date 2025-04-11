@@ -30,10 +30,19 @@ try {
     
     // レイアウト情報を保存するための列を確認・追加
     $columns = ['layout_left', 'layout_top', 'layout_width', 'layout_height'];
+    $tableName = 'seating'; // テーブル名は固定
+    $allowedColumns = ['layout_left', 'layout_top', 'layout_width', 'layout_height']; // 許可するカラム名リスト
+
     foreach ($columns as $column) {
-        $stmt = $pdo->query("SHOW COLUMNS FROM seating LIKE '$column'");
+        if (!in_array($column, $allowedColumns)) {
+            continue; // 不正なカラム名はスキップ
+        }
+
+        $stmt = $pdo->prepare("SHOW COLUMNS FROM `" . $tableName . "` LIKE ?");
+        $stmt->execute([$column]);
+
         if ($stmt->rowCount() == 0) {
-            $pdo->exec("ALTER TABLE seating ADD COLUMN $column VARCHAR(50)");
+            $pdo->exec("ALTER TABLE `" . $tableName . "` ADD COLUMN `" . $column . "` VARCHAR(50)");
         }
     }
     
@@ -78,4 +87,4 @@ try {
     }
     
     echo json_encode(['success' => false, 'message' => $message]);
-} 
+}   

@@ -8,10 +8,11 @@
  * - チェックイン処理
  */
 
-// 必要なライブラリのロード
-require_once __DIR__ . '/../config.php';
-
 /**
+require_once __DIR__ . '/../config.php'; // 設定ファイル
+require_once __DIR__ . '/../vendor/autoload.php'; // Composer Autoloader
+
+
  * ゲスト用のQRコードトークンを生成・保存する
  *
  * @param int $guest_id ゲストID
@@ -53,30 +54,6 @@ function generate_qr_token($guest_id) {
     }
 }
 
-/**
- * QRコードの画像URLを生成する
- * 
- * Google Chart APIを使用してQRコードを生成します
- *
- * @param string $token QRコードに埋め込むトークン
- * @param int $size QRコードのサイズ（ピクセル）
- * @return string QRコード画像のURL
- */
-function get_qr_code_url($token, $size = 200) {
-    global $site_url;
-    
-    // QRコードに埋め込むURL（ゲスト用案内ページへのリンク）
-    $guidance_url = $site_url . "guidance.php?token=" . urlencode($token);
-    
-    // Google Chart APIを使用してQRコードを生成（HTTPSを強制）
-    $qr_url = "https://chart.googleapis.com/chart?";
-    $qr_url .= "chs={$size}x{$size}";  // サイズ指定
-    $qr_url .= "&cht=qr";              // QRコードタイプ
-    $qr_url .= "&chl=" . urlencode($guidance_url); // データ
-    $qr_url .= "&choe=UTF-8";          // エンコーディング
-    
-    return $qr_url;
-}
 
 /**
  * QRコードのHTMLを生成する
@@ -102,6 +79,56 @@ function get_qr_code_html($guest_id, $options = []) {
     // ゲスト情報を取得
     $stmt = $pdo->prepare("SELECT qr_code_token FROM guests WHERE id = ?");
     $stmt->execute([$guest_id]);
+
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelLow;
+use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
+use Endroid\QrCode\Writer\PngWriter;
+
+/**
+ * QRコードのデータURIを生成する (endroid/qr-code を使用)
+ *
+ * @param string $data QRコードに埋め込むデータ (通常はURL)
+ * @param int $size サイズ (ピクセル)
+ * @param int $margin マージン (ピクセル)
+ * @return string|false QRコード画像のデータURI、またはエラー時はfalse
+ */
+function get_qr_code_data_uri($data, $size = 200, $margin = 10) {
+    global $debug_mode; // config.php から
+
+    if (!class_exists(Builder::class)) {
+        error_log("QRコード生成エラー: Endroid\QrCode ライブラリが見つかりません。composer install を実行してください。");
+        if ($debug_mode) {
+            return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='; // 1x1 透明ピクセル
+        }
+        return false;
+    }
+
+    try {
+        $result = Builder::create()
+            ->writer(new PngWriter())
+            ->writerOptions([])
+            ->data($data)
+            ->encoding(new Encoding('UTF-8'))
+            ->errorCorrectionLevel(new ErrorCorrectionLevelLow())
+            ->size($size)
+            ->margin($margin)
+            ->roundBlockSizeMode(new RoundBlockSizeModeMargin())
+            ->build();
+
+        return $result->getDataUri();
+
+    } catch (Exception $e) {
+        error_log("QRコード生成エラー (endroid/qr-code): " . $e->getMessage());
+        if ($debug_mode) {
+             return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkAQMAAABKLAcXAAAABlBMVEUAAAD///+l2Z/dAAAAAXRSTlMAQObYZgAAAB5JREFUOMtj+I+A/4+B/z8DPgMD/4+B/w8D/z8DAwMAH4sIA/gV0h4AAAAASUVORK5CYII='; // エラーを示す簡単な画像
+        }
+        return false; // エラー時は false を返す
+    }
+}
+
+
     $token = $stmt->fetchColumn();
     
     // トークンがなければ新規生成
@@ -114,20 +141,24 @@ function get_qr_code_html($guest_id, $options = []) {
         return '';
     }
     
-    // QRコード画像URLを取得
-    $qr_url = get_qr_code_url($token, $options['size']);
-    
+    global $site_url;
+    $guidance_url = $site_url . "guidance.php?token=" . urlencode($token);
+
+    $qr_data_uri = get_qr_code_data_uri($guidance_url, $options['size']);
+
     // QRコードHTMLを生成
     $html = '<div class="' . htmlspecialchars($options['class']) . '-container">';
-    $html .= '<img src="' . htmlspecialchars($qr_url) . '" ';
-    $html .= 'alt="チェックインQRコード" ';
-    $html .= 'class="' . htmlspecialchars($options['class']) . '" ';
-    $html .= 'onerror="this.onerror=null; this.src=\'images/qr-error.png\'; console.error(\'QRコード読み込みエラー: ' . addslashes(htmlspecialchars($qr_url)) . '\');" ';
-    $html .= '/>';
+    if ($qr_data_uri) {
+        $html .= '<img src="' . htmlspecialchars($qr_data_uri) . '" ';
+        $html .= 'alt="チェックインQRコード" ';
+        $html .= 'class="' . htmlspecialchars($options['class']) . '" ';
+        $html .= '/>';
+    } else {
+        $html .= '<p class="qr-error">QRコードの生成に失敗しました。</p>';
+    }
     
-    // QRコードのURL（デバッグ用）
     if (defined('DEBUG_MODE') && DEBUG_MODE) {
-        $html .= '<div style="display:none;" class="qr-debug-url">' . htmlspecialchars($qr_url) . '</div>';
+        $html .= '<div style="display:none;" class="qr-debug-data">' . htmlspecialchars($guidance_url) . '</div>';
     }
     
     // 説明テキストを含める場合
@@ -265,4 +296,4 @@ function get_qr_setting($key, $default = null) {
         error_log("QR設定取得エラー: " . $e->getMessage());
         return $default;
     }
-} 
+}        

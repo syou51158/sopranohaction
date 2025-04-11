@@ -31,39 +31,37 @@ function send_mail($to, $subject, $message, $from_email, $from_name = '', $reply
     try {
         // サーバー設定
         $mail->isSMTP();                                      // SMTPを使用
-        $mail->Host       = 'smtp.lolipop.jp';                // SMTPサーバー
-        $mail->SMTPAuth   = true;                             // SMTP認証を有効化
-        $mail->Username   = 'info-wedding@sopranohaction.fun'; // SMTPユーザー名
-        $mail->Password   = 'Syou108810--'; // ロリポップのメールパスワードを設定してください
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;      // 暗号化方式（SSL）
-        $mail->Port       = 465;                              // ポート
+        global $smtp_host, $smtp_port, $smtp_username, $smtp_password, $smtp_secure, $mail_debug;
+
+        $mail->Host       = $smtp_host;                // SMTPサーバー
+        $mail->SMTPAuth   = !empty($smtp_password);    // SMTP認証を有効化 (パスワードがあればtrue)
+        $mail->Username   = $smtp_username;            // SMTPユーザー名
+        $mail->Password   = $smtp_password;            // SMTPパスワード
+        if (strtolower($smtp_secure) === 'tls') {
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        } else { // デフォルトは 'ssl' (SMTPS)
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        }
+        $mail->Port       = $smtp_port;                 // ポート
         
-        // デバッグ情報（開発環境のみ有効にする）
-        if (defined('MAIL_DEBUG') && MAIL_DEBUG) {
-            // メールデバッグが有効な場合はログファイルに出力
-            $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+        if ($mail_debug) {
+            $mail->SMTPDebug = SMTP::DEBUG_SERVER;            // デバッグ出力を有効化
             $mail->Debugoutput = function($str, $level) {
-                $log_file = __DIR__ . '/../logs/mail_debug.log';
+                $log_file = __DIR__ . '/../logs/mail_debug.log'; // ログディレクトリが存在するか確認が必要
+                if (!file_exists(dirname($log_file))) {
+                    mkdir(dirname($log_file), 0755, true);
+                }
                 $timestamp = date('Y-m-d H:i:s');
-                file_put_contents($log_file, "$timestamp DEBUG: $str\n", FILE_APPEND);
-            };
-        } else if (defined('DEBUG_MODE') && DEBUG_MODE) {
-            // デバッグモードが有効だがメールデバッグは無効の場合はログファイルに出力
-            $mail->SMTPDebug = SMTP::DEBUG_SERVER;
-            $mail->Debugoutput = function($str, $level) {
-                $log_file = __DIR__ . '/../logs/mail_debug.log';
-                $timestamp = date('Y-m-d H:i:s');
-                file_put_contents($log_file, "$timestamp DEBUG: $str\n", FILE_APPEND);
+                file_put_contents($log_file, "$timestamp DEBUG [$level]: $str\n", FILE_APPEND);
             };
         } else {
-            // どちらも無効の場合はデバッグ出力しない
-            $mail->SMTPDebug = SMTP::DEBUG_OFF;
+            $mail->SMTPDebug = SMTP::DEBUG_OFF;               // デバッグ出力を無効化
         }
         
         // 文字セット
         $mail->CharSet = 'UTF-8';
         
-        // 送信元
+        global $from_email, $from_name; // config.php から読み込んだ変数をグローバルスコープから取得
         $mail->setFrom($from_email, $from_name);
         
         // 返信先が指定されている場合は設定
@@ -113,4 +111,4 @@ function send_system_mail($to, $subject, $message) {
         $site_email,
         '結婚式管理システム'
     );
-} 
+}   

@@ -22,8 +22,9 @@ try {
     echo "<h2>挿入結果</h2>";
     echo "挿入成功！ID: $id<br>";
     
-    // 確認
-    $data = $pdo->query("SELECT * FROM responses WHERE id = $id")->fetch();
+    $stmt = $pdo->prepare("SELECT * FROM responses WHERE id = ?");
+    $stmt->execute([$id]);
+    $data = $stmt->fetch();
     
     echo "<h2>挿入されたデータ</h2>";
     echo "<pre>";
@@ -34,4 +35,4 @@ try {
     echo "<h2>エラー</h2>";
     echo $e->getMessage();
 }
-?> 
+?>   

@@ -71,7 +71,7 @@ if ($is_local) {
     $db_host = getenv('DB_HOST') ?: 'mysql307.phy.lolipop.lan';
     $db_name = getenv('DB_NAME') ?: 'LAA1530328-wedding';
     $db_user = getenv('DB_USER') ?: 'LAA1530328';
-    $db_pass = getenv('DB_PASSWORD') ?: 'syou108810';
+    $db_pass = getenv('DB_PASSWORD') ?: ''; // .env から読み込む、デフォルトは空
     $site_url = "https://sopranohaction.fun/";  // 本番環境のURL（HTTPSに変更）
     $site_email = "info-wedding@sopranohaction.fun";  // 送信元メールアドレス
     $debug_mode = false; // 本番環境ではデバッグモードを必ず無効化
@@ -92,6 +92,16 @@ try {
 // サイトの基本設定
 $site_name = "翔 & あかね - Wedding Invitation";
 $base_url = $site_url;    // サイトのベースURL
+$smtp_host = getenv('SMTP_HOST') ?: 'smtp.lolipop.jp'; // デフォルト値
+$smtp_port = getenv('SMTP_PORT') ?: 465;             // デフォルト値
+$smtp_username = getenv('SMTP_USERNAME') ?: 'info-wedding@sopranohaction.fun'; // デフォルト値
+$smtp_password = getenv('SMTP_PASSWORD') ?: ''; // .env から読み込む、デフォルトは空
+$smtp_secure = getenv('SMTP_SECURE') ?: 'ssl'; // デフォルト値 'ssl' or 'tls' (PHPMailer::ENCRYPTION_SMTPS 相当)
+$from_email = getenv('FROM_EMAIL') ?: $site_email; // config.php 内の $site_email をデフォルトに
+$from_name = getenv('FROM_NAME') ?: $site_name;   // config.php 内の $site_name をデフォルトに
+$mail_debug = filter_var(getenv('MAIL_DEBUG'), FILTER_VALIDATE_BOOLEAN); // .env から読み込む
+
+
 
 // タイムゾーンを日本時間に設定
 date_default_timezone_set('Asia/Tokyo');
@@ -115,4 +125,4 @@ if ($debug_mode) {
     error_reporting(0);
 }
 
-// ここで終わり 
+// ここで終わり     
