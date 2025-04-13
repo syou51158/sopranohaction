@@ -101,8 +101,6 @@ $from_email = getenv('FROM_EMAIL') ?: $site_email; // config.php 内の $site_em
 $from_name = getenv('FROM_NAME') ?: $site_name;   // config.php 内の $site_name をデフォルトに
 $mail_debug = filter_var(getenv('MAIL_DEBUG'), FILTER_VALIDATE_BOOLEAN); // .env から読み込む
 
-
-
 // タイムゾーンを日本時間に設定
 date_default_timezone_set('Asia/Tokyo');
 
@@ -112,6 +110,23 @@ try {
 } catch (PDOException $e) {
     error_log("MySQLタイムゾーン設定エラー: " . $e->getMessage());
 }
+
+// Debug出力（テスト用）
+if ($debug_mode) {
+    $debug_info = "SMTP設定:\n";
+    $debug_info .= "host: {$smtp_host}\n";
+    $debug_info .= "port: {$smtp_port}\n";
+    $debug_info .= "user: {$smtp_username}\n";
+    $debug_info .= "pass: " . (empty($smtp_password) ? 'なし' : '設定済み') . "\n";
+    $debug_info .= "secure: {$smtp_secure}\n";
+    $debug_info .= "mail_debug: " . ($mail_debug ? 'true' : 'false') . "\n";
+    $debug_info .= "from_email: {$from_email}\n";
+    $debug_info .= "from_name: {$from_name}\n";
+    error_log($debug_info);
+}
+
+// メールデバッグを強制的に有効化（テスト用）
+$mail_debug = true;
 
 // メールヘルパー関数を読み込み
 require_once __DIR__ . '/includes/mail_helper.php';

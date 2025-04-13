@@ -271,13 +271,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     require_once 'includes/notification_helper.php';
                     require_once 'includes/mail_helper.php';
                     
-                    // 最新の回答データを取得
+                    // 最新の回答データを取得 - 修正: guest_idではなくレスポンスID(last_id)を使用
                     $response_stmt = $pdo->prepare("SELECT * FROM responses WHERE id = ?");
-                    $response_stmt->execute([$guest_id]);
+                    $response_stmt->execute([$last_id]);
                     $response_data = $response_stmt->fetch();
                     
-                    // 通知送信
-                    send_rsvp_notification($response_data);
+                    // レスポンスデータが取得できた場合のみ通知を送信
+                    if ($response_data) {
+                        // 通知送信
+                        send_rsvp_notification($response_data);
+                        log_debug("Notification sent for response ID: " . $last_id);
+                    } else {
+                        log_debug("Failed to get response data for ID: " . $last_id);
+                    }
                     
                     // 出席者にはQRコード付きの確認メールを送信
                     if ($attending == 1 && !empty($email) && !empty($qr_code_html)) {
@@ -394,7 +400,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         log_debug("QR code email sent to $email: " . ($mail_result['success'] ? "Success" : "Failed - " . $mail_result['message']));
                     }
                     
-                    log_debug("Notification sent for response ID: " . $guest_id);
+                    log_debug("Notification sent for response ID: " . $last_id);
                 } catch (Exception $e) {
                     // 通知送信に失敗しても処理を続行
                     log_debug("Failed to send notification: " . $e->getMessage());
