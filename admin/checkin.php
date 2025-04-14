@@ -600,13 +600,26 @@ $page_title = 'QRコードチェックイン';
                     if (tokenParam && tokenParam.length > 1) {
                         token = decodeURIComponent(tokenParam[1]);
                     } else {
-                        // 直接トークンとして扱ってみる
-                        token = decodedText;
+                        // URLっぽいがトークンが見つからない場合は、別の抽出方法を試す
+                        const urlObj = new URL(decodedText);
+                        token = urlObj.searchParams.get('token');
                     }
                 } catch (e) {
                     console.error("URLパース中にエラーが発生:", e);
-                    // エラーが発生した場合は、テキスト自体をトークンとして扱う
-                    token = decodedText;
+                    // エラーが発生した場合は、別の方法でトークン抽出を試みる
+                    try {
+                        // URLのパラメータ部分を正規表現で抽出してみる
+                        const urlParts = decodedText.split('?');
+                        if (urlParts.length > 1) {
+                            const paramsStr = urlParts[1];
+                            const params = new URLSearchParams(paramsStr);
+                            token = params.get('token');
+                        }
+                    } catch (e2) {
+                        console.error("二次的なURL解析中にエラー:", e2);
+                        // それでも失敗した場合は、テキスト自体をトークンとして扱う
+                        token = decodedText;
+                    }
                 }
             } else {
                 // token=が含まれていない場合は、スキャンしたテキストそのものをトークンとして扱う
@@ -623,7 +636,7 @@ $page_title = 'QRコードチェックイン';
                         <i class="fas fa-check-circle"></i> QRコードを検出しました！
                     </div>
                     <p>トークン: ${token}</p>
-                    <p>リダイレクトしています...</p>
+                    <p>チェックイン処理中...</p>
                 `;
                 
                 // カメラを停止
@@ -639,14 +652,24 @@ $page_title = 'QRコードチェックイン';
                     const redirectUrl = `checkin.php?token=${encodeURIComponent(token)}&scanner=${scannerMode}&scan_action=auto_checkin&t=${Date.now()}`;
                     console.log("リダイレクト先:", redirectUrl);
                     window.location.href = redirectUrl;
-                }, 1500);
+                }, 1000);
             } else {
                 scanResult.innerHTML = `
                     <div class="error-message">
                         <i class="fas fa-exclamation-circle"></i> 無効なQRコードです。
                     </div>
                     <p>スキャンされた値: ${decodedText}</p>
+                    <p>再度スキャンしてください。</p>
                 `;
+                
+                // 再スキャンモードに切り替え
+                setTimeout(() => {
+                    scanResult.innerHTML = `
+                        <div class="info-message">
+                            <i class="fas fa-camera"></i> QRコードをカメラにかざしてください
+                        </div>
+                    `;
+                }, 3000);
             }
         }
         

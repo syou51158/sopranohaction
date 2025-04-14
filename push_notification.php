@@ -25,16 +25,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// POSTリクエストのみ受け付ける
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+// POST以外のリクエストも許可（GET/POSTどちらでも動作するように）
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $_SERVER['REQUEST_METHOD'] !== 'GET') {
     header('HTTP/1.1 405 Method Not Allowed');
-    header('Allow: POST');
+    header('Allow: POST, GET');
     exit;
 }
 
+// リクエストのパラメータを取得（POSTとGETの両方に対応）
+$params = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $_GET;
+
 // 必須パラメータのチェック
-$token = isset($_POST['token']) ? trim($_POST['token']) : '';
-$action = isset($_POST['action']) ? trim($_POST['action']) : '';
+$token = isset($params['token']) ? trim($params['token']) : '';
+$action = isset($params['action']) ? trim($params['action']) : 'redirect_to_guidance'; // デフォルトアクション
 
 // レスポンス初期化
 $response = [
@@ -47,16 +50,14 @@ $response = [
         'request_method' => $_SERVER['REQUEST_METHOD'],
         'site_url' => $site_url,
         'server_info' => $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'],
-        'post_data' => $_POST,
-        'get_data' => $_GET,
-        'content_type' => $_SERVER['CONTENT_TYPE'] ?? '未設定'
+        'params' => $params
     ]
 ];
 
-// トークンとアクションが提供されているか確認
-if (empty($token) || empty($action)) {
+// トークンが提供されているか確認
+if (empty($token)) {
     $response['message'] = '必須パラメータが不足しています。';
-    $response['debug']['error'] = 'トークンまたはアクションが空です';
+    $response['debug']['error'] = 'トークンが空です';
     header('Content-Type: application/json');
     echo json_encode($response);
     exit;

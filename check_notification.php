@@ -9,6 +9,11 @@
 // 設定ファイルの読み込み
 require_once 'config.php';
 
+// キャッシュ防止ヘッダーを送信
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+
 // デバッグ情報をログに出力
 error_log("通知チェックAPI呼び出し - IP: " . $_SERVER['REMOTE_ADDR'] . ", トークン: " . ($_GET['token'] ?? 'なし'));
 
@@ -33,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 // 必須パラメータのチェック
 $token = isset($_GET['token']) ? trim($_GET['token']) : '';
+$timestamp = isset($_GET['t']) ? $_GET['t'] : time(); // キャッシュ回避用タイムスタンプ
 
 // レスポンス初期化
 $response = [
@@ -40,6 +46,8 @@ $response = [
     'has_notification' => false,
     'action' => '',
     'message' => '',
+    'timestamp' => $timestamp,
+    'server_time' => date('Y-m-d H:i:s'),
     'debug' => [
         'token' => $token,
         'time' => date('Y-m-d H:i:s'),
@@ -86,13 +94,16 @@ try {
     }
     
     // デバッグ用：トークンの存在確認
-    $tokenCheck = $pdo->prepare("SELECT id FROM guests WHERE qr_code_token = ?");
+    $tokenCheck = $pdo->prepare("SELECT id, name FROM guests WHERE qr_code_token = ?");
     $tokenCheck->execute([$token]);
-    $guestExists = ($tokenCheck->rowCount() > 0);
+    $guestData = $tokenCheck->fetch(PDO::FETCH_ASSOC);
+    $guestExists = ($guestData !== false);
     $response['debug']['token_valid'] = $guestExists;
+    $response['debug']['guest_data'] = $guestData;
     
     if (!$guestExists) {
         error_log("無効なトークン: {$token}");
+        $response['debug']['token_error'] = "指定されたトークンに一致するゲストが存在しません";
     }
     
     // 未配信の通知を確認
@@ -137,12 +148,15 @@ try {
         
         // 最近の通知をチェック（デバッグ用）
         $recentCheck = $pdo->prepare("
-            SELECT COUNT(*) FROM push_notifications 
+            SELECT COUNT(*) as total, 
+                   MAX(created_at) as last_created,
+                   SUM(is_delivered) as delivered_count
+            FROM push_notifications 
             WHERE token = ?
         ");
         $recentCheck->execute([$token]);
-        $recentCount = $recentCheck->fetchColumn();
-        $response['debug']['total_notifications_for_token'] = $recentCount;
+        $recentStats = $recentCheck->fetch(PDO::FETCH_ASSOC);
+        $response['debug']['notification_stats'] = $recentStats;
     }
     
 } catch (PDOException $e) {

@@ -507,6 +507,47 @@ if ($guest_info && isset($guest_info['group_id'])) {
         document.getElementById('qrcode').parentNode.appendChild(linkElem);
         <?php endif; ?>
         
+        // 通知をポーリングするための関数
+        function checkForNotifications() {
+            const token = '<?= urlencode($guest_info['qr_code_token']) ?>';
+            const checkUrl = '<?= $site_url ?>check_notification.php?token=' + token + '&t=' + Date.now();
+            
+            console.log('通知チェック中...', checkUrl);
+            document.getElementById('test-result')?.innerHTML = '最終チェック: ' + new Date().toLocaleTimeString();
+            
+            fetch(checkUrl)
+                .then(response => {
+                    console.log('サーバーからの応答があります:', response.status);
+                    if (!response.ok) {
+                        throw new Error('サーバーからの応答エラー: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('通知チェック結果:', data);
+                    // 通知がある場合の処理
+                    if (data.success && data.has_notification) {
+                        console.log('通知を受信しました - リダイレクト開始:', data);
+                        
+                        // アクションに応じた処理
+                        if (data.action === 'redirect_to_guidance') {
+                            // ポーリングを停止
+                            clearInterval(pollingInterval);
+                            
+                            // おしゃれなダイアログを表示
+                            showCheckinDialog();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('通知チェックエラー:', error);
+                    document.getElementById('test-result')?.innerHTML = 'エラー: ' + error.message;
+                    
+                    // 一時的なネットワークエラーの場合はポーリングを継続
+                    // エラーカウンタを設定して、連続エラーが多い場合は停止などの対応も可能
+                });
+        }
+        
         // チェックイン完了ダイアログを表示する関数
         function showCheckinDialog() {
             // ダイアログ要素を作成
@@ -546,46 +587,11 @@ if ($guest_info && isset($guest_info['group_id'])) {
             }, 3000);
         }
         
-        // 通知をポーリングするための関数
-        function checkForNotifications() {
-            const token = '<?= urlencode($guest_info['qr_code_token']) ?>';
-            const checkUrl = '<?= $site_url ?>check_notification.php?token=' + token;
-            
-            console.log('通知チェック中...', checkUrl);
-            document.getElementById('test-result').innerHTML = '最終チェック: ' + new Date().toLocaleTimeString();
-            
-            fetch(checkUrl)
-                .then(response => {
-                    console.log('サーバーからの応答があります:', response.status);
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('通知チェック結果:', data);
-                    // 通知がある場合の処理
-                    if (data.success && data.has_notification) {
-                        console.log('通知を受信しました - リダイレクト開始:', data);
-                        
-                        // アクションに応じた処理
-                        if (data.action === 'redirect_to_guidance') {
-                            // ポーリングを停止
-                            clearInterval(pollingInterval);
-                            
-                            // おしゃれなダイアログを表示
-                            showCheckinDialog();
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('通知チェックエラー:', error);
-                    document.getElementById('test-result').innerHTML = 'エラー: ' + error.message;
-                });
-        }
-        
         // 初回チェック（ページ読み込み時）
         checkForNotifications();
         
-        // 2秒ごとにポーリング（間隔を短く）
-        const pollingInterval = setInterval(checkForNotifications, 2000);
+        // 短い間隔でポーリング開始（1秒ごと）
+        const pollingInterval = setInterval(checkForNotifications, 1000);
         
         // ページがアンロードされる際にインターバルをクリア
         window.addEventListener('beforeunload', function() {
