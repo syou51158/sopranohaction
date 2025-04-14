@@ -218,8 +218,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_schedule'])) {
         if ($schedule_id > 0) {
             // 更新
             $stmt = $pdo->prepare("
-                UPDATE event_schedule 
-                SET event_name = ?, event_time = ?, description = ?, location = ? 
+                UPDATE schedule 
+                SET event_name = ?, event_time = ?, event_description = ?, location = ? 
                 WHERE id = ?
             ");
             $stmt->execute([$event_name, $event_time, $description, $location, $schedule_id]);
@@ -227,8 +227,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_schedule'])) {
         } else {
             // 新規登録
             $stmt = $pdo->prepare("
-                INSERT INTO event_schedule 
-                (event_name, event_time, description, location) 
+                INSERT INTO schedule 
+                (event_name, event_time, event_description, location) 
                 VALUES (?, ?, ?, ?)
             ");
             $stmt->execute([$event_name, $event_time, $description, $location]);
@@ -243,7 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_schedule'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_schedule'])) {
     try {
         $schedule_id = (int)$_POST['schedule_id'];
-        $stmt = $pdo->prepare("DELETE FROM event_schedule WHERE id = ?");
+        $stmt = $pdo->prepare("DELETE FROM schedule WHERE id = ?");
         $stmt->execute([$schedule_id]);
         $success = "スケジュールを削除しました。";
     } catch (PDOException $e) {
@@ -305,7 +305,7 @@ try {
 // データ取得：スケジュール一覧
 $schedule_list = [];
 try {
-    $stmt = $pdo->query("SELECT * FROM event_schedule ORDER BY event_time ASC");
+    $stmt = $pdo->query("SELECT * FROM schedule ORDER BY event_time ASC");
     $schedule_list = $stmt->fetchAll();
 } catch (PDOException $e) {
     $error = "スケジュール情報の取得に失敗しました: " . $e->getMessage();
@@ -738,8 +738,8 @@ $page_title = 'チェックイン案内設定';
                                     <div class="schedule-card">
                                         <h4><?= htmlspecialchars($event['event_name']) ?></h4>
                                         <p><strong>時間:</strong> <?= date('Y年m月d日 H:i', strtotime($event['event_time'])) ?></p>
-                                        <?php if (!empty($event['description'])): ?>
-                                            <p><?= nl2br(htmlspecialchars($event['description'])) ?></p>
+                                        <?php if (!empty($event['event_description'])): ?>
+                                            <p><?= nl2br(htmlspecialchars($event['event_description'])) ?></p>
                                         <?php endif; ?>
                                         <?php if (!empty($event['location'])): ?>
                                             <p><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($event['location']) ?></p>
