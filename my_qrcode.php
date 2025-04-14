@@ -548,14 +548,20 @@ if ($guest_info && isset($guest_info['group_id'])) {
         // 通知をポーリングするための関数
         function checkForNotifications() {
             const token = '<?= urlencode($guest_info['qr_code_token']) ?>';
-            const checkUrl = '<?= $site_url ?>check_notification.php?token=' + token;
+            const checkUrl = '<?= $site_url ?>check_notification.php?token=' + token + '&t=' + Date.now(); // キャッシュ防止
             
             console.log('通知チェック中...', checkUrl);
-            document.getElementById('test-result').innerHTML = '最終チェック: ' + new Date().toLocaleTimeString();
+            const testResultElem = document.getElementById('test-result');
+            if (testResultElem) {
+                testResultElem.innerHTML = '最終チェック: ' + new Date().toLocaleTimeString();
+            }
             
             fetch(checkUrl)
                 .then(response => {
                     console.log('サーバーからの応答があります:', response.status);
+                    if (!response.ok) {
+                        throw new Error('サーバーエラー: ' + response.status);
+                    }
                     return response.json();
                 })
                 .then(data => {
@@ -576,20 +582,57 @@ if ($guest_info && isset($guest_info['group_id'])) {
                 })
                 .catch(error => {
                     console.error('通知チェックエラー:', error);
-                    document.getElementById('test-result').innerHTML = 'エラー: ' + error.message;
+                    if (testResultElem) {
+                        testResultElem.innerHTML = 'エラー: ' + error.message;
+                    }
+                    // エラーがあっても継続（次回のポーリングで回復する可能性）
                 });
         }
         
         // 初回チェック（ページ読み込み時）
         checkForNotifications();
         
-        // 2秒ごとにポーリング（間隔を短く）
-        const pollingInterval = setInterval(checkForNotifications, 2000);
+        // 1秒ごとにポーリング（より頻繁にチェック）
+        const pollingInterval = setInterval(checkForNotifications, 1000);
         
         // ページがアンロードされる際にインターバルをクリア
         window.addEventListener('beforeunload', function() {
             clearInterval(pollingInterval);
         });
+        
+        // デバッグ用：直接遷移テスト
+        function testDirectRedirect() {
+            showCheckinDialog();
+        }
+        
+        // ページが30秒以上アクティブな場合、明示的なテスト用ボタンを追加
+        setTimeout(() => {
+            // もしデバッグモードではなく、通常遷移も発生していない場合
+            if (!document.querySelector('.checkin-overlay')) {
+                const debugButton = document.createElement('div');
+                debugButton.style.position = 'fixed';
+                debugButton.style.bottom = '10px';
+                debugButton.style.right = '10px';
+                debugButton.style.backgroundColor = 'rgba(0,0,0,0.1)';
+                debugButton.style.padding = '8px';
+                debugButton.style.borderRadius = '5px';
+                debugButton.style.fontSize = '10px';
+                debugButton.style.cursor = 'pointer';
+                debugButton.innerHTML = '接続テスト';
+                debugButton.onclick = function() {
+                    // サーバー接続をテスト
+                    fetch('<?= $site_url ?>check_notification.php?test=1&t=' + Date.now())
+                        .then(response => response.text())
+                        .then(() => {
+                            alert('サーバー接続は正常です');
+                        })
+                        .catch(() => {
+                            alert('サーバー接続に問題があります');
+                        });
+                };
+                document.body.appendChild(debugButton);
+            }
+        }, 30000);
         
         <?php if (isset($debug_mode) && $debug_mode === true): ?>
         // デバッグ用：通知テスト機能

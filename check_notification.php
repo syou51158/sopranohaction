@@ -9,6 +9,11 @@
 // 設定ファイルの読み込み
 require_once 'config.php';
 
+// キャッシュ防止ヘッダー
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+
 // デバッグ情報をログに出力
 error_log("通知チェックAPI呼び出し - IP: " . $_SERVER['REMOTE_ADDR'] . ", トークン: " . ($_GET['token'] ?? 'なし'));
 
@@ -31,8 +36,20 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
+// テストリクエストの処理（サーバー接続テスト）
+if (isset($_GET['test'])) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => true,
+        'message' => 'サーバー接続テスト成功',
+        'time' => date('Y-m-d H:i:s')
+    ]);
+    exit;
+}
+
 // 必須パラメータのチェック
 $token = isset($_GET['token']) ? trim($_GET['token']) : '';
+$timestamp = isset($_GET['t']) ? $_GET['t'] : time(); // キャッシュ回避用
 
 // レスポンス初期化
 $response = [
@@ -40,6 +57,8 @@ $response = [
     'has_notification' => false,
     'action' => '',
     'message' => '',
+    'timestamp' => $timestamp,
+    'server_time' => date('Y-m-d H:i:s'),
     'debug' => [
         'token' => $token,
         'time' => date('Y-m-d H:i:s'),

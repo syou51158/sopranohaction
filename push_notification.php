@@ -9,13 +9,19 @@
 // 設定ファイルの読み込み
 require_once 'config.php';
 
+// キャッシュ防止ヘッダー
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+
 // デバッグ情報をログに出力
 error_log("プッシュ通知API呼び出し - メソッド: " . $_SERVER['REQUEST_METHOD'] . ", コンテンツタイプ: " . ($_SERVER['CONTENT_TYPE'] ?? 'なし'));
 error_log("POST データ: " . print_r($_POST, true));
+error_log("GET データ: " . print_r($_GET, true));
 
 // CORSヘッダーを追加（ローカル環境でのテスト用）
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, X-Requested-With');
 header('Access-Control-Max-Age: 86400'); // 24時間
 
@@ -25,16 +31,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// POSTリクエストのみ受け付ける
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+// POST/GETどちらでも対応
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $_SERVER['REQUEST_METHOD'] !== 'GET') {
     header('HTTP/1.1 405 Method Not Allowed');
-    header('Allow: POST');
+    header('Allow: POST, GET');
     exit;
 }
 
+// リクエストのパラメータを取得（POSTとGETの両方をマージ）
+$params = $_POST;
+if (empty($params)) {
+    $params = $_GET;
+}
+
 // 必須パラメータのチェック
-$token = isset($_POST['token']) ? trim($_POST['token']) : '';
-$action = isset($_POST['action']) ? trim($_POST['action']) : '';
+$token = isset($params['token']) ? trim($params['token']) : '';
+$action = isset($params['action']) ? trim($params['action']) : 'redirect_to_guidance'; // デフォルト
 
 // レスポンス初期化
 $response = [
@@ -45,18 +57,16 @@ $response = [
         'action' => $action,
         'time' => date('Y-m-d H:i:s'),
         'request_method' => $_SERVER['REQUEST_METHOD'],
+        'request_params' => $params,
         'site_url' => $site_url,
         'server_info' => $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'],
-        'post_data' => $_POST,
-        'get_data' => $_GET,
-        'content_type' => $_SERVER['CONTENT_TYPE'] ?? '未設定'
     ]
 ];
 
-// トークンとアクションが提供されているか確認
-if (empty($token) || empty($action)) {
+// トークンが提供されているか確認
+if (empty($token)) {
     $response['message'] = '必須パラメータが不足しています。';
-    $response['debug']['error'] = 'トークンまたはアクションが空です';
+    $response['debug']['error'] = 'トークンが空です';
     header('Content-Type: application/json');
     echo json_encode($response);
     exit;

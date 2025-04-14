@@ -63,6 +63,20 @@ if (isset($_GET['token'])) {
             
             // ゲストのスマホに通知を送信
             $push_url = $site_url . 'push_notification.php';
+            
+            // GET方式でも通知を送信（より確実）
+            $get_push_url = $push_url . '?token=' . urlencode($token) . '&action=redirect_to_guidance&_=' . time();
+            
+            // まずGETでリクエスト
+            $get_ch = curl_init($get_push_url);
+            curl_setopt($get_ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($get_ch, CURLOPT_CONNECTTIMEOUT, 3);
+            curl_setopt($get_ch, CURLOPT_TIMEOUT, 3);
+            $get_response = curl_exec($get_ch);
+            $get_status = curl_getinfo($get_ch, CURLINFO_HTTP_CODE);
+            curl_close($get_ch);
+            
+            // 標準のPOSTリクエストもバックアップとして送信
             $push_data = [
                 'token' => $token,
                 'action' => 'redirect_to_guidance'
@@ -73,11 +87,15 @@ if (isset($_GET['token'])) {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $push_data);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 3);
             $push_response = curl_exec($ch);
+            $push_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             
             // 通知送信結果をログに記録
-            error_log("プッシュ通知送信結果: " . $push_response);
+            error_log("プッシュ通知送信結果[GET]: ステータス={$get_status}, 結果={$get_response}");
+            error_log("プッシュ通知送信結果[POST]: ステータス={$push_status}, 結果={$push_response}");
         } else {
             $error = 'チェックインの自動記録に失敗しました。';
             error_log("自動チェックイン失敗: token=$token, guest_id=" . ($guest ? $guest['id'] : 'なし'));
@@ -109,6 +127,20 @@ if (isset($_GET['token'])) {
             
             // ゲストのスマホに通知を送信
             $push_url = $site_url . 'push_notification.php';
+            
+            // GET方式でも通知を送信（より確実）
+            $get_push_url = $push_url . '?token=' . urlencode($token) . '&action=redirect_to_guidance&_=' . time();
+            
+            // まずGETでリクエスト
+            $get_ch = curl_init($get_push_url);
+            curl_setopt($get_ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($get_ch, CURLOPT_CONNECTTIMEOUT, 3);
+            curl_setopt($get_ch, CURLOPT_TIMEOUT, 3);
+            $get_response = curl_exec($get_ch);
+            $get_status = curl_getinfo($get_ch, CURLINFO_HTTP_CODE);
+            curl_close($get_ch);
+            
+            // 標準のPOSTリクエストもバックアップとして送信
             $push_data = [
                 'token' => $token,
                 'action' => 'redirect_to_guidance'
@@ -119,11 +151,15 @@ if (isset($_GET['token'])) {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $push_data);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 3);
             $push_response = curl_exec($ch);
+            $push_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             
             // 通知送信結果をログに記録
-            error_log("プッシュ通知送信結果: " . $push_response);
+            error_log("プッシュ通知送信結果[GET]: ステータス={$get_status}, 結果={$get_response}");
+            error_log("プッシュ通知送信結果[POST]: ステータス={$push_status}, 結果={$push_response}");
         } else {
             $error = 'チェックインの記録に失敗しました。';
             error_log("チェックイン失敗: token=$token, guest_id=" . ($guest ? $guest['id'] : 'なし'));
@@ -595,35 +631,70 @@ $page_title = 'QRコードチェックイン';
             // URLからトークンを抽出するか、テキストをそのまま使用
             if (decodedText.includes('token=')) {
                 try {
-                    // 完全なURLかどうかに関わらず、トークンパラメータを抽出
+                    // 方法1: 完全なURLかどうかに関わらず、トークンパラメータを抽出
                     const tokenParam = decodedText.match(/[?&]token=([^&]+)/);
                     if (tokenParam && tokenParam.length > 1) {
                         token = decodeURIComponent(tokenParam[1]);
                     } else {
-                        // 直接トークンとして扱ってみる
-                        token = decodedText;
+                        // 方法2: URLオブジェクトを使用した解析（フルURLの場合）
+                        try {
+                            const urlObj = new URL(decodedText);
+                            token = urlObj.searchParams.get('token');
+                        } catch (urlError) {
+                            console.error("URL解析エラー:", urlError);
+                            // 失敗した場合は次の方法を試す
+                        }
                     }
                 } catch (e) {
-                    console.error("URLパース中にエラーが発生:", e);
-                    // エラーが発生した場合は、テキスト自体をトークンとして扱う
-                    token = decodedText;
+                    console.error("トークン抽出中にエラーが発生:", e);
+                    
+                    // 方法3: URLのクエリ部分を手動で解析
+                    try {
+                        const questionMarkIndex = decodedText.indexOf('?');
+                        if (questionMarkIndex >= 0) {
+                            const queryString = decodedText.substring(questionMarkIndex + 1);
+                            const params = new URLSearchParams(queryString);
+                            token = params.get('token');
+                        }
+                    } catch (e2) {
+                        console.error("クエリ解析エラー:", e2);
+                    }
+                    
+                    // 方法4: 単純な文字列検索と分割
+                    if (!token) {
+                        try {
+                            const tokenStart = decodedText.indexOf('token=');
+                            if (tokenStart >= 0) {
+                                let tokenEnd = decodedText.indexOf('&', tokenStart);
+                                if (tokenEnd < 0) tokenEnd = decodedText.length;
+                                token = decodedText.substring(tokenStart + 6, tokenEnd);
+                                token = decodeURIComponent(token);
+                            }
+                        } catch (e3) {
+                            console.error("文字列解析エラー:", e3);
+                        }
+                    }
                 }
             } else {
                 // token=が含まれていない場合は、スキャンしたテキストそのものをトークンとして扱う
                 token = decodedText;
             }
             
+            // 結果をログに出力（デバッグ用）
+            console.log("解析結果:", {
+                originalText: decodedText,
+                extractedToken: token,
+                containsTokenParam: decodedText.includes('token=')
+            });
+            
             if (token) {
-                // デバッグ情報
-                console.log("抽出されたトークン:", token);
-                
                 // 成功表示
                 scanResult.innerHTML = `
                     <div class="success-message">
                         <i class="fas fa-check-circle"></i> QRコードを検出しました！
                     </div>
                     <p>トークン: ${token}</p>
-                    <p>リダイレクトしています...</p>
+                    <p>チェックイン処理中...</p>
                 `;
                 
                 // カメラを停止
@@ -639,7 +710,7 @@ $page_title = 'QRコードチェックイン';
                     const redirectUrl = `checkin.php?token=${encodeURIComponent(token)}&scanner=${scannerMode}&scan_action=auto_checkin&t=${Date.now()}`;
                     console.log("リダイレクト先:", redirectUrl);
                     window.location.href = redirectUrl;
-                }, 1500);
+                }, 1000);
             } else {
                 scanResult.innerHTML = `
                     <div class="error-message">
