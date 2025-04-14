@@ -831,12 +831,20 @@ $datetime_info = get_wedding_datetime();
                                 // グループ固有のイベントの場合、特別なアイコンと表示を追加
                                 if ($isGroupSpecific) {
                                     echo '<div class="group-specific-label">';
-                                    echo '<i class="fas fa-users"></i> ' . htmlspecialchars($guest_info['group_name']) . '向け';
+                                    echo '<i class="fas fa-users"></i> ' . htmlspecialchars($event['for_group_type'] ?? $guest_info['group_name']) . '向け';
                                     echo '</div>';
                                 }
                                 
                                 echo '<h3>' . htmlspecialchars($event['event_name']) . '</h3>';
-                                echo '<p>' . nl2br(htmlspecialchars($event['event_description'])) . '</p>';
+                                echo '<p>' . nl2br(htmlspecialchars($event['event_description'] ?? '')) . '</p>';
+                                
+                                // 場所情報があれば表示
+                                if (!empty($event['location'])) {
+                                    echo '<div class="schedule-location">';
+                                    echo '<i class="fas fa-map-marker-alt"></i> ' . htmlspecialchars($event['location']);
+                                    echo '</div>';
+                                }
+                                
                                 echo '</div>';
                                 echo '</div>';
                             }
@@ -881,6 +889,21 @@ $datetime_info = get_wedding_datetime();
                 }
                 
                 .group-specific-label i {
+                    margin-right: 5px;
+                }
+                
+                .schedule-location {
+                    display: inline-block;
+                    margin-top: 8px;
+                    padding: 3px 10px;
+                    font-size: 0.9rem;
+                    color: #795548;
+                    background-color: #f5f5f5;
+                    border-radius: 15px;
+                }
+                
+                .schedule-location i {
+                    color: #8d6e63;
                     margin-right: 5px;
                 }
                 

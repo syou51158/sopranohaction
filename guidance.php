@@ -128,7 +128,7 @@ try {
 $event_schedule = [];
 try {
     $stmt = $pdo->prepare("
-        SELECT * FROM event_schedule 
+        SELECT * FROM schedule 
         ORDER BY event_time ASC
     ");
     $stmt->execute();
@@ -473,9 +473,9 @@ $page_title = 'ご案内';
                         </div>
                         <div class="schedule-details">
                             <div class="schedule-title"><?= safe_string($item['event_name'] ?? '') ?></div>
-                            <?php if (!empty($item['description'])): ?>
+                            <?php if (!empty($item['event_description'])): ?>
                             <div class="schedule-description">
-                                <?= nl2br(safe_string($item['description'] ?? '')) ?>
+                                <?= nl2br(safe_string($item['event_description'] ?? '')) ?>
                             </div>
                             <?php endif; ?>
                             <?php if (!empty($item['location'])): ?>
