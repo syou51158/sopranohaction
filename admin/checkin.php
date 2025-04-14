@@ -593,26 +593,36 @@ $page_title = 'QRコードチェックイン';
             let token = null;
             
             // URLからトークンを抽出するか、テキストをそのまま使用
-            if (decodedText.includes('?token=')) {
+            if (decodedText.includes('token=')) {
                 try {
-                    const url = new URL(decodedText);
-                    token = url.searchParams.get('token');
-                } catch (e) {
-                    const matches = decodedText.match(/[?&]token=([^&]+)/);
-                    if (matches && matches.length > 1) {
-                        token = matches[1];
+                    // 完全なURLかどうかに関わらず、トークンパラメータを抽出
+                    const tokenParam = decodedText.match(/[?&]token=([^&]+)/);
+                    if (tokenParam && tokenParam.length > 1) {
+                        token = decodeURIComponent(tokenParam[1]);
+                    } else {
+                        // 直接トークンとして扱ってみる
+                        token = decodedText;
                     }
+                } catch (e) {
+                    console.error("URLパース中にエラーが発生:", e);
+                    // エラーが発生した場合は、テキスト自体をトークンとして扱う
+                    token = decodedText;
                 }
             } else {
+                // token=が含まれていない場合は、スキャンしたテキストそのものをトークンとして扱う
                 token = decodedText;
             }
             
             if (token) {
+                // デバッグ情報
+                console.log("抽出されたトークン:", token);
+                
                 // 成功表示
                 scanResult.innerHTML = `
                     <div class="success-message">
                         <i class="fas fa-check-circle"></i> QRコードを検出しました！
                     </div>
+                    <p>トークン: ${token}</p>
                     <p>リダイレクトしています...</p>
                 `;
                 
@@ -621,10 +631,15 @@ $page_title = 'QRコードチェックイン';
                     .then(() => console.log("QRスキャナーを停止しました"))
                     .catch(err => console.error("カメラ停止エラー:", err));
                 
-                // ページ遷移
+                // スキャンモードパラメータを保持
+                const scannerMode = <?= $scanner_mode ? "'1'" : "'0'"; ?>;
+                
+                // ページ遷移（少し遅延させる）
                 setTimeout(() => {
-                    window.location.href = `checkin.php?token=${encodeURIComponent(token)}${<?= $scanner_mode ? "'&scanner=1'" : "''"; ?>}&scan_action=auto_checkin`;
-                }, 1000);
+                    const redirectUrl = `checkin.php?token=${encodeURIComponent(token)}&scanner=${scannerMode}&scan_action=auto_checkin&t=${Date.now()}`;
+                    console.log("リダイレクト先:", redirectUrl);
+                    window.location.href = redirectUrl;
+                }, 1500);
             } else {
                 scanResult.innerHTML = `
                     <div class="error-message">

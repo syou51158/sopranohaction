@@ -468,7 +468,7 @@ if ($guest_info && isset($guest_info['group_id'])) {
         // QRコードを生成
         <?php if ($guest_info && !empty($guest_info['qr_code_token'])): ?>
         // QRコードに埋め込むURL（ゲスト用案内ページへのリンク）
-        const guidanceUrl = '<?= $site_url . "guidance.php?token=" . urlencode($guest_info['qr_code_token']) ?>';
+        const guidanceUrl = '<?= $site_url . "guidance.php?token=" . urlencode($guest_info['qr_code_token']) . "&auto_checkin=1" ?>';
         
         // QRコードを生成
         new QRCode(document.getElementById("qrcode"), {
@@ -479,6 +479,19 @@ if ($guest_info && isset($guest_info['group_id'])) {
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.H
         });
+        
+        // QRコードの下に埋め込みURLを表示（デバッグ用）
+        <?php if (defined('DEBUG_MODE') && DEBUG_MODE): ?>
+        const debugInfo = document.createElement('div');
+        debugInfo.className = 'debug-info';
+        debugInfo.style.fontSize = '10px';
+        debugInfo.style.wordBreak = 'break-all';
+        debugInfo.style.color = '#999';
+        debugInfo.style.marginTop = '10px';
+        debugInfo.style.padding = '5px';
+        debugInfo.innerHTML = `<strong>デバッグ情報</strong><br>URL: ${guidanceUrl}`;
+        document.getElementById('qrcode').parentNode.appendChild(debugInfo);
+        <?php endif; ?>
         
         // チェックイン完了ダイアログを表示する関数
         function showCheckinDialog() {

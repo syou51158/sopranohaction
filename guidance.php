@@ -23,6 +23,20 @@ if (!empty($token)) {
     if (!$guest_info) {
         $error = '無効なQRコードです。このトークンに対応するゲスト情報が見つかりません。';
         error_log("無効なQRコード（案内表示）: token=$token");
+    } else {
+        // デバッグ情報を記録
+        error_log("ゲスト情報取得成功: ID=" . $guest_info['id'] . ", 名前=" . $guest_info['name']);
+        
+        // チェックイン自動記録（オプション）
+        $auto_checkin = isset($_GET['auto_checkin']) && $_GET['auto_checkin'] === '1';
+        if ($auto_checkin) {
+            $checkin_result = record_guest_checkin($guest_info['id'], 'QRスキャン', 'ゲスト自身によるスキャン');
+            if ($checkin_result) {
+                error_log("自動チェックイン成功: ゲストID=" . $guest_info['id']);
+            } else {
+                error_log("自動チェックイン失敗: ゲストID=" . $guest_info['id']);
+            }
+        }
     }
 } else {
     $error = 'QRコードトークンが指定されていません。';
