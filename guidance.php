@@ -353,6 +353,17 @@ $page_title = 'ご案内';
             <p>結婚式の案内情報をご確認ください</p>
         </div>
         
+        <!-- チェックイン完了通知 -->
+        <?php if (isset($_GET['auto_checkin']) && $_GET['auto_checkin'] === '1'): ?>
+        <div style="background-color: #4CAF50; color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+            <div style="font-size: 50px; margin-bottom: 10px;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 style="margin: 0 0 10px 0;">チェックイン完了</h2>
+            <p style="margin: 0;">受付が完了しました。素敵な時間をお過ごしください。</p>
+        </div>
+        <?php endif; ?>
+        
         <div class="guidance-sections">
             <?php if ($seating_info): ?>
             <!-- 席次案内 -->

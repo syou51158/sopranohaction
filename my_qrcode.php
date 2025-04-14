@@ -386,11 +386,11 @@ if ($guest_info && isset($guest_info['group_id'])) {
         <?php if ($guest_info && !empty($qr_code_html)): ?>
         <div class="qr-section">
             <h2><?= htmlspecialchars($guest_info['group_name']) ?></h2>
-            <p>以下のQRコードで席次案内や会場情報を確認できます</p>
+            <p>会場受付で提示するQRコード</p>
             
             <div class="qr-code-container">
                 <div id="qrcode" style="margin: 0 auto; padding: 15px; background: #fff; border-radius: 10px; display: inline-block;"></div>
-                <p class="qr-instructions">結婚式当日、このQRコードをスキャンして、会場案内や席次情報を確認できます</p>
+                <p class="qr-instructions">結婚式当日、会場受付でこのQRコードを提示してください</p>
                 
                 <?php if (isset($debug_mode) && $debug_mode === true): ?>
                 <!-- デバッグ情報 -->
@@ -409,10 +409,23 @@ if ($guest_info && isset($guest_info['group_id'])) {
             
             <div class="note-box">
                 <h4>ご注意</h4>
-                <p>・QRコードは結婚式当日まで保存してください</p>
-                <p>・ご自身のスマホでQRコードをスキャンして席次情報などを確認できます</p>
+                <p>・このQRコードは結婚式当日まで保存してください</p>
+                <p>・会場の受付スタッフがスキャンしますので画面を提示するだけで大丈夫です</p>
                 <p>・スクリーンショットの保存や印刷も可能です</p>
                 <p>・このコードは招待状に記載されたグループ専用です</p>
+                <p>・受付でスキャンすると席次案内などの情報が自動的に表示されます</p>
+            </div>
+            
+            <!-- チェックイン説明 -->
+            <div class="checkin-explanation" style="margin-top: 30px; padding: 20px; background-color: #f1f8e9; border-radius: 10px; border-left: 4px solid #8bc34a;">
+                <h4 style="color: #33691e; margin-top: 0;"><i class="fas fa-info-circle"></i> チェックイン時の流れ</h4>
+                <ol style="padding-left: 20px; color: #33691e;">
+                    <li>会場受付でこのQRコードをスタッフに見せる</li>
+                    <li>スタッフがQRコードをスキャン</li>
+                    <li>スキャン完了後、自動的にチェックイン完了画面が表示される</li>
+                    <li>席次や会場案内など、当日必要な情報が自動的にこのスマートフォンに表示される</li>
+                </ol>
+                <p style="margin-top: 15px; font-size: 0.9rem; color: #558b2f;">※チェックイン時はスマートフォンの電源を入れた状態でお待ちください</p>
             </div>
             
             <?php if (isset($debug_mode) && $debug_mode === true): ?>
