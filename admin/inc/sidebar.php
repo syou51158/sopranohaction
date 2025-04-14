@@ -48,11 +48,6 @@ $menu_items = [
         'text' => '席次表管理'
     ],
     [
-        'href' => 'guidance_settings.php',
-        'icon' => 'fas fa-info-circle',
-        'text' => 'チェックイン案内設定'
-    ],
-    [
         'href' => 'schedule.php',
         'icon' => 'fas fa-calendar-day',
         'text' => 'タイムスケジュール'
