@@ -4630,3 +4630,1649 @@
 
 2025-04-10 11:41:13 DEBUG: SERVER -> CLIENT: 221 2.0.0 Bye
 
+2025-04-13 10:06:04 DEBUG [2]: SERVER -> CLIENT: 220 mail-proxy112.phy.lolipop.jp ESMTP ready
+
+2025-04-13 10:06:04 DEBUG [1]: CLIENT -> SERVER: EHLO localhost
+
+2025-04-13 10:06:04 DEBUG [2]: SERVER -> CLIENT: 250-mail-proxy112.phy.lolipop.jp
+250-8BITMIME
+250-SIZE 104857600
+250 AUTH PLAIN LOGIN CRAM-MD5
+
+2025-04-13 10:06:04 DEBUG [1]: CLIENT -> SERVER: AUTH CRAM-MD5
+
+2025-04-13 10:06:04 DEBUG [2]: SERVER -> CLIENT: 334 PDExMDIxNTQ1MTYuMTc0NDUwNjM2NUBtYWlsLXByb3h5MTEyLnBoeS5sb2xpcG9wLmpwPg==
+
+2025-04-13 10:06:04 DEBUG [1]: CLIENT -> SERVER: [credentials hidden]
+2025-04-13 10:06:05 DEBUG [2]: SERVER -> CLIENT: 235 2.0.0 OK
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: MAIL FROM:<info-wedding@sopranohaction.fun>
+
+2025-04-13 10:06:05 DEBUG [2]: SERVER -> CLIENT: 250 2.1.0 Ok
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: RCPT TO:<syo.t.company@gmail.com>
+
+2025-04-13 10:06:05 DEBUG [2]: SERVER -> CLIENT: 250 2.1.5 Ok
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: DATA
+
+2025-04-13 10:06:05 DEBUG [2]: SERVER -> CLIENT: 354 End data with <CR><LF>.<CR><LF>
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: Date: Sun, 13 Apr 2025 10:06:04 +0900
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: To: syo.t.company@gmail.com
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: From: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: Reply-To: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: Subject: =?UTF-8?B?44CQ57WQ5ama5byP44CR5Ye65qyg5Zue562U44Gu44GK55+l44KJ44Gb?=
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: Message-ID: <gW7bjF7gNND5wNHSZohVvDOZKR4t9CD2Zx3TJGOLQ@localhost>
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: X-Mailer: PHPMailer 6.9.3 (https://github.com/PHPMailer/PHPMailer)
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: MIME-Version: 1.0
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: Content-Type: multipart/alternative;
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER:  boundary="b1=_gW7bjF7gNND5wNHSZohVvDOZKR4t9CD2Zx3TJGOLQ"
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: --b1=_gW7bjF7gNND5wNHSZohVvDOZKR4t9CD2Zx3TJGOLQ
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: お世話になっております。
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 結婚式の招待状サイトに新しい出欠回答が届きました。
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: ゲスト名: テストゲスト
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: グループ: テストグループ
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 出欠: 出席
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 人数: 2名
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: メッセージ: これはテストメッセージです。
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 管理画面からご確認ください。
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: http://127.0.0.1/wedding/admin/dashboard.php
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: ----
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: このメールは自動送信されています。
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: --b1=_gW7bjF7gNND5wNHSZohVvDOZKR4t9CD2Zx3TJGOLQ
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/html; charset=UTF-8
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: お世話になっております。
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 結婚式の招待状サイトに新しい出欠回答が届きました。
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: ゲスト名: テストゲスト
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: グループ: テストグループ
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 出欠: 出席
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 人数: 2名
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: メッセージ: これはテストメッセージです。
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 管理画面からご確認ください。
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: http://127.0.0.1/wedding/admin/dashboard.php
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: ----
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: このメールは自動送信されています。
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: --b1=_gW7bjF7gNND5wNHSZohVvDOZKR4t9CD2Zx3TJGOLQ--
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: .
+
+2025-04-13 10:06:05 DEBUG [2]: SERVER -> CLIENT: 250 2.0.0 Ok: queued as 20310140C1419
+
+2025-04-13 10:06:05 DEBUG [1]: CLIENT -> SERVER: QUIT
+
+2025-04-13 10:06:05 DEBUG [2]: SERVER -> CLIENT: 221 2.0.0 Bye
+
+2025-04-13 10:07:45 DEBUG [2]: SERVER -> CLIENT: 220 mail-proxy107.phy.lolipop.jp ESMTP ready
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: EHLO localhost
+
+2025-04-13 10:07:45 DEBUG [2]: SERVER -> CLIENT: 250-mail-proxy107.phy.lolipop.jp
+250-8BITMIME
+250-SIZE 104857600
+250 AUTH PLAIN LOGIN CRAM-MD5
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: AUTH CRAM-MD5
+
+2025-04-13 10:07:45 DEBUG [2]: SERVER -> CLIENT: 334 PDI0ODQwNDA4Mi4xNzQ0NTA2NDY1QG1haWwtcHJveHkxMDcucGh5LmxvbGlwb3AuanA+
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: [credentials hidden]
+2025-04-13 10:07:45 DEBUG [2]: SERVER -> CLIENT: 235 2.0.0 OK
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: MAIL FROM:<info-wedding@sopranohaction.fun>
+
+2025-04-13 10:07:45 DEBUG [2]: SERVER -> CLIENT: 250 2.1.0 Ok
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: RCPT TO:<syo.t.company@gmail.com>
+
+2025-04-13 10:07:45 DEBUG [2]: SERVER -> CLIENT: 250 2.1.5 Ok
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: DATA
+
+2025-04-13 10:07:45 DEBUG [2]: SERVER -> CLIENT: 354 End data with <CR><LF>.<CR><LF>
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: Date: Sun, 13 Apr 2025 10:07:45 +0900
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: To: syo.t.company@gmail.com
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: From: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: Reply-To: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: Subject: =?UTF-8?B?44CQ57WQ5ama5byP44CR5Ye65qyg5Zue562U44Gu44GK55+l44KJ44Gb?=
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: Message-ID: <gm3FTQnQHesWLZGoUaJxsvlpS648G4eCQd8kCBHMIo@localhost>
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: X-Mailer: PHPMailer 6.9.3 (https://github.com/PHPMailer/PHPMailer)
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: MIME-Version: 1.0
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: Content-Type: multipart/alternative;
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER:  boundary="b1=_gm3FTQnQHesWLZGoUaJxsvlpS648G4eCQd8kCBHMIo"
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: --b1=_gm3FTQnQHesWLZGoUaJxsvlpS648G4eCQd8kCBHMIo
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: お世話になっております。
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 結婚式の招待状サイトに新しい出欠回答が届きました。
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: ゲスト名: 村岡翔
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: グループ: あかねちゃん
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 出欠: 出席
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 人数: 1名
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: メッセージ: w
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 管理画面からご確認ください。
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: http://127.0.0.1/wedding/admin/dashboard.php
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: ----
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: このメールは自動送信されています。
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: --b1=_gm3FTQnQHesWLZGoUaJxsvlpS648G4eCQd8kCBHMIo
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/html; charset=UTF-8
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: お世話になっております。
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 結婚式の招待状サイトに新しい出欠回答が届きました。
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: ゲスト名: 村岡翔
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: グループ: あかねちゃん
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 出欠: 出席
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 人数: 1名
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: メッセージ: w
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 管理画面からご確認ください。
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: http://127.0.0.1/wedding/admin/dashboard.php
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: ----
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: このメールは自動送信されています。
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: --b1=_gm3FTQnQHesWLZGoUaJxsvlpS648G4eCQd8kCBHMIo--
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:45 DEBUG [1]: CLIENT -> SERVER: .
+
+2025-04-13 10:07:46 DEBUG [2]: SERVER -> CLIENT: 250 2.0.0 Ok: queued as ADF6014070C07
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: QUIT
+
+2025-04-13 10:07:46 DEBUG [2]: SERVER -> CLIENT: 221 2.0.0 Bye
+
+2025-04-13 10:07:46 DEBUG [2]: SERVER -> CLIENT: 220 mail-proxy106.phy.lolipop.jp ESMTP ready
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: EHLO localhost
+
+2025-04-13 10:07:46 DEBUG [2]: SERVER -> CLIENT: 250-mail-proxy106.phy.lolipop.jp
+250-8BITMIME
+250-SIZE 104857600
+250 AUTH PLAIN LOGIN CRAM-MD5
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: AUTH CRAM-MD5
+
+2025-04-13 10:07:46 DEBUG [2]: SERVER -> CLIENT: 334 PDE4NjAzOTI3NTQuMTc0NDUwNjQ2NkBtYWlsLXByb3h5MTA2LnBoeS5sb2xpcG9wLmpwPg==
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: [credentials hidden]
+2025-04-13 10:07:46 DEBUG [2]: SERVER -> CLIENT: 235 2.0.0 OK
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: MAIL FROM:<info-wedding@sopranohaction.fun>
+
+2025-04-13 10:07:46 DEBUG [2]: SERVER -> CLIENT: 250 2.1.0 Ok
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: RCPT TO:<syou51158@gmail.com>
+
+2025-04-13 10:07:46 DEBUG [2]: SERVER -> CLIENT: 250 2.1.5 Ok
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: DATA
+
+2025-04-13 10:07:46 DEBUG [2]: SERVER -> CLIENT: 354 End data with <CR><LF>.<CR><LF>
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: Date: Sun, 13 Apr 2025 10:07:46 +0900
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: To: syou51158@gmail.com
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: From: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: Reply-To: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: Subject: =?UTF-8?B?44CQ57WQ5ama5byP44CR44Ky44K544OI5oOF5aCx5Y+X5LuY5a6M5LqG44Gu?=
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER:  =?UTF-8?B?44GK55+l44KJ44Gb?=
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: Message-ID: <0dbkt5FUgIlNuSWYW4z6BQ15xe6f7UwFst4StdecE@localhost>
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: X-Mailer: PHPMailer 6.9.3 (https://github.com/PHPMailer/PHPMailer)
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: MIME-Version: 1.0
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: Content-Type: multipart/alternative;
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER:  boundary="b1=_0dbkt5FUgIlNuSWYW4z6BQ15xe6f7UwFst4StdecE"
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: --b1=_0dbkt5FUgIlNuSWYW4z6BQ15xe6f7UwFst4StdecE
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 村岡翔 様
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: この度は、私たちの結婚式にご出席いただけるとのこと、誠にありがとうございます。
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 以下の内容で受付いたしました。
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: お名前: 村岡翔
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 出欠: 出席
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 参加人数: 1名
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 何かご不明な点がございましたら、お気軽にお問い合わせください。
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 当日お会いできることを楽しみにしております。
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: ----
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 新郎新婦: あかね & 村岡 翔
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: ウェディングサイト: http://127.0.0.1/wedding/
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: --b1=_0dbkt5FUgIlNuSWYW4z6BQ15xe6f7UwFst4StdecE
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/html; charset=UTF-8
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 村岡翔 様
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: この度は、私たちの結婚式にご出席いただけるとのこと、誠にありがとうございます。
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 以下の内容で受付いたしました。
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: お名前: 村岡翔
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 出欠: 出席
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 参加人数: 1名
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 何かご不明な点がございましたら、お気軽にお問い合わせください。
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 当日お会いできることを楽しみにしております。
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: ----
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 新郎新婦: あかね & 村岡 翔
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: ウェディングサイト: http://127.0.0.1/wedding/
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: --b1=_0dbkt5FUgIlNuSWYW4z6BQ15xe6f7UwFst4StdecE--
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:46 DEBUG [1]: CLIENT -> SERVER: .
+
+2025-04-13 10:07:47 DEBUG [2]: SERVER -> CLIENT: 250 2.0.0 Ok: queued as B5351140E1831
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: QUIT
+
+2025-04-13 10:07:47 DEBUG [2]: SERVER -> CLIENT: 221 2.0.0 Bye
+
+2025-04-13 10:07:47 DEBUG [2]: SERVER -> CLIENT: 220 mail-proxy112.phy.lolipop.jp ESMTP ready
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: EHLO localhost
+
+2025-04-13 10:07:47 DEBUG [2]: SERVER -> CLIENT: 250-mail-proxy112.phy.lolipop.jp
+250-8BITMIME
+250-SIZE 104857600
+250 AUTH PLAIN LOGIN CRAM-MD5
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: AUTH CRAM-MD5
+
+2025-04-13 10:07:47 DEBUG [2]: SERVER -> CLIENT: 334 PDIwOTU4NTcwMjIuMTc0NDUwNjQ2N0BtYWlsLXByb3h5MTEyLnBoeS5sb2xpcG9wLmpwPg==
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: [credentials hidden]
+2025-04-13 10:07:47 DEBUG [2]: SERVER -> CLIENT: 235 2.0.0 OK
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: MAIL FROM:<info-wedding@sopranohaction.fun>
+
+2025-04-13 10:07:47 DEBUG [2]: SERVER -> CLIENT: 250 2.1.0 Ok
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: RCPT TO:<syou51158@gmail.com>
+
+2025-04-13 10:07:47 DEBUG [2]: SERVER -> CLIENT: 250 2.1.5 Ok
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: DATA
+
+2025-04-13 10:07:47 DEBUG [2]: SERVER -> CLIENT: 354 End data with <CR><LF>.<CR><LF>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: Date: Sun, 13 Apr 2025 10:07:47 +0900
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: To: syou51158@gmail.com
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: From: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: Reply-To: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: Subject: =?UTF-8?B?44CQ5oub5b6F54q244Gu5Y+X5LuY56K66KqN44CR57+U77yG44GC44GL44Gt?=
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:  =?UTF-8?B?44Gu57WQ5ama5byP?=
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: Message-ID: <MjHDhSu65IQyNOQV8t9182O8NOFC5nSk8IlnGNqxSY@localhost>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: X-Mailer: PHPMailer 6.9.3 (https://github.com/PHPMailer/PHPMailer)
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: MIME-Version: 1.0
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: Content-Type: multipart/alternative;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:  boundary="b1=_MjHDhSu65IQyNOQV8t9182O8NOFC5nSk8IlnGNqxSY"
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: --b1=_MjHDhSu65IQyNOQV8t9182O8NOFC5nSk8IlnGNqxSY
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                             
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                             
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                 
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     body { font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .header { text-align: center; margin-bottom: 20px; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .message { margin-bottom: 30px; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-section { text-align: center; margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #4CAF50; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-instructions { margin-top: 15px; font-size: 14px; color: #666; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .footer { margin-top: 30px; font-size: 12px; color: #777; text-align: center; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                 
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                             
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                             
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                 
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         翔＆あかねの結婚式
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         村岡翔 様
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         結婚式の出席登録ありがとうございます。以下の内容で受け付けました。
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             お名前: 村岡翔
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             ご出欠: 出席
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             同伴者数: 0名
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             日時: 2025年4月30日 13:00〜
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             会場: 別府温泉　杉乃井ホテル 杉乃井パレス内　ウェディングホール１階 ザ・スイートテラス
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         📱 スマートチェックイン用QRコード
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         多くのメールクライアントではセキュリティのため画像が自動的に表示されません。
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                                 QRコードを表示する（ブラウザで開きます）
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             ※当日の受付をスムーズにするために、リンク先のQRコードを保存しておいてください。
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             会場の受付でこのQRコードをご提示いただくとスムーズにご案内いたします。
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-section {
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         background-color: #f0f8ff;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         border-radius: 10px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         padding: 20px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         margin: 20px 0;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         text-align: center;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         border: 2px dashed #4285F4;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-title {
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         font-size: 18px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         font-weight: bold;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         color: #4285F4;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         margin-bottom: 15px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-instructions {
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         margin-top: 15px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         font-size: 14px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         color: #555;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-link-container {
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         margin-top: 15px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-link-button {
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         display: inline-block;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         padding: 10px 20px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         background-color: #4285F4;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         color: white;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         text-decoration: none;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         border-radius: 5px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         font-weight: bold;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     お会いできることを楽しみにしております。何かご不明な点がありましたら、ご連絡ください。
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         ※このメールは自動送信されています。ご返信いただいてもお答えできません。
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         &copy; 2025 翔＆あかね Wedding
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                 
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                             
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                             
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                         
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: --b1=_MjHDhSu65IQyNOQV8t9182O8NOFC5nSk8IlnGNqxSY
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/html; charset=UTF-8
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                             <html>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                             <head>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                 <style>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     body { font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .header { text-align: center; margin-bottom: 20px; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .message { margin-bottom: 30px; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-section { text-align: center; margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #4CAF50; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-instructions { margin-top: 15px; font-size: 14px; color: #666; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .footer { margin-top: 30px; font-size: 12px; color: #777; text-align: center; }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                 </style>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                             </head>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                             <body>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                 <div class='container'>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     <div class='header'>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         <h2>翔＆あかねの結婚式</h2>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     </div>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     <div class='message'>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         <p>村岡翔 様</p>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         <p>結婚式の出席登録ありがとうございます。以下の内容で受け付けました。</p>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         <ul>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             <li>お名前: 村岡翔</li>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             <li>ご出欠: 出席</li>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             <li>同伴者数: 0名</li>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             <li>日時: 2025年4月30日 13:00〜</li>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             <li>会場: 別府温泉　杉乃井ホテル 杉乃井パレス内　ウェディングホール１階 ザ・スイートテラス</li>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         </ul>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     </div>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     <div class='qr-section'>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         <div class='qr-title'>📱 スマートチェックイン用QRコード</div>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         <p>多くのメールクライアントではセキュリティのため画像が自動的に表示されません。</p>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         <div class='qr-button-container'>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             <a href='http://127.0.0.1/wedding/my_qrcode.php?group=akane_isono' class='qr-link-button' style='display:inline-block; padding:12px 20px; background-color:#4285F4; color:white; text-decoration:none; border-radius:5px; font-weight:bold; margin:15px 0;'>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                                 QRコードを表示する（ブラウザで開きます）
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             </a>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         </div>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         <p class='qr-instructions' style='margin-top:15px; font-size:14px; color:#555;'>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             ※当日の受付をスムーズにするために、リンク先のQRコードを保存しておいてください。<br>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                             会場の受付でこのQRコードをご提示いただくとスムーズにご案内いたします。
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         </p>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     </div>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     <style>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-section {
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         background-color: #f0f8ff;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         border-radius: 10px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         padding: 20px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         margin: 20px 0;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         text-align: center;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         border: 2px dashed #4285F4;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-title {
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         font-size: 18px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         font-weight: bold;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         color: #4285F4;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         margin-bottom: 15px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-instructions {
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         margin-top: 15px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         font-size: 14px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         color: #555;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-link-container {
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         margin-top: 15px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     .qr-link-button {
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         display: inline-block;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         padding: 10px 20px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         background-color: #4285F4;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         color: white;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         text-decoration: none;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         border-radius: 5px;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         font-weight: bold;
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     </style>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     <p>お会いできることを楽しみにしております。何かご不明な点がありましたら、ご連絡ください。</p>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     <div class='footer'>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         <p>※このメールは自動送信されています。ご返信いただいてもお答えできません。</p>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                         <p>&copy; 2025 翔＆あかね Wedding</p>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                     </div>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                                 </div>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                             </body>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                             </html>
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER:                         
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: --b1=_MjHDhSu65IQyNOQV8t9182O8NOFC5nSk8IlnGNqxSY--
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-13 10:07:47 DEBUG [1]: CLIENT -> SERVER: .
+
+2025-04-13 10:07:48 DEBUG [2]: SERVER -> CLIENT: 250 2.0.0 Ok: queued as B184F140FEE07
+
+2025-04-13 10:07:48 DEBUG [1]: CLIENT -> SERVER: QUIT
+
+2025-04-13 10:07:48 DEBUG [2]: SERVER -> CLIENT: 221 2.0.0 Bye
+
+2025-04-14 10:50:26 DEBUG [2]: SERVER -> CLIENT: 220 mail-proxy102.phy.lolipop.jp ESMTP ready
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: EHLO localhost
+
+2025-04-14 10:50:26 DEBUG [2]: SERVER -> CLIENT: 250-mail-proxy102.phy.lolipop.jp
+250-8BITMIME
+250-SIZE 104857600
+250 AUTH PLAIN LOGIN CRAM-MD5
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: AUTH CRAM-MD5
+
+2025-04-14 10:50:26 DEBUG [2]: SERVER -> CLIENT: 334 PDkxMjk2NTI3Ni4xNzQ0NTk1NDI2QG1haWwtcHJveHkxMDIucGh5LmxvbGlwb3AuanA+
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: [credentials hidden]
+2025-04-14 10:50:26 DEBUG [2]: SERVER -> CLIENT: 235 2.0.0 OK
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: MAIL FROM:<info-wedding@sopranohaction.fun>
+
+2025-04-14 10:50:26 DEBUG [2]: SERVER -> CLIENT: 250 2.1.0 Ok
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: RCPT TO:<syo.t.company@gmail.com>
+
+2025-04-14 10:50:26 DEBUG [2]: SERVER -> CLIENT: 250 2.1.5 Ok
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: DATA
+
+2025-04-14 10:50:26 DEBUG [2]: SERVER -> CLIENT: 354 End data with <CR><LF>.<CR><LF>
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: Date: Mon, 14 Apr 2025 10:50:25 +0900
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: To: syo.t.company@gmail.com
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: From: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: Reply-To: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: Subject: =?UTF-8?B?44CQ57WQ5ama5byP44CR5Ye65qyg5Zue562U44Gu44GK55+l44KJ44Gb?=
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: Message-ID: <v660iBSU7xUQAxdrwJu27ltMIKsfVKNnwvu8S2UCng@localhost>
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: X-Mailer: PHPMailer 6.9.3 (https://github.com/PHPMailer/PHPMailer)
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: MIME-Version: 1.0
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: Content-Type: multipart/alternative;
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER:  boundary="b1=_v660iBSU7xUQAxdrwJu27ltMIKsfVKNnwvu8S2UCng"
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: --b1=_v660iBSU7xUQAxdrwJu27ltMIKsfVKNnwvu8S2UCng
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: お世話になっております。
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 結婚式の招待状サイトに新しい出欠回答が届きました。
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: ゲスト名: 村岡翔
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: グループ: あかねちゃん
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 出欠: 出席
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 人数: 1名
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: メッセージ: aa
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 管理画面からご確認ください。
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: http://127.0.0.1/wedding/admin/dashboard.php
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: ----
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: このメールは自動送信されています。
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: --b1=_v660iBSU7xUQAxdrwJu27ltMIKsfVKNnwvu8S2UCng
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/html; charset=UTF-8
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: お世話になっております。
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 結婚式の招待状サイトに新しい出欠回答が届きました。
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: ゲスト名: 村岡翔
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: グループ: あかねちゃん
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 出欠: 出席
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 人数: 1名
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: メッセージ: aa
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 管理画面からご確認ください。
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: http://127.0.0.1/wedding/admin/dashboard.php
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: ----
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: このメールは自動送信されています。
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: --b1=_v660iBSU7xUQAxdrwJu27ltMIKsfVKNnwvu8S2UCng--
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:26 DEBUG [1]: CLIENT -> SERVER: .
+
+2025-04-14 10:50:27 DEBUG [2]: SERVER -> CLIENT: 250 2.0.0 Ok: queued as 9FB3F14077229
+
+2025-04-14 10:50:27 DEBUG [1]: CLIENT -> SERVER: QUIT
+
+2025-04-14 10:50:27 DEBUG [2]: SERVER -> CLIENT: 221 2.0.0 Bye
+
+2025-04-14 10:50:28 DEBUG [2]: SERVER -> CLIENT: 220 mail-proxy105.phy.lolipop.jp ESMTP ready
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: EHLO localhost
+
+2025-04-14 10:50:28 DEBUG [2]: SERVER -> CLIENT: 250-mail-proxy105.phy.lolipop.jp
+250-8BITMIME
+250-SIZE 104857600
+250 AUTH PLAIN LOGIN CRAM-MD5
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: AUTH CRAM-MD5
+
+2025-04-14 10:50:28 DEBUG [2]: SERVER -> CLIENT: 334 PDg4Mjg5MzA2NC4xNzQ0NTk1NDI4QG1haWwtcHJveHkxMDUucGh5LmxvbGlwb3AuanA+
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: [credentials hidden]
+2025-04-14 10:50:28 DEBUG [2]: SERVER -> CLIENT: 235 2.0.0 OK
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: MAIL FROM:<info-wedding@sopranohaction.fun>
+
+2025-04-14 10:50:28 DEBUG [2]: SERVER -> CLIENT: 250 2.1.0 Ok
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: RCPT TO:<syo.t.company@gmail.com>
+
+2025-04-14 10:50:28 DEBUG [2]: SERVER -> CLIENT: 250 2.1.5 Ok
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: DATA
+
+2025-04-14 10:50:28 DEBUG [2]: SERVER -> CLIENT: 354 End data with <CR><LF>.<CR><LF>
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: Date: Mon, 14 Apr 2025 10:50:27 +0900
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: To: syo.t.company@gmail.com
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: From: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: Reply-To: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: Subject: =?UTF-8?B?44CQ57WQ5ama5byP44CR44Ky44K544OI5oOF5aCx5Y+X5LuY5a6M5LqG44Gu?=
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER:  =?UTF-8?B?44GK55+l44KJ44Gb?=
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: Message-ID: <zNywzduyx0No2bFG4vdQTHdK4fqKC9wxP1EMbeic44@localhost>
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: X-Mailer: PHPMailer 6.9.3 (https://github.com/PHPMailer/PHPMailer)
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: MIME-Version: 1.0
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: Content-Type: multipart/alternative;
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER:  boundary="b1=_zNywzduyx0No2bFG4vdQTHdK4fqKC9wxP1EMbeic44"
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: --b1=_zNywzduyx0No2bFG4vdQTHdK4fqKC9wxP1EMbeic44
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 村岡翔 様
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: この度は、私たちの結婚式にご出席いただけるとのこと、誠にありがとうございます。
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 以下の内容で受付いたしました。
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: お名前: 村岡翔
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 出欠: 出席
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 参加人数: 1名
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 何かご不明な点がございましたら、お気軽にお問い合わせください。
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 当日お会いできることを楽しみにしております。
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: ----
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 新郎新婦: あかね & 村岡 翔
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: ウェディングサイト: http://127.0.0.1/wedding/
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: --b1=_zNywzduyx0No2bFG4vdQTHdK4fqKC9wxP1EMbeic44
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/html; charset=UTF-8
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 村岡翔 様
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: この度は、私たちの結婚式にご出席いただけるとのこと、誠にありがとうございます。
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 以下の内容で受付いたしました。
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: お名前: 村岡翔
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 出欠: 出席
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 参加人数: 1名
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 何かご不明な点がございましたら、お気軽にお問い合わせください。
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 当日お会いできることを楽しみにしております。
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: ----
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 新郎新婦: あかね & 村岡 翔
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: ウェディングサイト: http://127.0.0.1/wedding/
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: --b1=_zNywzduyx0No2bFG4vdQTHdK4fqKC9wxP1EMbeic44--
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:28 DEBUG [1]: CLIENT -> SERVER: .
+
+2025-04-14 10:50:29 DEBUG [2]: SERVER -> CLIENT: 250 2.0.0 Ok: queued as 80E67140E262F
+
+2025-04-14 10:50:29 DEBUG [1]: CLIENT -> SERVER: QUIT
+
+2025-04-14 10:50:29 DEBUG [2]: SERVER -> CLIENT: 221 2.0.0 Bye
+
+2025-04-14 10:50:29 DEBUG [2]: SERVER -> CLIENT: 220 mail-proxy104.phy.lolipop.jp ESMTP ready
+
+2025-04-14 10:50:29 DEBUG [1]: CLIENT -> SERVER: EHLO localhost
+
+2025-04-14 10:50:29 DEBUG [2]: SERVER -> CLIENT: 250-mail-proxy104.phy.lolipop.jp
+250-8BITMIME
+250-SIZE 104857600
+250 AUTH PLAIN LOGIN CRAM-MD5
+
+2025-04-14 10:50:29 DEBUG [1]: CLIENT -> SERVER: AUTH CRAM-MD5
+
+2025-04-14 10:50:29 DEBUG [2]: SERVER -> CLIENT: 334 PDExNjE3OTY3MzMuMTc0NDU5NTQyOUBtYWlsLXByb3h5MTA0LnBoeS5sb2xpcG9wLmpwPg==
+
+2025-04-14 10:50:29 DEBUG [1]: CLIENT -> SERVER: [credentials hidden]
+2025-04-14 10:50:29 DEBUG [2]: SERVER -> CLIENT: 235 2.0.0 OK
+
+2025-04-14 10:50:29 DEBUG [1]: CLIENT -> SERVER: MAIL FROM:<info-wedding@sopranohaction.fun>
+
+2025-04-14 10:50:29 DEBUG [2]: SERVER -> CLIENT: 250 2.1.0 Ok
+
+2025-04-14 10:50:29 DEBUG [1]: CLIENT -> SERVER: RCPT TO:<syo.t.company@gmail.com>
+
+2025-04-14 10:50:30 DEBUG [2]: SERVER -> CLIENT: 250 2.1.5 Ok
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: DATA
+
+2025-04-14 10:50:30 DEBUG [2]: SERVER -> CLIENT: 354 End data with <CR><LF>.<CR><LF>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: Date: Mon, 14 Apr 2025 10:50:29 +0900
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: To: syo.t.company@gmail.com
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: From: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: Reply-To: =?UTF-8?B?IuengeOBn+OBoeOBrue1kOWpmuW8jyI=?= <info-wedding@sopranohaction.fun>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: Subject: =?UTF-8?B?44CQ5oub5b6F54q244Gu5Y+X5LuY56K66KqN44CR57+U77yG44GC44GL44Gt?=
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:  =?UTF-8?B?44Gu57WQ5ama5byP?=
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: Message-ID: <K9O0tPW9hQOsI3bLTpOWJhahHzgngfFQuo6PJ6JzFVM@localhost>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: X-Mailer: PHPMailer 6.9.3 (https://github.com/PHPMailer/PHPMailer)
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: MIME-Version: 1.0
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: Content-Type: multipart/alternative;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:  boundary="b1=_K9O0tPW9hQOsI3bLTpOWJhahHzgngfFQuo6PJ6JzFVM"
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: --b1=_K9O0tPW9hQOsI3bLTpOWJhahHzgngfFQuo6PJ6JzFVM
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                             
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                             
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                 
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     body { font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .header { text-align: center; margin-bottom: 20px; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .message { margin-bottom: 30px; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-section { text-align: center; margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #4CAF50; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-instructions { margin-top: 15px; font-size: 14px; color: #666; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .footer { margin-top: 30px; font-size: 12px; color: #777; text-align: center; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                 
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                             
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                             
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                 
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         翔＆あかねの結婚式
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         村岡翔 様
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         結婚式の出席登録ありがとうございます。以下の内容で受け付けました。
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             お名前: 村岡翔
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             ご出欠: 出席
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             同伴者数: 0名
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             日時: 2025年4月30日 13:00〜
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             会場: 別府温泉　杉乃井ホテル 杉乃井パレス内　ウェディングホール１階 ザ・スイートテラス
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         📱 スマートチェックイン用QRコード
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         多くのメールクライアントではセキュリティのため画像が自動的に表示されません。
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                                 QRコードを表示する（ブラウザで開きます）
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             ※当日の受付をスムーズにするために、リンク先のQRコードを保存しておいてください。
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             会場の受付でこのQRコードをご提示いただくとスムーズにご案内いたします。
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-section {
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         background-color: #f0f8ff;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         border-radius: 10px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         padding: 20px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         margin: 20px 0;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         text-align: center;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         border: 2px dashed #4285F4;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-title {
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         font-size: 18px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         font-weight: bold;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         color: #4285F4;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         margin-bottom: 15px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-instructions {
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         margin-top: 15px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         font-size: 14px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         color: #555;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-link-container {
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         margin-top: 15px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-link-button {
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         display: inline-block;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         padding: 10px 20px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         background-color: #4285F4;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         color: white;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         text-decoration: none;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         border-radius: 5px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         font-weight: bold;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     お会いできることを楽しみにしております。何かご不明な点がありましたら、ご連絡ください。
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         ※このメールは自動送信されています。ご返信いただいてもお答えできません。
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         &copy; 2025 翔＆あかね Wedding
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                 
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                             
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                             
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                         
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: --b1=_K9O0tPW9hQOsI3bLTpOWJhahHzgngfFQuo6PJ6JzFVM
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: Content-Type: text/html; charset=UTF-8
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                             <html>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                             <head>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                 <style>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     body { font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .header { text-align: center; margin-bottom: 20px; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .message { margin-bottom: 30px; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-section { text-align: center; margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #4CAF50; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-instructions { margin-top: 15px; font-size: 14px; color: #666; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .footer { margin-top: 30px; font-size: 12px; color: #777; text-align: center; }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                 </style>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                             </head>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                             <body>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                 <div class='container'>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     <div class='header'>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         <h2>翔＆あかねの結婚式</h2>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     </div>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     <div class='message'>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         <p>村岡翔 様</p>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         <p>結婚式の出席登録ありがとうございます。以下の内容で受け付けました。</p>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         <ul>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             <li>お名前: 村岡翔</li>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             <li>ご出欠: 出席</li>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             <li>同伴者数: 0名</li>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             <li>日時: 2025年4月30日 13:00〜</li>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             <li>会場: 別府温泉　杉乃井ホテル 杉乃井パレス内　ウェディングホール１階 ザ・スイートテラス</li>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         </ul>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     </div>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     <div class='qr-section'>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         <div class='qr-title'>📱 スマートチェックイン用QRコード</div>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         <p>多くのメールクライアントではセキュリティのため画像が自動的に表示されません。</p>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         <div class='qr-button-container'>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             <a href='http://127.0.0.1/wedding/my_qrcode.php?group=akane_isono' class='qr-link-button' style='display:inline-block; padding:12px 20px; background-color:#4285F4; color:white; text-decoration:none; border-radius:5px; font-weight:bold; margin:15px 0;'>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                                 QRコードを表示する（ブラウザで開きます）
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             </a>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         </div>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         <p class='qr-instructions' style='margin-top:15px; font-size:14px; color:#555;'>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             ※当日の受付をスムーズにするために、リンク先のQRコードを保存しておいてください。<br>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                             会場の受付でこのQRコードをご提示いただくとスムーズにご案内いたします。
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         </p>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     </div>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     <style>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-section {
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         background-color: #f0f8ff;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         border-radius: 10px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         padding: 20px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         margin: 20px 0;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         text-align: center;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         border: 2px dashed #4285F4;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-title {
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         font-size: 18px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         font-weight: bold;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         color: #4285F4;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         margin-bottom: 15px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-instructions {
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         margin-top: 15px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         font-size: 14px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         color: #555;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-link-container {
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         margin-top: 15px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     .qr-link-button {
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         display: inline-block;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         padding: 10px 20px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         background-color: #4285F4;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         color: white;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         text-decoration: none;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         border-radius: 5px;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         font-weight: bold;
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     }
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     </style>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     <p>お会いできることを楽しみにしております。何かご不明な点がありましたら、ご連絡ください。</p>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     <div class='footer'>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         <p>※このメールは自動送信されています。ご返信いただいてもお答えできません。</p>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                         <p>&copy; 2025 翔＆あかね Wedding</p>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                     </div>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                                 </div>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                             </body>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                             </html>
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER:                         
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: --b1=_K9O0tPW9hQOsI3bLTpOWJhahHzgngfFQuo6PJ6JzFVM--
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: 
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: .
+
+2025-04-14 10:50:30 DEBUG [2]: SERVER -> CLIENT: 250 2.0.0 Ok: queued as 1406514090810
+
+2025-04-14 10:50:30 DEBUG [1]: CLIENT -> SERVER: QUIT
+
+2025-04-14 10:50:30 DEBUG [2]: SERVER -> CLIENT: 221 2.0.0 Bye
+

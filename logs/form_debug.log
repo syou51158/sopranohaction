@@ -1304,3 +1304,97 @@
 2025-04-10 11:41:11 Generated QR token for guest_id: 14, token: aa9144b8be86ceb7661699971b91b128
 2025-04-10 11:41:13 QR code email sent to syo.t.company@gmail.com: Success
 2025-04-10 11:41:13 Notification sent for response ID: 14
+2025-04-13 10:07:45 POST Data: Array
+(
+    [guest_id] => 14
+    [group_id] => akane_isono
+    [name] => 村岡翔
+    [email] => syou51158@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => w
+    [dietary] => w
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFeXpiagNGBD83J21XV1BGVhBoPzgyfnxhND8DDwQddBEFfAA0egEKcw98SiBCOhAnO3BTHQkRUE9ZMSs2WhtnCyYha1BFUSJURiNffm5ocjVAbVg9W3sfPFszZV9GQBVTXjIzLV5BPCFueAsXdVAwQkMxaGAgLlk1GzgWagRHBD83KWpiSRZ6UH8iQnNsaGBhY3tRfV1oCmhXagYjbXBscRgnew
+)
+
+2025-04-13 10:07:45 reCAPTCHA validation skipped in development environment
+2025-04-13 10:07:45 Processed Data: name: 村岡翔, email: syou51158@gmail.com, attending: 1, companions: 0, guest_id: 14, group_id: akane_isono
+2025-04-13 10:07:45 SQL Parameters: Array
+(
+    [guest_id] => 14
+    [name] => 村岡翔
+    [email] => syou51158@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => w
+    [dietary] => w
+)
+
+2025-04-13 10:07:45 SQL Insert successful. Last Insert ID: 42
+2025-04-13 10:07:45 QRコードトークン生成: 成功 - ゲストID: 14
+2025-04-13 10:07:45 Generated QR token for guest_id: 14, token: aa9144b8be86ceb7661699971b91b128
+2025-04-13 10:07:47 Notification sent for response ID: 42
+2025-04-13 10:07:48 QR code email sent to syou51158@gmail.com: Success
+2025-04-13 10:07:48 Notification sent for response ID: 42
+2025-04-14 10:49:58 POST Data: Array
+(
+    [guest_id] => 14
+    [group_id] => akane_isono
+    [name] => 村岡翔
+    [email] => syou51158@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => A
+    [dietary] => A
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFZ3ZxdA9VGjMkOWFESVxVSBx7ITQhYHByKjMQGAsJaR4fYAwnZA0ZbQNvVCxRJBw0JXxAAwUCTkNKLyclRBd0FSoydQEOHmEZAG4OJGl_D3xwYFUjT3lHdzR7U15eQlJIBj5tcDEGFiV6eVdHCg4MXEomR2AfNkgmTmkSYwgyDUIzbTZYRHZBC2AhWWlcTS0QMzBGUVl4MW1sGVonZHwZbXIxBHV5
+)
+
+2025-04-14 10:49:59 reCAPTCHA validation failed: Array
+(
+    [success] => 
+    [error-codes] => Array
+        (
+            [0] => browser-error
+        )
+
+)
+
+2025-04-14 10:49:59 Processed Data: name: 村岡翔, email: syou51158@gmail.com, attending: 1, companions: 0, guest_id: 14, group_id: akane_isono
+2025-04-14 10:49:59 Validation Error: reCAPTCHA validation failed
+2025-04-14 10:50:25 POST Data: Array
+(
+    [guest_id] => 14
+    [group_id] => akane_isono
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => aa
+    [dietary] => a
+
+    [recaptcha_v3] => true
+    [g-recaptcha-response] => HFNG1tJxRJSSg4anpYGkdJGwdnci89M2tueSgMSxAUPgADNhM7NxYFPhhzBzdNdwcodmdcUB4eHVhWfDw5FwxoRjEuJkdKHDVbCzRQM3lnPyJPIE8yFmwQcUw8KEhJDQJcEyU8YElOcTZhNRwYOEc_D1Q-JXcvY046Vi8ZJxNISSg4ZH1tBAF1HWgtD2RjJXduLmxeMEpnR39YJxEsIGdjPA8oNg
+)
+
+2025-04-14 10:50:25 reCAPTCHA validation skipped in development environment
+2025-04-14 10:50:25 Processed Data: name: 村岡翔, email: syo.t.company@gmail.com, attending: 1, companions: 0, guest_id: 14, group_id: akane_isono
+2025-04-14 10:50:25 SQL Parameters: Array
+(
+    [guest_id] => 14
+    [name] => 村岡翔
+    [email] => syo.t.company@gmail.com
+    [attending] => 1
+    [companions] => 0
+    [message] => aa
+    [dietary] => a
+
+)
+
+2025-04-14 10:50:25 SQL Insert successful. Last Insert ID: 43
+2025-04-14 10:50:25 QRコードトークン生成: 成功 - ゲストID: 14
+2025-04-14 10:50:25 Generated QR token for guest_id: 14, token: aa9144b8be86ceb7661699971b91b128
+2025-04-14 10:50:29 Notification sent for response ID: 43
+2025-04-14 10:50:30 QR code email sent to syo.t.company@gmail.com: Success
+2025-04-14 10:50:30 Notification sent for response ID: 43
