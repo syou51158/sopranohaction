@@ -25,7 +25,8 @@ if (!empty($token)) {
         error_log("無効なQRコード（案内表示）: token=$token");
     } else {
         // デバッグ情報を記録
-        $guest_name = isset($guest_info['name']) && !empty($guest_info['name']) ? $guest_info['name'] : 'unknown';
+        $guest_name = isset($guest_info['name']) ? $guest_info['name'] : 
+                     (isset($guest_info['group_name']) ? $guest_info['group_name'] : 'unknown');
         error_log("ゲスト情報取得成功: ID=" . $guest_info['id'] . ", 名前=" . $guest_name);
         
         // チェックイン自動記録（オプション）
@@ -282,6 +283,7 @@ $page_title = 'ご案内';
             text-align: center;
             margin-right: 15px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            height: fit-content;
         }
         
         .schedule-details {
@@ -300,6 +302,7 @@ $page_title = 'ご案内';
             color: #6d4c41;
             font-size: 0.95rem;
             line-height: 1.5;
+            margin-bottom: 8px;
         }
         
         .schedule-location {
@@ -359,6 +362,16 @@ $page_title = 'ご案内';
         }
         
         @media (max-width: 600px) {
+            .schedule-item {
+                flex-direction: column;
+            }
+            
+            .schedule-time {
+                margin-bottom: 10px;
+                margin-right: 0;
+                width: 80px;
+            }
+            
             .table-seat-info {
                 font-size: 1.2rem;
             }
@@ -369,10 +382,6 @@ $page_title = 'ご案内';
             
             .seat-number {
                 font-size: 1.3rem;
-            }
-            
-            .schedule-time {
-                width: 80px;
             }
         }
     </style>
@@ -436,9 +445,9 @@ $page_title = 'ご案内';
                 <div class="event-notices">
                     <?php foreach ($event_notices as $notice): ?>
                     <div class="notice-item">
-                        <h3><?= safe_string($notice['title'] ?? '') ?></h3>
+                        <h3><?= isset($notice['title']) ? safe_string($notice['title']) : '' ?></h3>
                         <div class="notice-content">
-                            <?= nl2br(safe_string($notice['content'] ?? '')) ?>
+                            <?= nl2br(isset($notice['content']) ? safe_string($notice['content']) : '') ?>
                         </div>
                     </div>
                     <?php endforeach; ?>

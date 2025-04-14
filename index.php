@@ -9,28 +9,41 @@ $auto_checkin = isset($_GET['auto_checkin']) && $_GET['auto_checkin'] === '1';
 $checkin_complete = isset($_GET['checkin_complete']) && $_GET['checkin_complete'] === '1';
 
 // ゲスト情報を初期化
-$guest_info = [
-    'group_name' => '親愛なるゲスト様',
-    'arrival_time' => '13:00',
-    'custom_message' => '',
-    'max_companions' => 5
-];
+$guest_info = array();
+$max_companions = 0;
+$has_responded = false;
+$response_data = null;
 
 // グループIDが存在する場合、データベースからゲスト情報を取得
 if ($group_id) {
     try {
-        $stmt = $pdo->prepare("SELECT * FROM guests WHERE group_id = :group_id LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id, name, email, max_companions, for_groups, guest_type, custom_message FROM guests WHERE group_id = :group_id ORDER BY id ASC LIMIT 1");
         $stmt->execute(['group_id' => $group_id]);
         $guest_data = $stmt->fetch();
         
         if ($guest_data) {
             $guest_info = [
                 'id' => $guest_data['id'],
-                'group_name' => $guest_data['group_name'],
-                'arrival_time' => $guest_data['arrival_time'],
-                'custom_message' => $guest_data['custom_message'],
-                'max_companions' => $guest_data['max_companions']
+                'group_name' => $guest_data['name'],
+                'email' => $guest_data['email'],
+                'max_companions' => $guest_data['max_companions'],
+                'for_groups' => $guest_data['for_groups'],
+                'guest_type' => $guest_data['guest_type'],
+                'custom_message' => isset($guest_data['custom_message']) ? $guest_data['custom_message'] : ''
             ];
+            
+            // ゲストIDから回答データがあるか確認
+            if (isset($guest_info['id'])) {
+                $stmt = $pdo->prepare("SELECT r.*, g.name FROM responses r LEFT JOIN guests g ON r.guest_id = g.id WHERE r.guest_id = :guest_id ORDER BY r.created_at DESC LIMIT 1");
+                $stmt->bindParam(':guest_id', $guest_info['id'], PDO::PARAM_INT);
+                $stmt->execute();
+                $response_data = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                // 回答データが存在する場合
+                if ($response_data) {
+                    $has_responded = true;
+                }
+            }
         }
     } catch (PDOException $e) {
         if ($debug_mode) {
@@ -466,8 +479,8 @@ $datetime_info = get_wedding_datetime();
                     
                     <?php if ($group_id): ?>
                     <div class="personal-message">
-                        <p class="guest-name"><?= $guest_info['group_name'] ?>へ</p>
-                        <?php if ($guest_info['custom_message']): ?>
+                        <p class="guest-name"><?= isset($guest_info['group_name']) ? $guest_info['group_name'] : '' ?>へ</p>
+                        <?php if (isset($guest_info['custom_message']) && $guest_info['custom_message']): ?>
                         <p class="personal-note"><?= nl2br($guest_info['custom_message']) ?></p>
                         <?php endif; ?>
                         
@@ -1028,6 +1041,26 @@ $datetime_info = get_wedding_datetime();
                     <p>お忙しい中恐縮ですが、なるべくお早めにご出欠のご連絡をいただけますと嬉しいです。どうぞよろしくお願いいたします。</p>
                     
                 </div>
+                
+                <?php if ($has_responded && $response_data): ?>
+                <!-- 既に回答済みの場合 -->
+                <div class="rsvp-thank-you scale-in">
+                    <i class="fas fa-check-circle thank-you-icon"></i>
+                    <h3>ご回答ありがとうございます</h3>
+                    <p>
+                        <?= htmlspecialchars($response_data['name']) ?>様、ご返信いただきありがとうございます。<br>
+                        <?php if ($response_data['attending'] == 1): ?>
+                        ご出席のお返事、心より嬉しく思います。当日お会いできることを楽しみにしております。
+                        <?php else: ?>
+                        ご欠席のご連絡、誠にありがとうございます。またの機会にお会いできることを楽しみにしております。
+                        <?php endif; ?>
+                    </p>
+                    <div class="response-details">
+                        <p><strong>ご回答日時:</strong> <?= date('Y年m月d日 H:i', strtotime($response_data['created_at'])) ?></p>
+                    </div>
+                </div>
+                <?php else: ?>
+                <!-- 未回答の場合はフォームを表示 -->
                 <form id="rsvp-form" action="process_rsvp.php" method="post" class="scale-in">
                     <?php if ($group_id && isset($guest_info['id'])): ?>
                     <input type="hidden" name="guest_id" value="<?= $guest_info['id'] ?>">
@@ -1085,6 +1118,8 @@ $datetime_info = get_wedding_datetime();
                     
                     <button type="submit" class="submit-button"><i class="fas fa-paper-plane"></i> 送信する</button>
                 </form>
+                <?php endif; ?>
+                
                 <div class="rsvp-decoration">
                     <img src="images/leaf.png" alt="装飾の葉" class="rsvp-leaf">
                 </div>
