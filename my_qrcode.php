@@ -392,6 +392,13 @@ if ($guest_info && isset($guest_info['group_id'])) {
                 <div id="qrcode" style="margin: 0 auto; padding: 15px; background: #fff; border-radius: 10px; display: inline-block;"></div>
                 <p class="qr-instructions">結婚式当日、このQRコードをスキャンして、会場案内や席次情報を確認できます</p>
                 
+                <!-- QRコードがスキャンできない場合のリンク -->
+                <div class="direct-link" style="margin-top: 15px;">
+                    <a href="<?= $site_url . "guidance.php?token=" . urlencode($guest_info['qr_code_token']) . "&auto_checkin=1" ?>" class="back-to-invite" style="background-color: #4CAF50;">
+                        <i class="fas fa-external-link-alt"></i> 直接アクセスする
+                    </a>
+                </div>
+                
                 <?php if (isset($debug_mode) && $debug_mode === true): ?>
                 <!-- デバッグ情報 -->
                 <div style="margin-top: 20px; padding: 10px; background: #f8f8f8; border: 1px solid #ddd; text-align: left; font-size: 12px;">
@@ -481,7 +488,7 @@ if ($guest_info && isset($guest_info['group_id'])) {
         });
         
         // QRコードの下に埋め込みURLを表示（デバッグ用）
-        <?php if (defined('DEBUG_MODE') && DEBUG_MODE): ?>
+        <?php if (isset($debug_mode) && $debug_mode === true): ?>
         const debugInfo = document.createElement('div');
         debugInfo.className = 'debug-info';
         debugInfo.style.fontSize = '10px';
@@ -491,6 +498,13 @@ if ($guest_info && isset($guest_info['group_id'])) {
         debugInfo.style.padding = '5px';
         debugInfo.innerHTML = `<strong>デバッグ情報</strong><br>URL: ${guidanceUrl}`;
         document.getElementById('qrcode').parentNode.appendChild(debugInfo);
+        
+        // デバッグモードでは埋め込みリンクも表示
+        const linkElem = document.createElement('div');
+        linkElem.className = 'test-link';
+        linkElem.style.marginTop = '10px';
+        linkElem.innerHTML = `<a href="${guidanceUrl}" target="_blank" style="padding: 8px 16px; background: #4CAF50; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">リンクを直接開く</a>`;
+        document.getElementById('qrcode').parentNode.appendChild(linkElem);
         <?php endif; ?>
         
         // チェックイン完了ダイアログを表示する関数
