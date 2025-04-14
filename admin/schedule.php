@@ -437,6 +437,51 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
                 left: -24px;
             }
         }
+        
+        .checkbox-group {
+            margin-top: 10px;
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .checkbox-option {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-option input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+        .checkbox-option label {
+            display: inline-block;
+            margin-bottom: 0;
+            cursor: pointer;
+            font-weight: normal;
+            vertical-align: middle;
+        }
+        .hidden {
+            display: none;
+        }
+        #no_group {
+            accent-color: #8bc34a;
+        }
+        #group_selection .checkbox-option input[type="checkbox"] {
+            accent-color: #1976d2;
+        }
+        .checkbox-option:hover {
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+        .checkbox-option:first-child {
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #ddd;
+        }
     </style>
 </head>
 <body class="admin-body">
@@ -544,21 +589,6 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
                             <label for="event_description">説明</label>
                             <textarea id="event_description" name="event_description" rows="3"><?= $edit_event ? htmlspecialchars($edit_event['event_description']) : '' ?></textarea>
                         </div>
-                        
-                        <style>
-                            .checkbox-group {
-                                margin-top: 5px;
-                            }
-                            .checkbox-option {
-                                margin-bottom: 8px;
-                            }
-                            .checkbox-option input[type="checkbox"] {
-                                margin-right: 8px;
-                            }
-                            .hidden {
-                                display: none;
-                            }
-                        </style>
                         
                         <script>
                             document.addEventListener('DOMContentLoaded', function() {
