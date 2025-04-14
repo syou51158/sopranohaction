@@ -30,16 +30,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $event_time = isset($_POST['event_time']) ? trim($_POST['event_time']) : '';
         $event_name = isset($_POST['event_name']) ? trim($_POST['event_name']) : '';
         $event_description = isset($_POST['event_description']) ? trim($_POST['event_description']) : '';
-        $for_group_type_id = isset($_POST['for_group_type_id']) && !empty($_POST['for_group_type_id']) ? (int)$_POST['for_group_type_id'] : null;
+        $location = isset($_POST['location']) ? trim($_POST['location']) : '';
+        $selected_groups = isset($_POST['selected_groups']) ? $_POST['selected_groups'] : [];
         
         if (empty($event_time) || empty($event_name)) {
             $error = "イベント時間とイベント名は必須です。";
         } else {
+            $pdo->beginTransaction();
             try {
-                $stmt = $pdo->prepare("INSERT INTO schedule (event_time, event_name, event_description, for_group_type_id) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$event_time, $event_name, $event_description, $for_group_type_id]);
+                // まず基本イベントを追加
+                if (empty($selected_groups)) {
+                    // グループ指定なしの場合、全体向けイベントとして1つだけ登録
+                    $stmt = $pdo->prepare("INSERT INTO schedule (event_time, event_name, event_description, location, for_group_type_id) VALUES (?, ?, ?, ?, NULL)");
+                    $stmt->execute([$event_time, $event_name, $event_description, $location]);
+                } else {
+                    // 選択された各グループに対してイベントを登録
+                    foreach ($selected_groups as $group_id) {
+                        $stmt = $pdo->prepare("INSERT INTO schedule (event_time, event_name, event_description, location, for_group_type_id) VALUES (?, ?, ?, ?, ?)");
+                        $stmt->execute([$event_time, $event_name, $event_description, $location, $group_id]);
+                    }
+                }
+                $pdo->commit();
                 $success = "新しいイベントを追加しました。";
             } catch (PDOException $e) {
+                $pdo->rollBack();
                 $error = "イベントの追加に失敗しました。";
                 if ($debug_mode) {
                     $error .= " エラー: " . $e->getMessage();
@@ -51,14 +65,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $event_time = isset($_POST['event_time']) ? trim($_POST['event_time']) : '';
         $event_name = isset($_POST['event_name']) ? trim($_POST['event_name']) : '';
         $event_description = isset($_POST['event_description']) ? trim($_POST['event_description']) : '';
-        $for_group_type_id = isset($_POST['for_group_type_id']) && !empty($_POST['for_group_type_id']) ? (int)$_POST['for_group_type_id'] : null;
+        $location = isset($_POST['location']) ? trim($_POST['location']) : '';
+        $selected_groups = isset($_POST['selected_groups']) ? $_POST['selected_groups'] : [];
         
         if (empty($event_time) || empty($event_name)) {
             $error = "イベント時間とイベント名は必須です。";
         } else {
             try {
-                $stmt = $pdo->prepare("UPDATE schedule SET event_time = ?, event_name = ?, event_description = ?, for_group_type_id = ? WHERE id = ?");
-                $stmt->execute([$event_time, $event_name, $event_description, $for_group_type_id, $id]);
+                // 既存のイベントを更新
+                $stmt = $pdo->prepare("UPDATE schedule SET event_time = ?, event_name = ?, event_description = ?, location = ?, for_group_type_id = ? WHERE id = ?");
+                
+                if (empty($selected_groups)) {
+                    // グループ指定なしの場合、全体向けイベントとして更新
+                    $stmt->execute([$event_time, $event_name, $event_description, $location, NULL, $id]);
+                } else {
+                    // 現在のグループを取得
+                    $current_stmt = $pdo->prepare("SELECT for_group_type_id FROM schedule WHERE id = ?");
+                    $current_stmt->execute([$id]);
+                    $current_group = $current_stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    // 現在のグループを更新
+                    $stmt->execute([$event_time, $event_name, $event_description, $location, $selected_groups[0], $id]);
+                    
+                    // 2つ目以降のグループがある場合は新規追加
+                    for ($i = 1; $i < count($selected_groups); $i++) {
+                        $insert_stmt = $pdo->prepare("INSERT INTO schedule (event_time, event_name, event_description, location, for_group_type_id) VALUES (?, ?, ?, ?, ?)");
+                        $insert_stmt->execute([$event_time, $event_name, $event_description, $location, $selected_groups[$i]]);
+                    }
+                }
                 $success = "イベントを更新しました。";
             } catch (PDOException $e) {
                 $error = "イベントの更新に失敗しました。";
@@ -454,18 +488,55 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
                                 <label for="event_name">イベント名 <span class="required">*</span></label>
                                 <input type="text" id="event_name" name="event_name" required value="<?= $edit_event ? htmlspecialchars($edit_event['event_name']) : '' ?>">
                             </div>
-                            
-                            <div class="admin-form-group">
-                                <label for="for_group_type_id">対象グループ</label>
-                                <select id="for_group_type_id" name="for_group_type_id">
-                                    <option value="">すべて</option>
+                        </div>
+                        
+                        <div class="admin-form-group">
+                            <label for="location">場所</label>
+                            <input type="text" id="location" name="location" value="<?= $edit_event ? htmlspecialchars($edit_event['location']) : '' ?>">
+                        </div>
+                        
+                        <div class="admin-form-group">
+                            <label>対象グループ（複数選択可）</label>
+                            <div class="checkbox-group">
+                                <?php
+                                // 編集時の場合、同じ名前・時間のイベントを全て取得して選択状態にする
+                                $selected_group_ids = [];
+                                if ($edit_event) {
+                                    $event_name = $edit_event['event_name'];
+                                    $event_time = $edit_event['event_time'];
+                                    try {
+                                        $same_events_stmt = $pdo->prepare("
+                                            SELECT for_group_type_id 
+                                            FROM schedule 
+                                            WHERE event_name = ? AND event_time = ? AND for_group_type_id IS NOT NULL
+                                        ");
+                                        $same_events_stmt->execute([$event_name, $event_time]);
+                                        while ($row = $same_events_stmt->fetch(PDO::FETCH_ASSOC)) {
+                                            $selected_group_ids[] = $row['for_group_type_id'];
+                                        }
+                                    } catch (PDOException $e) {
+                                        // エラー処理
+                                    }
+                                }
+                                ?>
+                                
+                                <div class="checkbox-option">
+                                    <input type="checkbox" id="no_group" class="toggle-group-selection" 
+                                           <?= (empty($selected_group_ids) && $edit_event) || (!$edit_event) ? 'checked' : '' ?>>
+                                    <label for="no_group">すべてのゲスト（グループ指定なし）</label>
+                                </div>
+                                
+                                <div id="group_selection" class="<?= (empty($selected_group_ids) && $edit_event) || (!$edit_event) ? 'hidden' : '' ?>">
                                     <?php foreach ($group_types as $type): ?>
-                                        <option value="<?= $type['id'] ?>" <?= $edit_event && $edit_event['for_group_type_id'] == $type['id'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($type['type_name']) ?>
-                                        </option>
+                                        <div class="checkbox-option">
+                                            <input type="checkbox" id="group_<?= $type['id'] ?>" name="selected_groups[]" 
+                                                   value="<?= $type['id'] ?>" 
+                                                   <?= in_array($type['id'], $selected_group_ids) ? 'checked' : '' ?>>
+                                            <label for="group_<?= $type['id'] ?>"><?= htmlspecialchars($type['type_name']) ?></label>
+                                        </div>
                                     <?php endforeach; ?>
-                                </select>
-                                <small>特定のグループのみが見るイベント</small>
+                                </div>
+                                <small>特定のグループのみが見るイベントを設定できます。複数選択すると、選択したすべてのグループに表示されます。</small>
                             </div>
                         </div>
                         
@@ -473,6 +544,51 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
                             <label for="event_description">説明</label>
                             <textarea id="event_description" name="event_description" rows="3"><?= $edit_event ? htmlspecialchars($edit_event['event_description']) : '' ?></textarea>
                         </div>
+                        
+                        <style>
+                            .checkbox-group {
+                                margin-top: 5px;
+                            }
+                            .checkbox-option {
+                                margin-bottom: 8px;
+                            }
+                            .checkbox-option input[type="checkbox"] {
+                                margin-right: 8px;
+                            }
+                            .hidden {
+                                display: none;
+                            }
+                        </style>
+                        
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const noGroupCheckbox = document.getElementById('no_group');
+                                const groupSelection = document.getElementById('group_selection');
+                                const groupCheckboxes = groupSelection.querySelectorAll('input[type="checkbox"]');
+                                
+                                noGroupCheckbox.addEventListener('change', function() {
+                                    if (this.checked) {
+                                        groupSelection.classList.add('hidden');
+                                        // グループチェックボックスをすべて未選択に
+                                        groupCheckboxes.forEach(cb => {
+                                            cb.checked = false;
+                                        });
+                                    } else {
+                                        groupSelection.classList.remove('hidden');
+                                    }
+                                });
+                                
+                                // グループが1つでも選択されたら「すべてのゲスト」のチェックを外す
+                                groupCheckboxes.forEach(cb => {
+                                    cb.addEventListener('change', function() {
+                                        const anyChecked = Array.from(groupCheckboxes).some(x => x.checked);
+                                        if (anyChecked) {
+                                            noGroupCheckbox.checked = false;
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
                         
                         <div class="admin-form-actions">
                             <?php if ($edit_event): ?>
