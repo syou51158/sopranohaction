@@ -25,7 +25,8 @@ if (!empty($token)) {
         error_log("無効なQRコード（案内表示）: token=$token");
     } else {
         // デバッグ情報を記録
-        error_log("ゲスト情報取得成功: ID=" . $guest_info['id'] . ", 名前=" . $guest_info['name']);
+        $guest_name = isset($guest_info['name']) && !empty($guest_info['name']) ? $guest_info['name'] : 'unknown';
+        error_log("ゲスト情報取得成功: ID=" . $guest_info['id'] . ", 名前=" . $guest_name);
         
         // チェックイン自動記録（オプション）
         $auto_checkin = isset($_GET['auto_checkin']) && $_GET['auto_checkin'] === '1';
@@ -349,7 +350,7 @@ $page_title = 'ご案内';
         <?php else: ?>
         <!-- ウェルカムメッセージ -->
         <div class="welcome-message">
-            <h1>ようこそ、<?= htmlspecialchars($guest_info['group_name']) ?></h1>
+            <h1>ようこそ、<?= isset($guest_info['group_name']) && $guest_info['group_name'] !== null ? htmlspecialchars($guest_info['group_name']) : '' ?></h1>
             <p>結婚式の案内情報をご確認ください</p>
         </div>
         
@@ -371,14 +372,14 @@ $page_title = 'ご案内';
                 <h2><i class="fas fa-chair"></i> 席次のご案内</h2>
                 <div class="seating-info">
                     <p class="table-seat-info">
-                        <span class="table-name"><?= htmlspecialchars($seating_info['table_name']) ?></span>
+                        <span class="table-name"><?= isset($seating_info['table_name']) && $seating_info['table_name'] !== null ? htmlspecialchars($seating_info['table_name']) : '' ?></span>
                         <?php if (!empty($seating_info['seat_number'])): ?>
-                        <span class="seat-number"><?= htmlspecialchars($seating_info['seat_number']) ?> 席</span>
+                        <span class="seat-number"><?= isset($seating_info['seat_number']) && $seating_info['seat_number'] !== null ? htmlspecialchars($seating_info['seat_number']) : '' ?> 席</span>
                         <?php endif; ?>
                     </p>
                     <?php if (!empty($seating_info['custom_message'])): ?>
                     <div class="custom-message">
-                        <?= nl2br(htmlspecialchars($seating_info['custom_message'])) ?>
+                        <?= nl2br(isset($seating_info['custom_message']) && $seating_info['custom_message'] !== null ? htmlspecialchars($seating_info['custom_message']) : '') ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -392,9 +393,9 @@ $page_title = 'ご案内';
                 <div class="event-notices">
                     <?php foreach ($event_notices as $notice): ?>
                     <div class="notice-item">
-                        <h3><?= htmlspecialchars($notice['title']) ?></h3>
+                        <h3><?= isset($notice['title']) && $notice['title'] !== null ? htmlspecialchars($notice['title']) : '' ?></h3>
                         <div class="notice-content">
-                            <?= nl2br(htmlspecialchars($notice['content'])) ?>
+                            <?= nl2br(isset($notice['content']) && $notice['content'] !== null ? htmlspecialchars($notice['content']) : '') ?>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -407,10 +408,10 @@ $page_title = 'ご案内';
             <div class="guidance-section">
                 <h2><i class="fas fa-map-marked-alt"></i> 会場マップ</h2>
                 <div class="map-container">
-                    <img src="<?= htmlspecialchars($venue_map['image_url']) ?>" alt="会場マップ" class="map-image">
+                    <img src="<?= isset($venue_map['image_url']) && $venue_map['image_url'] !== null ? htmlspecialchars($venue_map['image_url']) : '' ?>" alt="会場マップ" class="map-image">
                     <?php if (!empty($venue_map['description'])): ?>
                     <div class="map-description">
-                        <?= nl2br(htmlspecialchars($venue_map['description'])) ?>
+                        <?= nl2br(isset($venue_map['description']) && $venue_map['description'] !== null ? htmlspecialchars($venue_map['description']) : '') ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -428,10 +429,10 @@ $page_title = 'ご案内';
                             <?= date('H:i', strtotime($item['event_time'])) ?>
                         </div>
                         <div class="schedule-details">
-                            <div class="schedule-title"><?= htmlspecialchars($item['title']) ?></div>
+                            <div class="schedule-title"><?= isset($item['title']) && $item['title'] !== null ? htmlspecialchars($item['title']) : '' ?></div>
                             <?php if (!empty($item['description'])): ?>
                             <div class="schedule-description">
-                                <?= nl2br(htmlspecialchars($item['description'])) ?>
+                                <?= nl2br(isset($item['description']) && $item['description'] !== null ? htmlspecialchars($item['description']) : '') ?>
                             </div>
                             <?php endif; ?>
                         </div>
@@ -443,7 +444,7 @@ $page_title = 'ご案内';
             
             <!-- 戻るリンク -->
             <div class="return-link" style="text-align: center; margin-top: 20px;">
-                <a href="index.php?group=<?= urlencode($guest_info['group_id']) ?>">
+                <a href="index.php?group=<?= isset($guest_info['group_id']) && $guest_info['group_id'] !== null ? urlencode($guest_info['group_id']) : '' ?>">
                     <i class="fas fa-arrow-left"></i> 招待状に戻る
                 </a>
             </div>
