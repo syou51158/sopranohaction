@@ -3,7 +3,10 @@
 require_once 'config.php';
 
 // URLからグループIDを取得
-$group_id = isset($_GET['group']) ? htmlspecialchars($_GET['group']) : null;
+$group_id = isset($_GET['group']) ? trim($_GET['group']) : '';
+$token = isset($_GET['token']) ? trim($_GET['token']) : '';
+$auto_checkin = isset($_GET['auto_checkin']) && $_GET['auto_checkin'] === '1';
+$checkin_complete = isset($_GET['checkin_complete']) && $_GET['checkin_complete'] === '1';
 
 // ゲスト情報を初期化
 $guest_info = [
@@ -66,6 +69,24 @@ if ($group_id && isset($guest_info['id'])) {
         if ($debug_mode) {
             echo "付箋データのカウントエラー: " . $e->getMessage();
         }
+    }
+}
+
+// QRコードスキャンからの自動チェックイン処理
+if (!empty($token) && $auto_checkin) {
+    require_once 'includes/qr_helper.php';
+    $guest_info = get_guest_by_qr_token($token);
+    
+    if ($guest_info) {
+        $checkin_result = record_guest_checkin($guest_info['id'], 'QRスキャン', 'ゲスト自身によるスキャン');
+        if ($checkin_result) {
+            error_log("自動チェックイン成功 (index.php): ゲストID=" . $guest_info['id']);
+            $checkin_complete = true;
+        } else {
+            error_log("自動チェックイン失敗 (index.php): ゲストID=" . $guest_info['id']);
+        }
+    } else {
+        error_log("無効なQRコード (index.php): token=$token");
     }
 }
 
@@ -419,6 +440,17 @@ $datetime_info = get_wedding_datetime();
         </div>
 
         <div class="container">
+            <?php if ($checkin_complete): ?>
+            <!-- チェックイン完了メッセージ -->
+            <div style="background-color: #4CAF50; color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                <div style="font-size: 50px; margin-bottom: 10px;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2 style="margin: 0 0 10px 0;">チェックイン完了</h2>
+                <p style="margin: 0;">受付が完了しました。素敵な時間をお過ごしください。</p>
+            </div>
+            <?php endif; ?>
+            
             <header class="main-header fade-in-section">
                 <div class="header-inner">
                     <h1 class="title">翔 & あかね</h1>

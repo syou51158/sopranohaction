@@ -46,7 +46,7 @@ if (empty($params)) {
 
 // 必須パラメータのチェック
 $token = isset($params['token']) ? trim($params['token']) : '';
-$action = isset($params['action']) ? trim($params['action']) : 'redirect_to_guidance'; // デフォルト
+$action = isset($params['action']) ? trim($params['action']) : 'redirect_to_index'; // デフォルト
 
 // レスポンス初期化
 $response = [

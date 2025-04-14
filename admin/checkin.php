@@ -65,7 +65,7 @@ if (isset($_GET['token'])) {
             $push_url = $site_url . 'push_notification.php';
             
             // GET方式でも通知を送信（より確実）
-            $get_push_url = $push_url . '?token=' . urlencode($token) . '&action=redirect_to_guidance&_=' . time();
+            $get_push_url = $push_url . '?token=' . urlencode($token) . '&action=redirect_to_index&_=' . time();
             
             // まずGETでリクエスト
             $get_ch = curl_init($get_push_url);
@@ -79,7 +79,7 @@ if (isset($_GET['token'])) {
             // 標準のPOSTリクエストもバックアップとして送信
             $push_data = [
                 'token' => $token,
-                'action' => 'redirect_to_guidance'
+                'action' => 'redirect_to_index'
             ];
             
             // cURLを使用してPOSTリクエストを送信
@@ -129,7 +129,7 @@ if (isset($_GET['token'])) {
             $push_url = $site_url . 'push_notification.php';
             
             // GET方式でも通知を送信（より確実）
-            $get_push_url = $push_url . '?token=' . urlencode($token) . '&action=redirect_to_guidance&_=' . time();
+            $get_push_url = $push_url . '?token=' . urlencode($token) . '&action=redirect_to_index&_=' . time();
             
             // まずGETでリクエスト
             $get_ch = curl_init($get_push_url);
@@ -143,7 +143,7 @@ if (isset($_GET['token'])) {
             // 標準のPOSTリクエストもバックアップとして送信
             $push_data = [
                 'token' => $token,
-                'action' => 'redirect_to_guidance'
+                'action' => 'redirect_to_index'
             ];
             
             // cURLを使用してPOSTリクエストを送信

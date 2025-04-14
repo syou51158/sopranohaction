@@ -480,8 +480,8 @@ if ($guest_info && isset($guest_info['group_id'])) {
     document.addEventListener('DOMContentLoaded', function() {
         // QRコードを生成
         <?php if ($guest_info && !empty($guest_info['qr_code_token'])): ?>
-        // QRコードに埋め込むURL（ゲスト用案内ページへのリンク）
-        const guidanceUrl = '<?= $site_url . "guidance.php?token=" . urlencode($guest_info['qr_code_token']) . "&auto_checkin=1" ?>';
+        // QRコードに埋め込むURL（招待状ページへのリンク）
+        const guidanceUrl = '<?= $site_url . "index.php?group=" . urlencode($guest_info['group_id']) . "&token=" . urlencode($guest_info['qr_code_token']) . "&auto_checkin=1" ?>';
         
         // QRコードを生成
         new QRCode(document.getElementById("qrcode"), {
@@ -508,40 +508,43 @@ if ($guest_info && isset($guest_info['group_id'])) {
         
         // チェックイン完了ダイアログを表示する関数
         function showCheckinDialog() {
-            // ダイアログ要素を作成
-            const overlay = document.createElement('div');
-            overlay.className = 'checkin-overlay';
+            const dialog = document.createElement('div');
+            dialog.className = 'checkin-dialog';
             
-            overlay.innerHTML = `
-                <div class="checkin-dialog">
-                    <div class="checkin-success-icon">
-                        <svg viewBox="0 0 32 32" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M6,16 L13,23 L26,9"></path>
-                        </svg>
-                    </div>
-                    <h2 class="checkin-message">チェックイン完了</h2>
-                    <p class="checkin-submessage">案内ページに移動します</p>
-                    <button class="checkin-dialog-button">OK</button>
-                </div>
-            `;
+            const dialogContent = document.createElement('div');
+            dialogContent.className = 'checkin-dialog-content';
             
-            // ボディに追加
-            document.body.appendChild(overlay);
+            const icon = document.createElement('div');
+            icon.className = 'success-icon';
+            icon.innerHTML = '<i class="fas fa-check-circle"></i>';
             
-            // アニメーション用に少し遅延させる
+            const message = document.createElement('div');
+            message.className = 'success-message';
+            message.innerHTML = '<h2>チェックイン完了</h2><p>受付が完了しました。会場案内ページへ移動します。</p>';
+            
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar';
+            const progress = document.createElement('div');
+            progress.className = 'progress';
+            progressBar.appendChild(progress);
+            
+            dialogContent.appendChild(icon);
+            dialogContent.appendChild(message);
+            dialogContent.appendChild(progressBar);
+            dialog.appendChild(dialogContent);
+            
+            document.body.appendChild(dialog);
+            
+            // プログレスバーのアニメーション
             setTimeout(() => {
-                overlay.style.opacity = '1';
-                overlay.querySelector('.checkin-dialog').style.transform = 'translateY(0)';
-            }, 10);
+                progress.style.width = '100%';
+            }, 100);
             
-            // OKボタンのイベント
-            overlay.querySelector('.checkin-dialog-button').addEventListener('click', function() {
-                window.location.href = guidanceUrl;
-            });
-            
-            // 3秒後に自動的にリダイレクト
+            // 3秒後にリダイレクト
             setTimeout(() => {
-                window.location.href = guidanceUrl;
+                const groupId = '<?= urlencode($guest_info['group_id']) ?>';
+                // group IDパラメータを追加してリダイレクト
+                window.location.href = '<?= $site_url ?>index.php?group=' + groupId + '&checkin_complete=1';
             }, 3000);
         }
         
@@ -571,7 +574,7 @@ if ($guest_info && isset($guest_info['group_id'])) {
                         console.log('通知を受信しました - リダイレクト開始:', data);
                         
                         // アクションに応じた処理
-                        if (data.action === 'redirect_to_guidance') {
+                        if (data.action === 'redirect_to_index') {
                             // ポーリングを停止
                             clearInterval(pollingInterval);
                             
@@ -650,7 +653,7 @@ if ($guest_info && isset($guest_info['group_id'])) {
                 
                 const pushData = new FormData();
                 pushData.append('token', '<?= urlencode($guest_info['qr_code_token']) ?>');
-                pushData.append('action', 'redirect_to_guidance');
+                pushData.append('action', 'redirect_to_index');
                 
                 fetch(pushUrl, {
                     method: 'POST',

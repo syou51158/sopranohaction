@@ -65,12 +65,17 @@ function generate_qr_token($guest_id) {
 function get_qr_code_url($token, $size = 200) {
     global $site_url;
     
-    $guidance_url = $site_url . "guidance.php?token=" . urlencode($token);
+    // ゲスト情報からgroup_idを取得
+    $guest = get_guest_by_qr_token($token);
+    $group_id = $guest ? $guest['group_id'] : '';
+    
+    // index.phpへのリンクを生成（グループIDとトークンを含む）
+    $qr_url_data = $site_url . "index.php?group=" . urlencode($group_id) . "&token=" . urlencode($token) . "&auto_checkin=1";
     
     $qr_url = "https://chart.googleapis.com/chart?";
     $qr_url .= "chs={$size}x{$size}";  // サイズ指定
     $qr_url .= "&cht=qr";              // QRコードタイプ
-    $qr_url .= "&chl=" . urlencode($guidance_url); // データ
+    $qr_url .= "&chl=" . urlencode($qr_url_data); // データ
     $qr_url .= "&choe=UTF-8";          // エンコーディング
     
     return $qr_url;
