@@ -10,6 +10,46 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 重複処理防止用のフラグ
     let openedEnvelope = false;
+    
+    // URLにcheckin_completeパラメータがあるか確認
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasCheckinComplete = urlParams.get('checkin_complete') === '1';
+    
+    // チェックイン完了の場合は封筒演出をスキップして直接招待状を表示
+    if (hasCheckinComplete) {
+        console.log('チェックイン完了パラメータを検出しました');
+        
+        // 封筒を非表示にする
+        if (envelope) envelope.style.display = 'none';
+        if (envelopeContainer) envelopeContainer.style.display = 'none';
+        
+        // 選択画面または招待状コンテンツを表示
+        if (choiceScreen) choiceScreen.classList.add('active');
+        if (invitationContent) invitationContent.classList.add('active');
+        
+        // スクロールを有効化
+        document.body.style.overflow = 'auto';
+        
+        // 選択画面が表示されている場合でも招待状コンテンツにスクロール
+        if (invitationContent) {
+            // 少し遅延して選択画面から招待状コンテンツに自動遷移
+            setTimeout(() => {
+                // 選択画面から招待状への自動遷移
+                const invitationCard = document.querySelector('.choice-invitation-card');
+                if (invitationCard) {
+                    invitationCard.click();
+                }
+                
+                // 必要に応じて特定の場所までスクロール
+                setTimeout(() => {
+                    const targetElement = document.getElementById('invitation-content');
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 500);
+            }, 1000); // 最初の画面を少し見せてから自動遷移
+        }
+    }
 
     // 封筒が存在する場合の処理
     if (envelope && envelopeContainer) {
