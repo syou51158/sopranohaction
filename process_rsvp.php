@@ -97,25 +97,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         log_debug("Validation Error: reCAPTCHA validation failed");
     } else {
         try {
-            // 重複チェック - 同じメールアドレスと名前の組み合わせで既に返信がないか確認
-            $check_stmt = $pdo->prepare("
-                SELECT COUNT(*) as count FROM responses 
-                WHERE email = :email AND name = :name
-            ");
-            $check_stmt->execute([
-                'email' => $email,
-                'name' => $name
-            ]);
-            $result = $check_stmt->fetch();
-            
             // グループIDがある場合、そのグループに対する回答がないか確認
             $group_has_responses = false;
             if ($guest_id && $group_id) {
                 $group_check_stmt = $pdo->prepare("
                     SELECT COUNT(*) as count FROM responses 
-                    WHERE guest_id = :guest_id
+                    WHERE group_id = :group_id
                 ");
-                $group_check_stmt->execute(['guest_id' => $guest_id]);
+                $group_check_stmt->execute(['group_id' => $group_id]);
                 $group_result = $group_check_stmt->fetch();
                 $group_has_responses = ($group_result['count'] > 0);
                 
@@ -129,332 +118,327 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             
-            if ($result['count'] > 0) {
-                $error = "すでに同じ情報で回答が送信されています。";
-                log_debug("Duplicate submission detected: $name, $email");
+            // guest_idが0や空の場合はNULLに設定（外部キー制約のため）
+            if (empty($guest_id)) {
+                $guest_id = null;
+                log_debug("Setting guest_id to NULL");
+            }
+            
+            // データベースに保存
+            $stmt = $pdo->prepare("
+                 INSERT INTO responses 
+                 (guest_id, name, email, attending, companions, message, dietary) 
+                 VALUES (:guest_id, :name, :email, :attending, :companions, :message, :dietary)
+            ");
+            
+            $params = [
+                'guest_id' => $guest_id,
+                'name' => $name,
+                'email' => $email,
+                'attending' => $attending,
+                'companions' => $companions,
+                'message' => $message,
+                'dietary' => $dietary
+            ];
+            
+            // デバッグログ - SQLパラメータ
+            log_debug("SQL Parameters: " . print_r($params, true));
+            
+            $result = $stmt->execute($params);
+            
+            // デバッグログ - 挿入成功
+            $last_id = $pdo->lastInsertId();
+            log_debug("SQL Insert successful. Last Insert ID: " . $last_id);
+            
+            // QRコードトークンを生成（参加する場合のみ、存在しない場合）
+            if ($result && $attending == 1 && $guest_id) {
+                $qr_token = generate_qr_token($guest_id);
+                log_debug("QRコードトークン生成: " . ($qr_token ? "成功" : "失敗") . " - ゲストID: $guest_id");
+            }
+            
+            // 同伴者情報の保存
+            if ($companions > 0 && $attending == 1) {
+                // 同伴者の名前配列
+                $companion_names = isset($_POST['companion_name']) ? $_POST['companion_name'] : [];
+                $companion_ages = isset($_POST['companion_age']) ? $_POST['companion_age'] : [];
+                $companion_dietaries = isset($_POST['companion_dietary']) ? $_POST['companion_dietary'] : [];
+                
+                // デバッグログ - 同伴者データ
+                log_debug("Companion Data: " . print_r([
+                    'names' => $companion_names,
+                    'ages' => $companion_ages,
+                    'dietaries' => $companion_dietaries
+                ], true));
+                
+                // 同伴者データを保存
+                for ($i = 0; $i < count($companion_names); $i++) {
+                    if (!empty($companion_names[$i])) {
+                        try {
+                            $companion_stmt = $pdo->prepare("
+                                INSERT INTO companions 
+                                (response_id, name, age_group, dietary) 
+                                VALUES (:response_id, :name, :age_group, :dietary)
+                            ");
+                            
+                            $companion_params = [
+                                'response_id' => $guest_id,
+                                'name' => htmlspecialchars($companion_names[$i]),
+                                'age_group' => isset($companion_ages[$i]) ? htmlspecialchars($companion_ages[$i]) : 'adult',
+                                'dietary' => isset($companion_dietaries[$i]) ? htmlspecialchars($companion_dietaries[$i]) : ''
+                            ];
+                            
+                            $companion_stmt->execute($companion_params);
+                            log_debug("Companion inserted: " . $companion_names[$i]);
+                        } catch (PDOException $ce) {
+                            // 同伴者の保存に失敗しても、メイン回答は保存済みなので続行する
+                            log_debug("Error saving companion: " . $ce->getMessage());
+                        }
+                    }
+                }
+            }
+            
+            // QRコード生成（ゲストIDがある場合のみ）
+            $qr_code_html = '';
+            $qr_code_token = '';
+            
+            if ($guest_id) {
+                // QRコードトークンを生成
+                $qr_code_token = generate_qr_token($guest_id);
+                log_debug("Generated QR token for guest_id: $guest_id, token: $qr_code_token");
+                
+                if ($qr_code_token) {
+                    // QRコードHTMLを生成
+                    $qr_code_html = get_qr_code_html($guest_id, [
+                        'size' => 200,
+                        'instruction_text' => '会場受付でこのQRコードをお見せください'
+                    ]);
+                }
             } else {
-                // guest_idが0や空の場合はNULLに設定（外部キー制約のため）
-                if (empty($guest_id)) {
-                    $guest_id = null;
-                    log_debug("Setting guest_id to NULL");
-                }
-                
-                // データベースに保存
-                $stmt = $pdo->prepare("
-                     INSERT INTO responses 
-                     (guest_id, name, email, attending, companions, message, dietary) 
-                     VALUES (:guest_id, :name, :email, :attending, :companions, :message, :dietary)
-                ");
-                
-                $params = [
-                    'guest_id' => $guest_id,
-                    'name' => $name,
-                    'email' => $email,
-                    'attending' => $attending,
-                    'companions' => $companions,
-                    'message' => $message,
-                    'dietary' => $dietary
-                ];
-                
-                // デバッグログ - SQLパラメータ
-                log_debug("SQL Parameters: " . print_r($params, true));
-                
-                $result = $stmt->execute($params);
-                
-                // デバッグログ - 挿入成功
-                $last_id = $pdo->lastInsertId();
-                log_debug("SQL Insert successful. Last Insert ID: " . $last_id);
-                
-                // QRコードトークンを生成（参加する場合のみ、存在しない場合）
-                if ($result && $attending == 1 && $guest_id) {
-                    $qr_token = generate_qr_token($guest_id);
-                    log_debug("QRコードトークン生成: " . ($qr_token ? "成功" : "失敗") . " - ゲストID: $guest_id");
-                }
-                
-                // 同伴者情報の保存
-                if ($companions > 0 && $attending == 1) {
-                    // 同伴者の名前配列
-                    $companion_names = isset($_POST['companion_name']) ? $_POST['companion_name'] : [];
-                    $companion_ages = isset($_POST['companion_age']) ? $_POST['companion_age'] : [];
-                    $companion_dietaries = isset($_POST['companion_dietary']) ? $_POST['companion_dietary'] : [];
-                    
-                    // デバッグログ - 同伴者データ
-                    log_debug("Companion Data: " . print_r([
-                        'names' => $companion_names,
-                        'ages' => $companion_ages,
-                        'dietaries' => $companion_dietaries
-                    ], true));
-                    
-                    // 同伴者データを保存
-                    for ($i = 0; $i < count($companion_names); $i++) {
-                        if (!empty($companion_names[$i])) {
-                            try {
-                                $companion_stmt = $pdo->prepare("
-                                    INSERT INTO companions 
-                                    (response_id, name, age_group, dietary) 
-                                    VALUES (:response_id, :name, :age_group, :dietary)
-                                ");
-                                
-                                $companion_params = [
-                                    'response_id' => $guest_id,
-                                    'name' => htmlspecialchars($companion_names[$i]),
-                                    'age_group' => isset($companion_ages[$i]) ? htmlspecialchars($companion_ages[$i]) : 'adult',
-                                    'dietary' => isset($companion_dietaries[$i]) ? htmlspecialchars($companion_dietaries[$i]) : ''
-                                ];
-                                
-                                $companion_stmt->execute($companion_params);
-                                log_debug("Companion inserted: " . $companion_names[$i]);
-                            } catch (PDOException $ce) {
-                                // 同伴者の保存に失敗しても、メイン回答は保存済みなので続行する
-                                log_debug("Error saving companion: " . $ce->getMessage());
-                            }
-                        }
-                    }
-                }
-                
-                // QRコード生成（ゲストIDがある場合のみ）
-                $qr_code_html = '';
-                $qr_code_token = '';
-                
-                if ($guest_id) {
-                    // QRコードトークンを生成
-                    $qr_code_token = generate_qr_token($guest_id);
-                    log_debug("Generated QR token for guest_id: $guest_id, token: $qr_code_token");
-                    
-                    if ($qr_code_token) {
-                        // QRコードHTMLを生成
-                        $qr_code_html = get_qr_code_html($guest_id, [
-                            'size' => 200,
-                            'instruction_text' => '会場受付でこのQRコードをお見せください'
-                        ]);
-                    }
-                } else {
-                    // 既存のゲストレコードがない場合は、新しく作成
-                    try {
-                        // まず、同じ名前とメールアドレスでゲストが存在するか確認
-                        $check_guest_stmt = $pdo->prepare("
-                            SELECT id FROM guests 
-                            WHERE name = ? AND email = ?
-                        ");
-                        $check_guest_stmt->execute([$name, $email]);
-                        $existing_guest_id = $check_guest_stmt->fetchColumn();
-                        
-                        if ($existing_guest_id) {
-                            // 既存のゲストIDを使用
-                            $guest_id = $existing_guest_id;
-                        } else {
-                            // 新しいゲストレコードを作成
-                            $create_guest_stmt = $pdo->prepare("
-                                INSERT INTO guests (name, email, group_name, group_id) 
-                                VALUES (?, ?, ?, ?)
-                            ");
-                            
-                            // グループIDがない場合は生成
-                            if (empty($group_id)) {
-                                $group_id = 'G' . uniqid();
-                            }
-                            
-                            $group_name = $name . 'のグループ';
-                            $create_guest_stmt->execute([$name, $email, $group_name, $group_id]);
-                            
-                            $guest_id = $pdo->lastInsertId();
-                            log_debug("Created new guest record: $guest_id");
-                        }
-                        
-                        // QRコードトークンを生成
-                        if ($guest_id) {
-                            $qr_code_token = generate_qr_token($guest_id);
-                            log_debug("Generated QR token for new guest_id: $guest_id, token: $qr_code_token");
-                            
-                            if ($qr_code_token) {
-                                // QRコードHTMLを生成
-                                $qr_code_html = get_qr_code_html($guest_id, [
-                                    'size' => 200,
-                                    'instruction_text' => '会場受付でこのQRコードをお見せください'
-                                ]);
-                            }
-                            
-                            // responsesテーブルのguest_idを更新
-                            $update_response_stmt = $pdo->prepare("
-                                UPDATE responses SET guest_id = ? WHERE id = ?
-                            ");
-                            $update_response_stmt->execute([$guest_id, $guest_id]);
-                        }
-                    } catch (PDOException $e) {
-                        log_debug("Error creating guest record: " . $e->getMessage());
-                        // エラーが発生しても処理を続行
-                    }
-                }
-                
-                // 通知を送信
+                // 既存のゲストレコードがない場合は、新しく作成
                 try {
-                    // 通知ヘルパーを読み込み
-                    require_once 'includes/notification_helper.php';
-                    require_once 'includes/mail_helper.php';
+                    // まず、同じ名前とメールアドレスでゲストが存在するか確認
+                    $check_guest_stmt = $pdo->prepare("
+                        SELECT id FROM guests 
+                        WHERE name = ? AND email = ?
+                    ");
+                    $check_guest_stmt->execute([$name, $email]);
+                    $existing_guest_id = $check_guest_stmt->fetchColumn();
                     
-                    // 最新の回答データを取得 - 修正: guest_idではなくレスポンスID(last_id)を使用
-                    $response_stmt = $pdo->prepare("SELECT * FROM responses WHERE id = ?");
-                    $response_stmt->execute([$last_id]);
-                    $response_data = $response_stmt->fetch();
-                    
-                    // レスポンスデータが取得できた場合のみ通知を送信
-                    if ($response_data) {
-                        // 通知送信
-                        send_rsvp_notification($response_data);
-                        log_debug("Notification sent for response ID: " . $last_id);
+                    if ($existing_guest_id) {
+                        // 既存のゲストIDを使用
+                        $guest_id = $existing_guest_id;
                     } else {
-                        log_debug("Failed to get response data for ID: " . $last_id);
-                    }
-                    
-                    // 出席者にはQRコード付きの確認メールを送信
-                    if ($attending == 1 && !empty($email) && !empty($qr_code_html)) {
-                        // 結婚式設定情報を取得
-                        $wedding_settings = [];
-                        $settings_stmt = $pdo->query("SELECT setting_key, setting_value FROM wedding_settings");
-                        while ($row = $settings_stmt->fetch()) {
-                            $wedding_settings[$row['setting_key']] = $row['setting_value'];
+                        // 新しいゲストレコードを作成
+                        $create_guest_stmt = $pdo->prepare("
+                            INSERT INTO guests (name, email, group_name, group_id) 
+                            VALUES (?, ?, ?, ?)
+                        ");
+                        
+                        // グループIDがない場合は生成
+                        if (empty($group_id)) {
+                            $group_id = 'G' . uniqid();
                         }
                         
-                        // メールのタイトルと本文
-                        $subject = "【招待状の受付確認】" . ($wedding_settings['couple_name'] ?? '翔＆あかね') . "の結婚式";
+                        $group_name = $name . 'のグループ';
+                        $create_guest_stmt->execute([$name, $email, $group_name, $group_id]);
                         
-                        // メール本文にQRコードのHTMLを含める
-                        $body = "
-                            <html>
-                            <head>
-                                <style>
-                                    body { font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; }
-                                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                                    .header { text-align: center; margin-bottom: 20px; }
-                                    .message { margin-bottom: 30px; }
-                                    .qr-section { text-align: center; margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }
-                                    .qr-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #4CAF50; }
-                                    .qr-instructions { margin-top: 15px; font-size: 14px; color: #666; }
-                                    .footer { margin-top: 30px; font-size: 12px; color: #777; text-align: center; }
-                                </style>
-                            </head>
-                            <body>
-                                <div class='container'>
-                                    <div class='header'>
-                                        <h2>" . ($wedding_settings['couple_name'] ?? '翔＆あかね') . "の結婚式</h2>
-                                    </div>
-                                    
-                                    <div class='message'>
-                                        <p>" . htmlspecialchars($name) . " 様</p>
-                                        <p>結婚式の出席登録ありがとうございます。以下の内容で受け付けました。</p>
-                                        <ul>
-                                            <li>お名前: " . htmlspecialchars($name) . "</li>
-                                            <li>ご出欠: 出席</li>
-                                            <li>同伴者数: " . $companions . "名</li>
-                                            <li>日時: " . ($wedding_settings['wedding_date'] ?? '2024年4月30日') . " " . ($wedding_settings['ceremony_time'] ?? '13:00') . "〜</li>
-                                            <li>会場: " . ($wedding_settings['venue_name'] ?? '結婚式場') . "</li>
-                                        </ul>
-                                    </div>
-                                    
-                                    <div class='qr-section'>
-                                        <div class='qr-title'>📱 スマートチェックイン用QRコード</div>
-                                        <p>多くのメールクライアントではセキュリティのため画像が自動的に表示されません。</p>
-                                        <div class='qr-button-container'>
-                                            <a href='{$site_url}my_qrcode.php?group={$group_id}' class='qr-link-button' style='display:inline-block; padding:12px 20px; background-color:#4285F4; color:white; text-decoration:none; border-radius:5px; font-weight:bold; margin:15px 0;'>
-                                                QRコードを表示する（ブラウザで開きます）
-                                            </a>
-                                        </div>
-                                        <p class='qr-instructions' style='margin-top:15px; font-size:14px; color:#555;'>
-                                            ※当日の受付をスムーズにするために、リンク先のQRコードを保存しておいてください。<br>
-                                            会場の受付でこのQRコードをご提示いただくとスムーズにご案内いたします。
-                                        </p>
-                                    </div>
-                                    
-                                    <style>
-                                    .qr-section {
-                                        background-color: #f0f8ff;
-                                        border-radius: 10px;
-                                        padding: 20px;
-                                        margin: 20px 0;
-                                        text-align: center;
-                                        border: 2px dashed #4285F4;
-                                    }
-                                    .qr-title {
-                                        font-size: 18px;
-                                        font-weight: bold;
-                                        color: #4285F4;
-                                        margin-bottom: 15px;
-                                    }
-                                    .qr-instructions {
-                                        margin-top: 15px;
-                                        font-size: 14px;
-                                        color: #555;
-                                    }
-                                    .qr-link-container {
-                                        margin-top: 15px;
-                                    }
-                                    .qr-link-button {
-                                        display: inline-block;
-                                        padding: 10px 20px;
-                                        background-color: #4285F4;
-                                        color: white;
-                                        text-decoration: none;
-                                        border-radius: 5px;
-                                        font-weight: bold;
-                                    }
-                                    </style>
-                                    
-                                    <p>お会いできることを楽しみにしております。何かご不明な点がありましたら、ご連絡ください。</p>
-                                    
-                                    <div class='footer'>
-                                        <p>※このメールは自動送信されています。ご返信いただいてもお答えできません。</p>
-                                        <p>&copy; " . date('Y') . " " . ($wedding_settings['couple_name'] ?? '翔＆あかね') . " Wedding</p>
-                                    </div>
-                                </div>
-                            </body>
-                            </html>
-                        ";
-                        
-                        // メール送信
-                        $mail_result = send_mail(
-                            $email,                                  // 宛先
-                            $subject,                                // 件名
-                            $body,                                   // 本文
-                            $site_email,                             // 送信元メールアドレス
-                            $wedding_settings['couple_name'] ?? '翔＆あかね'  // 送信元名
-                        );
-                        log_debug("QR code email sent to $email: " . ($mail_result['success'] ? "Success" : "Failed - " . $mail_result['message']));
+                        $guest_id = $pdo->lastInsertId();
+                        log_debug("Created new guest record: $guest_id");
                     }
                     
+                    // QRコードトークンを生成
+                    if ($guest_id) {
+                        $qr_code_token = generate_qr_token($guest_id);
+                        log_debug("Generated QR token for new guest_id: $guest_id, token: $qr_code_token");
+                        
+                        if ($qr_code_token) {
+                            // QRコードHTMLを生成
+                            $qr_code_html = get_qr_code_html($guest_id, [
+                                'size' => 200,
+                                'instruction_text' => '会場受付でこのQRコードをお見せください'
+                            ]);
+                        }
+                        
+                        // responsesテーブルのguest_idを更新
+                        $update_response_stmt = $pdo->prepare("
+                            UPDATE responses SET guest_id = ? WHERE id = ?
+                        ");
+                        $update_response_stmt->execute([$guest_id, $guest_id]);
+                    }
+                } catch (PDOException $e) {
+                    log_debug("Error creating guest record: " . $e->getMessage());
+                    // エラーが発生しても処理を続行
+                }
+            }
+            
+            // 通知を送信
+            try {
+                // 通知ヘルパーを読み込み
+                require_once 'includes/notification_helper.php';
+                require_once 'includes/mail_helper.php';
+                
+                // 最新の回答データを取得 - 修正: guest_idではなくレスポンスID(last_id)を使用
+                $response_stmt = $pdo->prepare("SELECT * FROM responses WHERE id = ?");
+                $response_stmt->execute([$last_id]);
+                $response_data = $response_stmt->fetch();
+                
+                // レスポンスデータが取得できた場合のみ通知を送信
+                if ($response_data) {
+                    // 通知送信
+                    send_rsvp_notification($response_data);
                     log_debug("Notification sent for response ID: " . $last_id);
-                } catch (Exception $e) {
-                    // 通知送信に失敗しても処理を続行
-                    log_debug("Failed to send notification: " . $e->getMessage());
+                } else {
+                    log_debug("Failed to get response data for ID: " . $last_id);
                 }
                 
-                // 成功メッセージを設定
-                $success = true;
-                
-                // 最後にQRコードを生成（出席者のみ）
-                if ($attending) {
-                    // 出席者のQRコード生成
-                    generate_qr_for_guest($response_id, $guest_id, $email);
-                }
-                
-                // グループIDが存在する場合は、グループページにリダイレクト
-                if ($group_id) {
-                    // リダイレクト先を構築
-                    $redirect_url = 'index.php?group=' . $group_id . '&r=done'; // 回答済みフラグを追加
-                    
-                    // QRコードトークンが存在する場合は、それも追加
-                    if (isset($qr_token) && !empty($qr_token)) {
-                        $redirect_url .= '&token=' . $qr_token;
+                // 出席者にはQRコード付きの確認メールを送信
+                if ($attending == 1 && !empty($email) && !empty($qr_code_html)) {
+                    // 結婚式設定情報を取得
+                    $wedding_settings = [];
+                    $settings_stmt = $pdo->query("SELECT setting_key, setting_value FROM wedding_settings");
+                    while ($row = $settings_stmt->fetch()) {
+                        $wedding_settings[$row['setting_key']] = $row['setting_value'];
                     }
                     
-                    // 成功メッセージとともにリダイレクト
-                    log_debug("Redirecting to: " . $redirect_url);
-                    header('Location: ' . $redirect_url);
-                    exit;
-                } else {
-                    // グループIDがない場合はトップページにリダイレクト（理論上あまり起きない）
-                    header('Location: index.php?success=1&r=done');
-                    exit;
+                    // メールのタイトルと本文
+                    $subject = "【招待状の受付確認】" . ($wedding_settings['couple_name'] ?? '翔＆あかね') . "の結婚式";
+                    
+                    // メール本文にQRコードのHTMLを含める
+                    $body = "
+                        <html>
+                        <head>
+                            <style>
+                                body { font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; }
+                                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                                .header { text-align: center; margin-bottom: 20px; }
+                                .message { margin-bottom: 30px; }
+                                .qr-section { text-align: center; margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }
+                                .qr-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #4CAF50; }
+                                .qr-instructions { margin-top: 15px; font-size: 14px; color: #666; }
+                                .footer { margin-top: 30px; font-size: 12px; color: #777; text-align: center; }
+                            </style>
+                        </head>
+                        <body>
+                            <div class='container'>
+                                <div class='header'>
+                                    <h2>" . ($wedding_settings['couple_name'] ?? '翔＆あかね') . "の結婚式</h2>
+                                </div>
+                                
+                                <div class='message'>
+                                    <p>" . htmlspecialchars($name) . " 様</p>
+                                    <p>結婚式の出席登録ありがとうございます。以下の内容で受け付けました。</p>
+                                    <ul>
+                                        <li>お名前: " . htmlspecialchars($name) . "</li>
+                                        <li>ご出欠: 出席</li>
+                                        <li>同伴者数: " . $companions . "名</li>
+                                        <li>日時: " . ($wedding_settings['wedding_date'] ?? '2024年4月30日') . " " . ($wedding_settings['ceremony_time'] ?? '13:00') . "〜</li>
+                                        <li>会場: " . ($wedding_settings['venue_name'] ?? '結婚式場') . "</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class='qr-section'>
+                                    <div class='qr-title'>📱 スマートチェックイン用QRコード</div>
+                                    <p>多くのメールクライアントではセキュリティのため画像が自動的に表示されません。</p>
+                                    <div class='qr-button-container'>
+                                        <a href='{$site_url}my_qrcode.php?group={$group_id}' class='qr-link-button' style='display:inline-block; padding:12px 20px; background-color:#4285F4; color:white; text-decoration:none; border-radius:5px; font-weight:bold; margin:15px 0;'>
+                                            QRコードを表示する（ブラウザで開きます）
+                                        </a>
+                                    </div>
+                                    <p class='qr-instructions' style='margin-top:15px; font-size:14px; color:#555;'>
+                                        ※当日の受付をスムーズにするために、リンク先のQRコードを保存しておいてください。<br>
+                                        会場の受付でこのQRコードをご提示いただくとスムーズにご案内いたします。
+                                    </p>
+                                </div>
+                                
+                                <style>
+                                .qr-section {
+                                    background-color: #f0f8ff;
+                                    border-radius: 10px;
+                                    padding: 20px;
+                                    margin: 20px 0;
+                                    text-align: center;
+                                    border: 2px dashed #4285F4;
+                                }
+                                .qr-title {
+                                    font-size: 18px;
+                                    font-weight: bold;
+                                    color: #4285F4;
+                                    margin-bottom: 15px;
+                                }
+                                .qr-instructions {
+                                    margin-top: 15px;
+                                    font-size: 14px;
+                                    color: #555;
+                                }
+                                .qr-link-container {
+                                    margin-top: 15px;
+                                }
+                                .qr-link-button {
+                                    display: inline-block;
+                                    padding: 10px 20px;
+                                    background-color: #4285F4;
+                                    color: white;
+                                    text-decoration: none;
+                                    border-radius: 5px;
+                                    font-weight: bold;
+                                }
+                                </style>
+                                
+                                <p>お会いできることを楽しみにしております。何かご不明な点がありましたら、ご連絡ください。</p>
+                                
+                                <div class='footer'>
+                                    <p>※このメールは自動送信されています。ご返信いただいてもお答えできません。</p>
+                                    <p>&copy; " . date('Y') . " " . ($wedding_settings['couple_name'] ?? '翔＆あかね') . " Wedding</p>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
+                    ";
+                    
+                    // メール送信
+                    $mail_result = send_mail(
+                        $email,                                  // 宛先
+                        $subject,                                // 件名
+                        $body,                                   // 本文
+                        $site_email,                             // 送信元メールアドレス
+                        $wedding_settings['couple_name'] ?? '翔＆あかね'  // 送信元名
+                    );
+                    log_debug("QR code email sent to $email: " . ($mail_result['success'] ? "Success" : "Failed - " . $mail_result['message']));
                 }
+                
+                log_debug("Notification sent for response ID: " . $last_id);
+            } catch (Exception $e) {
+                // 通知送信に失敗しても処理を続行
+                log_debug("Failed to send notification: " . $e->getMessage());
+            }
+            
+            // 成功メッセージを設定
+            $success = true;
+            
+            // 最後にQRコードを生成（出席者のみ）
+            if ($attending) {
+                // 出席者のQRコード生成
+                generate_qr_for_guest($response_id, $guest_id, $email);
+            }
+            
+            // グループIDが存在する場合は、グループページにリダイレクト
+            if ($group_id) {
+                // リダイレクト先を構築
+                $redirect_url = 'index.php?group=' . $group_id . '&r=done'; // 回答済みフラグを追加
+                
+                // QRコードトークンが存在する場合は、それも追加
+                if (isset($qr_token) && !empty($qr_token)) {
+                    $redirect_url .= '&token=' . $qr_token;
+                }
+                
+                // 成功メッセージとともにリダイレクト
+                log_debug("Redirecting to: " . $redirect_url);
+                header('Location: ' . $redirect_url);
+                exit;
+            } else {
+                // グループIDがない場合はトップページにリダイレクト（理論上あまり起きない）
+                header('Location: index.php?success=1&r=done');
+                exit;
             }
         } catch (PDOException $e) {
             // エラーメッセージを設定
