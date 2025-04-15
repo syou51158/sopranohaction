@@ -83,6 +83,13 @@ if (!empty($token) && $auto_checkin) {
         if ($checkin_result) {
             error_log("自動チェックイン成功 (index.php): ゲストID=" . $guest_info['id']);
             $checkin_complete = true;
+            
+            // リダイレクト処理を追加 - QRからのチェックイン後は必ずcheckin_complete=1のURLに変換
+            if (!isset($_GET['checkin_complete']) || $_GET['checkin_complete'] !== '1') {
+                $redirectUrl = $site_url . 'index.php?group=' . urlencode($group_id) . '&checkin_complete=1';
+                header('Location: ' . $redirectUrl);
+                exit;
+            }
         } else {
             error_log("自動チェックイン失敗 (index.php): ゲストID=" . $guest_info['id']);
         }

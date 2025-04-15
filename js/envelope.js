@@ -14,10 +14,34 @@ document.addEventListener('DOMContentLoaded', function() {
     // URLにcheckin_completeパラメータがあるか確認
     const urlParams = new URLSearchParams(window.location.search);
     const hasCheckinComplete = urlParams.get('checkin_complete') === '1';
+    const groupId = urlParams.get('group');
     
-    // チェックイン完了の場合は封筒演出をスキップして直接招待状を表示
-    if (hasCheckinComplete) {
-        console.log('チェックイン完了パラメータを検出しました');
+    // チェックイン状態をローカルストレージに保存
+    if (hasCheckinComplete && groupId) {
+        try {
+            localStorage.setItem('checkinComplete_' + groupId, 'true');
+            console.log('チェックイン状態をローカルストレージに保存しました: グループID=' + groupId);
+        } catch (e) {
+            console.error('ローカルストレージへの保存に失敗しました:', e);
+        }
+    }
+    
+    // チェックイン状態を確認
+    let isCheckedIn = false;
+    if (groupId) {
+        try {
+            isCheckedIn = localStorage.getItem('checkinComplete_' + groupId) === 'true';
+            if (isCheckedIn) {
+                console.log('保存されたチェックイン状態を検出: グループID=' + groupId);
+            }
+        } catch (e) {
+            console.error('ローカルストレージからの読み込みに失敗しました:', e);
+        }
+    }
+    
+    // チェックイン完了またはローカルストレージに保存された状態がある場合は封筒演出をスキップして直接招待状を表示
+    if (hasCheckinComplete || isCheckedIn) {
+        console.log('チェックイン完了状態を検出しました（URLパラメータまたはローカルストレージ）');
         
         // 封筒を非表示にする
         if (envelope) envelope.style.display = 'none';
