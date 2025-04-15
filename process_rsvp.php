@@ -108,6 +108,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             $result = $check_stmt->fetch();
             
+            // グループIDがある場合、そのグループに対する回答がないか確認
+            $group_has_responses = false;
+            if ($guest_id && $group_id) {
+                $group_check_stmt = $pdo->prepare("
+                    SELECT COUNT(*) as count FROM responses 
+                    WHERE guest_id = :guest_id
+                ");
+                $group_check_stmt->execute(['guest_id' => $guest_id]);
+                $group_result = $group_check_stmt->fetch();
+                $group_has_responses = ($group_result['count'] > 0);
+                
+                if ($group_has_responses) {
+                    log_debug("Group already has responses: group_id=$group_id, guest_id=$guest_id");
+                    // グループに既に回答がある場合は、回答済みとしてリダイレクト
+                    $redirect_url = 'index.php?group=' . $group_id . '&r=done';
+                    log_debug("Redirecting to: " . $redirect_url);
+                    header('Location: ' . $redirect_url);
+                    exit;
+                }
+            }
+            
             if ($result['count'] > 0) {
                 $error = "すでに同じ情報で回答が送信されています。";
                 log_debug("Duplicate submission detected: $name, $email");
@@ -409,8 +430,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // 成功メッセージを設定
                 $success = true;
                 
-                // リダイレクト先を設定
-                $redirect_url = $group_id ? "thank_you.php?group=$group_id" : "thank_you.php";
+                // 最後にQRコードを生成（出席者のみ）
+                if ($attending) {
+                    // 出席者のQRコード生成
+                    generate_qr_for_guest($response_id, $guest_id, $email);
+                }
+                
+                // グループIDが存在する場合は、グループページにリダイレクト
+                if ($group_id) {
+                    // リダイレクト先を構築
+                    $redirect_url = 'index.php?group=' . $group_id . '&r=done'; // 回答済みフラグを追加
+                    
+                    // QRコードトークンが存在する場合は、それも追加
+                    if (isset($qr_token) && !empty($qr_token)) {
+                        $redirect_url .= '&token=' . $qr_token;
+                    }
+                    
+                    // 成功メッセージとともにリダイレクト
+                    log_debug("Redirecting to: " . $redirect_url);
+                    header('Location: ' . $redirect_url);
+                    exit;
+                } else {
+                    // グループIDがない場合はトップページにリダイレクト（理論上あまり起きない）
+                    header('Location: index.php?success=1&r=done');
+                    exit;
+                }
             }
         } catch (PDOException $e) {
             // エラーメッセージを設定
