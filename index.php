@@ -379,6 +379,7 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
     </div>
 
     <!-- 封筒演出 -->
+    <?php if (!$checkin_complete): ?>
     <div class="envelope-container">
         <div class="envelope-bg"></div>
         <div class="floating-petals">
@@ -415,9 +416,10 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
             <div class="sparkle sparkle5"></div>
         </div>
     </div>
+    <?php endif; ?>
 
     <!-- 選択画面 -->
-    <div class="choice-screen hide">
+    <div class="choice-screen <?php echo !$checkin_complete ? 'hide' : ''; ?>">
         <!-- 選択画面用の装飾エフェクト -->
         <div class="choice-decoration-effects">
             <?php for ($i = 1; $i <= 5; $i++): ?>
@@ -467,7 +469,7 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
         ?>
     </div>
 
-    <div class="invitation-content hide" id="invitation-content">
+    <div class="invitation-content <?php echo !$checkin_complete ? 'hide' : ''; ?>" id="invitation-content">
         <!-- 招待状ページ用の装飾エフェクト -->
         <div class="invitation-decoration-effects">
             <?php for ($i = 1; $i <= 8; $i++): ?>

@@ -282,6 +282,7 @@ $page_title = 'ご案内';
             text-align: center;
             margin-right: 15px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            height: fit-content;
         }
         
         .schedule-details {
@@ -300,6 +301,7 @@ $page_title = 'ご案内';
             color: #6d4c41;
             font-size: 0.95rem;
             line-height: 1.5;
+            margin-bottom: 8px;
         }
         
         .schedule-location {
@@ -359,6 +361,16 @@ $page_title = 'ご案内';
         }
         
         @media (max-width: 600px) {
+            .schedule-item {
+                flex-direction: column;
+            }
+            
+            .schedule-time {
+                margin-bottom: 10px;
+                margin-right: 0;
+                width: 80px;
+            }
+            
             .table-seat-info {
                 font-size: 1.2rem;
             }
@@ -369,10 +381,6 @@ $page_title = 'ご案内';
             
             .seat-number {
                 font-size: 1.3rem;
-            }
-            
-            .schedule-time {
-                width: 80px;
             }
         }
     </style>
