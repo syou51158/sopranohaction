@@ -7,6 +7,7 @@ $group_id = isset($_GET['group']) ? trim($_GET['group']) : '';
 $token = isset($_GET['token']) ? trim($_GET['token']) : '';
 $auto_checkin = isset($_GET['auto_checkin']) && $_GET['auto_checkin'] === '1';
 $checkin_complete = isset($_GET['checkin_complete']) && $_GET['checkin_complete'] === '1';
+$response_complete = isset($_GET['r']) && $_GET['r'] === 'done';
 
 // ゲスト情報を初期化
 $guest_info = [
@@ -176,6 +177,32 @@ $venue_info = get_wedding_venue_info();
 
 // 結婚式の日時情報を取得
 $datetime_info = get_wedding_datetime();
+
+// 既に回答済みかどうか（クエリパラメータまたはデータベース確認）
+$already_responded = $response_complete;
+
+// グループIDがある場合、回答済みかどうかをデータベースから確認
+if ($group_id && isset($guest_info['id']) && !$already_responded) {
+    try {
+        // グループIDに紐づくゲストIDについて、responsesテーブルに回答があるか確認
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) FROM responses 
+            WHERE guest_id = :guest_id
+        ");
+        $stmt->execute(['guest_id' => $guest_info['id']]);
+        $response_count = $stmt->fetchColumn();
+        
+        // 回答がある場合は回答済みとする
+        if ($response_count > 0) {
+            $already_responded = true;
+        }
+    } catch (PDOException $e) {
+        // データベースエラーは静かに失敗
+        if ($debug_mode) {
+            error_log("回答確認エラー: " . $e->getMessage());
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -301,6 +328,30 @@ $datetime_info = get_wedding_datetime();
         .slide-in-right.is-visible {
             opacity: 1;
             transform: translateX(0);
+        }
+
+        /* 回答完了メッセージのスタイル */
+        .response-complete {
+            background-color: #f8f4e6;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .response-complete p {
+            margin: 10px 0;
+            color: #333;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .response-complete p:first-child {
+            font-weight: bold;
+            color: #4CAF50;
+            font-size: 18px;
         }
     </style>
     
@@ -1019,74 +1070,83 @@ $datetime_info = get_wedding_datetime();
                 </div>
             </section>
 
-            <section id="rsvp" class="rsvp-section fade-in-section">
-                <div class="section-title">
-                    <h2>ご返信</h2>
-                    <div class="title-underline"></div>
-                </div>
-                <div class="rsvp-intro">
-                    <p>お忙しい中恐縮ですが、なるべくお早めにご出欠のご連絡をいただけますと嬉しいです。どうぞよろしくお願いいたします。</p>
+            <!-- RSVP -->
+            <section id="rsvp" class="rsvp-section">
+                <div class="content-container">
+                    <h2>ご出欠のお返事</h2>
                     
-                </div>
-                <form id="rsvp-form" action="process_rsvp.php" method="post" class="scale-in">
-                    <?php if ($group_id && isset($guest_info['id'])): ?>
-                    <input type="hidden" name="guest_id" value="<?= $guest_info['id'] ?>">
-                    <input type="hidden" name="group_id" value="<?= $group_id ?>">
-                    <?php endif; ?>
-                    <div class="form-group">
-                        <label for="name">お名前<span class="required">*</span></label>
-                        <input type="text" id="name" name="name" required>
-                        <div id="name-error" class="error-message-inline" style="display: none;">お名前を入力してください</div>
+                    <?php if ($already_responded): ?>
+                    <div class="response-complete">
+                        <p>ご回答いただきありがとうございます。</p>
+                        <p>すでに出欠のご回答をいただいております。</p>
+                        <p>変更がある場合は、お問い合わせよりご連絡ください。</p>
                     </div>
-                    <div class="form-group">
-                        <label for="email">メールアドレス<span class="required">*</span></label>
-                        <input type="email" id="email" name="email" required>
-                        <div id="email-error" class="error-message-inline" style="display: none;">有効なメールアドレスを入力してください</div>
-                    </div>
-                    <div class="form-group">
-                        <label>ご出席<span class="required">*</span></label>
-                        <div class="radio-group">
-                            <input type="radio" id="attend-yes" name="attending" value="1" checked required>
-                            <label for="attend-yes">出席します</label>
-                            <input type="radio" id="attend-no" name="attending" value="0">
-                            <label for="attend-no">欠席します</label>
-                        </div>
-                    </div>
-                    <div class="form-group attendance-details">
-                        <label for="guests">同伴者人数</label>
-                        <select id="guests" name="companions">
-                            <option value="0">0名</option>
-                            <?php for ($i = 1; $i <= $guest_info['max_companions']; $i++): ?>
-                            <option value="<?= $i ?>"><?= $i ?>名</option>
-                            <?php endfor; ?>
-                        </select>
-                    </div>
-                    <div id="companions-container" style="display: none;">
+                    <?php else: ?>
+                    <form action="process_rsvp.php" method="post" id="rsvp-form">
+                        <!-- フォームフィールド -->
+                        <?php if ($group_id && !empty($guest_info['id'])): ?>
+                        <input type="hidden" name="guest_id" value="<?= $guest_info['id'] ?>">
+                        <input type="hidden" name="group_id" value="<?= $group_id ?>">
+                        <?php endif; ?>
+                        
+                        <!-- 名前フィールド -->
                         <div class="form-group">
-                            <h4>同伴者情報</h4>
-                            <p class="companions-note">座席表作成のため、同伴者様のお名前をご記入ください。</p>
+                            <label for="name">お名前</label>
+                            <input type="text" id="name" name="name" required>
                         </div>
-                        <div id="companions-fields">
-                            <!-- 同伴者フィールドがJSで動的に追加されます -->
+                        
+                        <!-- メールアドレスフィールド -->
+                        <div class="form-group">
+                            <label for="email">メールアドレス</label>
+                            <input type="email" id="email" name="email" required>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">メッセージ</label>
-                        <textarea id="message" name="message" rows="4" placeholder="お二人へのお祝いのメッセージなど"></textarea>
-                    </div>
-                    
-                    <div class="form-group" id="dietary-group">
-                        <label for="dietary">アレルギー・食事制限等</label>
-                        <textarea id="dietary" name="dietary" rows="2"></textarea>
-                    </div>
-                    
-                    <!-- reCAPTCHA v3は非表示 -->
-                    <input type="hidden" name="recaptcha_v3" value="true">
-                    
-                    <button type="submit" class="submit-button"><i class="fas fa-paper-plane"></i> 送信する</button>
-                </form>
-                <div class="rsvp-decoration">
-                    <img src="images/leaf.png" alt="装飾の葉" class="rsvp-leaf">
+                        
+                        <!-- 出欠選択 -->
+                        <div class="form-group">
+                            <label>ご出欠</label>
+                            <div class="radio-group">
+                                <input type="radio" id="attend-yes" name="attending" value="1" checked required>
+                                <label for="attend-yes">出席します</label>
+                                <input type="radio" id="attend-no" name="attending" value="0">
+                                <label for="attend-no">欠席します</label>
+                            </div>
+                        </div>
+                        <div class="form-group attendance-details">
+                            <label for="guests">同伴者人数</label>
+                            <select id="guests" name="companions">
+                                <option value="0">0名</option>
+                                <?php for ($i = 1; $i <= $guest_info['max_companions']; $i++): ?>
+                                <option value="<?= $i ?>"><?= $i ?>名</option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+                        <div id="companions-container" style="display: none;">
+                            <div class="form-group">
+                                <h4>同伴者情報</h4>
+                                <p class="companions-note">座席表作成のため、同伴者様のお名前をご記入ください。</p>
+                            </div>
+                            <div id="companions-fields">
+                                <!-- 同伴者フィールドがJSで動的に追加されます -->
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">メッセージ</label>
+                            <textarea id="message" name="message" rows="4" placeholder="お二人へのお祝いのメッセージなど"></textarea>
+                        </div>
+                        
+                        <div class="form-group" id="dietary-group">
+                            <label for="dietary">アレルギー・食事制限等</label>
+                            <textarea id="dietary" name="dietary" rows="2" placeholder="アレルギーや食事制限などがあればご記入ください"></textarea>
+                        </div>
+                        
+                        <!-- reCAPTCHA -->
+                        <div class="g-recaptcha" data-sitekey="6LfXwg8rAAAAAA-cI9mQ5Z3YJO7PKCeAuJXNK4vW" data-callback="enableSubmit"></div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" id="submit-btn" disabled>送信する</button>
+                        </div>
+                    </form>
+                    <?php endif; ?>
                 </div>
             </section>
 
