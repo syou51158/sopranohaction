@@ -9,6 +9,41 @@ $auto_checkin = isset($_GET['auto_checkin']) && $_GET['auto_checkin'] === '1';
 $checkin_complete = isset($_GET['checkin_complete']) && $_GET['checkin_complete'] === '1';
 $response_complete = isset($_GET['r']) && $_GET['r'] === 'done';
 
+// グループIDが存在し、checkin_completeパラメータがない場合は、
+// データベースでチェックイン履歴を確認して必要に応じてリダイレクト
+if ($group_id && !$checkin_complete && !$token) {
+    try {
+        // まずグループIDから関連するゲスト情報を取得
+        $stmt = $pdo->prepare("SELECT id FROM guests WHERE group_id = :group_id LIMIT 1");
+        $stmt->execute(['group_id' => $group_id]);
+        $guest_data = $stmt->fetch();
+        
+        if ($guest_data) {
+            $guest_id = $guest_data['id'];
+            
+            // 該当ゲストのチェックイン履歴を確認
+            $check_stmt = $pdo->prepare("
+                SELECT COUNT(*) FROM checkins 
+                WHERE guest_id = ?
+            ");
+            $check_stmt->execute([$guest_id]);
+            $has_checkin_history = $check_stmt->fetchColumn() > 0;
+            
+            // チェックイン履歴がある場合はリダイレクト
+            if ($has_checkin_history) {
+                error_log("データベースでチェックイン履歴を確認: グループID={$group_id}、ゲストID={$guest_id}、チェックイン済み");
+                $redirectUrl = $site_url . 'index.php?group=' . urlencode($group_id) . '&checkin_complete=1';
+                header('Location: ' . $redirectUrl);
+                exit;
+            } else {
+                error_log("データベースでチェックイン履歴を確認: グループID={$group_id}、ゲストID={$guest_id}、未チェックイン");
+            }
+        }
+    } catch (PDOException $e) {
+        error_log("チェックイン履歴確認エラー: " . $e->getMessage());
+    }
+}
+
 // ゲスト情報を初期化
 $guest_info = [
     'group_name' => '親愛なるゲスト様',

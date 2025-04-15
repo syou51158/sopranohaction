@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 重複処理防止用のフラグ
     let openedEnvelope = false;
     
-    // URLにcheckin_completeパラメータがあるか確認
+    // URLパラメータの取得
     const urlParams = new URLSearchParams(window.location.search);
     const hasCheckinComplete = urlParams.get('checkin_complete') === '1';
     const groupId = urlParams.get('group');
@@ -19,7 +19,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // チェックイン状態をローカルストレージに保存
     if (hasCheckinComplete && groupId) {
         try {
-            localStorage.setItem('checkinComplete_' + groupId, 'true');
+            // チェックイン完了のローカルストレージ保存はURLパラメータに関わらず長期保存（60日）
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 60); // 60日間有効
+            
+            const checkinData = {
+                checked: true,
+                timestamp: new Date().toISOString(),
+                expires: expiryDate.toISOString()
+            };
+            
+            localStorage.setItem('checkinComplete_' + groupId, JSON.stringify(checkinData));
             console.log('チェックイン状態をローカルストレージに保存しました: グループID=' + groupId);
         } catch (e) {
             console.error('ローカルストレージへの保存に失敗しました:', e);
@@ -30,9 +40,39 @@ document.addEventListener('DOMContentLoaded', function() {
     let isCheckedIn = false;
     if (groupId) {
         try {
-            isCheckedIn = localStorage.getItem('checkinComplete_' + groupId) === 'true';
-            if (isCheckedIn) {
-                console.log('保存されたチェックイン状態を検出: グループID=' + groupId);
+            const savedData = localStorage.getItem('checkinComplete_' + groupId);
+            if (savedData) {
+                try {
+                    const checkinData = JSON.parse(savedData);
+                    // 有効期限をチェック
+                    if (checkinData.expires && new Date(checkinData.expires) > new Date()) {
+                        isCheckedIn = checkinData.checked === true;
+                        if (isCheckedIn) {
+                            console.log('保存されたチェックイン状態を検出: グループID=' + groupId + ', 有効期限: ' + checkinData.expires);
+                        }
+                    } else {
+                        console.log('チェックイン状態の有効期限切れ: グループID=' + groupId);
+                        // 有効期限切れデータの削除
+                        localStorage.removeItem('checkinComplete_' + groupId);
+                    }
+                } catch (parseError) {
+                    // 旧形式のデータ対応
+                    isCheckedIn = savedData === 'true';
+                    if (isCheckedIn) {
+                        console.log('レガシー形式のチェックイン状態を検出: グループID=' + groupId);
+                        // 新形式に移行
+                        const expiryDate = new Date();
+                        expiryDate.setDate(expiryDate.getDate() + 60); // 60日間有効
+                        
+                        const checkinData = {
+                            checked: true,
+                            timestamp: new Date().toISOString(),
+                            expires: expiryDate.toISOString()
+                        };
+                        
+                        localStorage.setItem('checkinComplete_' + groupId, JSON.stringify(checkinData));
+                    }
+                }
             }
         } catch (e) {
             console.error('ローカルストレージからの読み込みに失敗しました:', e);
