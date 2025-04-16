@@ -487,6 +487,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // 成功時のみヘッダーリダイレクトを設定
 if (isset($success) && $success) {
+    // リダイレクトURLが設定されていない場合のデフォルト値を設定
+    if (!isset($redirect_url) || empty($redirect_url)) {
+        $redirect_url = 'index.php?r=done';
+    }
+    
     // ヘッダーリダイレクトの前に何も出力していないことを確認
     // JavaScriptリダイレクトもバックアップとして使用
     header("Location: $redirect_url");
@@ -544,7 +549,11 @@ if (isset($success) && $success) {
                 <script>
                     // 画面遷移を確実にするためのJavaScriptリダイレクト
                     setTimeout(function() {
+                        <?php if (isset($redirect_url) && !empty($redirect_url)): ?>
                         window.location.href = "<?= $redirect_url ?>";
+                        <?php else: ?>
+                        window.location.href = "index.php?r=done";
+                        <?php endif; ?>
                     }, 3000); // 3秒後に遷移
                 </script>
             <?php else: ?>
