@@ -21,7 +21,7 @@ Before implementing any changes or new features, always check `MEMO/wedding_exte
 - After testing, create a PR to merge into main 
 
 ## Date Handling
-- Always use the current date (2025年4月16日) for documentation and commit messages
-- Do not rely on system time for date references
-- When adding dates to the Git commit log (memo/git記録), ensure the date is accurate
-- Double-check dates before committing changes to version control 
+- 必ずシステム時間を確認して正確な日付を使用する
+- コミットログやドキュメントの日付はシステム日付と一致させる
+- 日付フォーマットは「YYYY年MM月DD日」の形式に統一する
+- Git記録（memo/git記録）に追加する際は特に注意する 
