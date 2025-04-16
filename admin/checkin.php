@@ -688,53 +688,6 @@ $page_title = 'QRコードチェックイン';
             });
             
             if (token) {
-                // QRコードスキャン履歴をローカルストレージに記録
-                try {
-                    // URLからgroup_idパラメータを抽出
-                    let groupId = null;
-                    if (decodedText.includes('group=')) {
-                        const groupParam = decodedText.match(/[?&]group=([^&]+)/);
-                        if (groupParam && groupParam.length > 1) {
-                            groupId = decodeURIComponent(groupParam[1]);
-                        } else {
-                            try {
-                                const urlObj = new URL(decodedText);
-                                groupId = urlObj.searchParams.get('group');
-                            } catch (urlError) {
-                                console.error("URL解析エラー:", urlError);
-                            }
-                        }
-                    }
-                    
-                    if (groupId) {
-                        console.log(`グループID '${groupId}' のスキャン履歴を記録します`);
-                        
-                        // 現在時刻を取得（24時間後を期限とする）
-                        const now = new Date();
-                        const expires = new Date(now);
-                        expires.setHours(expires.getHours() + 24);
-                        
-                        // ローカルストレージにスキャン情報を保存
-                        const scanData = {
-                            token: token,
-                            scanned: true,
-                            timestamp: now.toISOString(),
-                            expires: expires.toISOString()
-                        };
-                        
-                        // ストレージキーを安全に構成
-                        const storageKey = `qrcode_scanned_${groupId}`;
-                        
-                        // データを保存
-                        localStorage.setItem(storageKey, JSON.stringify(scanData));
-                        console.log(`スキャン履歴を保存しました: キー=${storageKey}`, scanData);
-                    } else {
-                        console.warn("グループIDが特定できないため、スキャン履歴を保存できません");
-                    }
-                } catch (e) {
-                    console.error("ローカルストレージへの保存に失敗しました:", e);
-                }
-                
                 // 成功表示
                 scanResult.innerHTML = `
                     <div class="success-message">
@@ -752,12 +705,66 @@ $page_title = 'QRコードチェックイン';
                 // スキャンモードパラメータを保持
                 const scannerMode = <?= $scanner_mode ? "'1'" : "'0'"; ?>;
                 
-                // ページ遷移（少し遅延させる）
-                setTimeout(() => {
-                    const redirectUrl = `checkin.php?token=${encodeURIComponent(token)}&scanner=${scannerMode}&scan_action=auto_checkin&t=${Date.now()}`;
-                    console.log("リダイレクト先:", redirectUrl);
-                    window.location.href = redirectUrl;
-                }, 1000);
+                // トークンを使用してグループIDを取得し、ローカルストレージに保存
+                try {
+                    // APIを使用してトークンからグループIDを取得するためのAjaxリクエスト
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', `api/get_group_by_token.php?token=${encodeURIComponent(token)}`, true);
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            try {
+                                const response = JSON.parse(xhr.responseText);
+                                if (response.success && response.group_id) {
+                                    // グループIDをローカルストレージに保存
+                                    const groupId = response.group_id;
+                                    console.log(`グループID ${groupId} をローカルストレージに保存します`);
+                                    
+                                    // チェックイン情報をローカルストレージに保存
+                                    const checkInTime = new Date().toISOString();
+                                    const checkInInfo = {
+                                        group_id: groupId,
+                                        token: token,
+                                        timestamp: checkInTime,
+                                        synced: false
+                                    };
+                                    
+                                    // ローカルストレージに保存
+                                    localStorage.setItem(`checkin_${groupId}`, JSON.stringify(checkInInfo));
+                                    console.log(`チェックイン情報を保存しました:`, checkInInfo);
+                                } else {
+                                    console.warn('グループIDの取得に失敗しました:', response);
+                                }
+                            } catch (e) {
+                                console.error('グループID取得のレスポンス解析エラー:', e);
+                            }
+                        } else {
+                            console.error('グループID取得リクエストエラー:', xhr.status);
+                        }
+                        
+                        // いずれにしてもリダイレクトを続行
+                        redirectAfterScan();
+                    };
+                    xhr.onerror = function() {
+                        console.error('グループID取得ネットワークエラー');
+                        // エラーが発生しても、リダイレクトは続行
+                        redirectAfterScan();
+                    };
+                    xhr.send();
+                } catch (e) {
+                    console.error('グループID取得処理中のエラー:', e);
+                    // エラー発生時もリダイレクトを実行
+                    redirectAfterScan();
+                }
+                
+                // スキャン後のリダイレクト処理を関数化
+                function redirectAfterScan() {
+                    // ページ遷移（少し遅延させる）
+                    setTimeout(() => {
+                        const redirectUrl = `checkin.php?token=${encodeURIComponent(token)}&scanner=${scannerMode}&scan_action=auto_checkin&t=${Date.now()}`;
+                        console.log("リダイレクト先:", redirectUrl);
+                        window.location.href = redirectUrl;
+                    }, 1000);
+                }
             } else {
                 scanResult.innerHTML = `
                     <div class="error-message">
