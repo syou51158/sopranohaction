@@ -208,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             ");
                             
                             $companion_params = [
-                                'response_id' => $guest_id,
+                                'response_id' => $last_id,
                                 'name' => htmlspecialchars($companion_names[$i]),
                                 'age_group' => isset($companion_ages[$i]) ? htmlspecialchars($companion_ages[$i]) : 'adult',
                                 'dietary' => isset($companion_dietaries[$i]) ? htmlspecialchars($companion_dietaries[$i]) : ''
