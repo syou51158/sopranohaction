@@ -405,10 +405,9 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
     <style>
         .fade-in-section {
             opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 1s ease, transform 1s ease;
-            transition-delay: 0.2s;
-            will-change: opacity, transform;
+            transform: translateY(15px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            transition-delay: 0.1s;
         }
         
         .fade-in-section.is-visible {
@@ -418,9 +417,8 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
         
         .fade-sequence > * {
             opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-            will-change: opacity, transform;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
         
         .fade-sequence.is-visible > * {
@@ -428,22 +426,21 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
             transform: translateY(0);
         }
         
-        .fade-sequence.is-visible > *:nth-child(1) { transition-delay: 0.1s; }
-        .fade-sequence.is-visible > *:nth-child(2) { transition-delay: 0.2s; }
-        .fade-sequence.is-visible > *:nth-child(3) { transition-delay: 0.3s; }
-        .fade-sequence.is-visible > *:nth-child(4) { transition-delay: 0.4s; }
-        .fade-sequence.is-visible > *:nth-child(5) { transition-delay: 0.5s; }
-        .fade-sequence.is-visible > *:nth-child(6) { transition-delay: 0.6s; }
-        .fade-sequence.is-visible > *:nth-child(7) { transition-delay: 0.7s; }
-        .fade-sequence.is-visible > *:nth-child(8) { transition-delay: 0.8s; }
-        .fade-sequence.is-visible > *:nth-child(9) { transition-delay: 0.9s; }
-        .fade-sequence.is-visible > *:nth-child(10) { transition-delay: 1.0s; }
+        .fade-sequence.is-visible > *:nth-child(1) { transition-delay: 0.05s; }
+        .fade-sequence.is-visible > *:nth-child(2) { transition-delay: 0.1s; }
+        .fade-sequence.is-visible > *:nth-child(3) { transition-delay: 0.15s; }
+        .fade-sequence.is-visible > *:nth-child(4) { transition-delay: 0.2s; }
+        .fade-sequence.is-visible > *:nth-child(5) { transition-delay: 0.25s; }
+        .fade-sequence.is-visible > *:nth-child(6) { transition-delay: 0.3s; }
+        .fade-sequence.is-visible > *:nth-child(7) { transition-delay: 0.35s; }
+        .fade-sequence.is-visible > *:nth-child(8) { transition-delay: 0.4s; }
+        .fade-sequence.is-visible > *:nth-child(9) { transition-delay: 0.45s; }
+        .fade-sequence.is-visible > *:nth-child(10) { transition-delay: 0.5s; }
         
         .scale-in {
             opacity: 0;
-            transform: scale(0.9);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-            will-change: opacity, transform;
+            transform: scale(0.95);
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
         
         .scale-in.is-visible {
@@ -453,16 +450,14 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
         
         .slide-in-left {
             opacity: 0;
-            transform: translateX(-50px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-            will-change: opacity, transform;
+            transform: translateX(-20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
         
         .slide-in-right {
             opacity: 0;
-            transform: translateX(50px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-            will-change: opacity, transform;
+            transform: translateX(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
         
         .slide-in-left.is-visible,
@@ -632,13 +627,13 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
 <body>
     <!-- 装飾エフェクト（常時表示） -->
     <div class="decoration-effects">
-        <!-- 10個のランダムなハート -->
-        <?php for ($i = 1; $i <= 10; $i++): ?>
+        <!-- 5個のランダムなハート -->
+        <?php for ($i = 1; $i <= 5; $i++): ?>
         <div class="floating-heart" style="left: <?= rand(5, 95) ?>%; top: <?= rand(5, 95) ?>%; animation-delay: <?= $i * 0.5 ?>s;"></div>
         <?php endfor; ?>
         
-        <!-- 15個のランダムなキラキラ -->
-        <?php for ($i = 1; $i <= 15; $i++): ?>
+        <!-- 5個のランダムなキラキラ -->
+        <?php for ($i = 1; $i <= 5; $i++): ?>
         <div class="floating-sparkle" style="left: <?= rand(5, 95) ?>%; top: <?= rand(5, 95) ?>%; animation-delay: <?= $i * 0.3 ?>s;"></div>
         <?php endfor; ?>
     </div>
@@ -687,11 +682,11 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
     <div class="choice-screen <?php echo !$checkin_complete ? 'hide' : ''; ?>">
         <!-- 選択画面用の装飾エフェクト -->
         <div class="choice-decoration-effects">
-            <?php for ($i = 1; $i <= 5; $i++): ?>
+            <?php for ($i = 1; $i <= 3; $i++): ?>
             <div class="floating-heart" style="left: <?= rand(5, 95) ?>%; top: <?= rand(5, 95) ?>%; width: <?= rand(10, 20) ?>px; height: <?= rand(10, 20) ?>px; opacity: 0.15; animation-delay: <?= $i * 0.7 ?>s;"></div>
             <?php endfor; ?>
             
-            <?php for ($i = 1; $i <= 8; $i++): ?>
+            <?php for ($i = 1; $i <= 3; $i++): ?>
             <div class="floating-sparkle" style="left: <?= rand(5, 95) ?>%; top: <?= rand(5, 95) ?>%; width: <?= rand(8, 15) ?>px; height: <?= rand(8, 15) ?>px; opacity: 0.1; animation-delay: <?= $i * 0.4 ?>s;"></div>
             <?php endfor; ?>
         </div>
@@ -737,11 +732,11 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
     <div class="invitation-content <?php echo !$checkin_complete ? 'hide' : ''; ?>" id="invitation-content">
         <!-- 招待状ページ用の装飾エフェクト -->
         <div class="invitation-decoration-effects">
-            <?php for ($i = 1; $i <= 8; $i++): ?>
+            <?php for ($i = 1; $i <= 3; $i++): ?>
             <div class="floating-heart" style="left: <?= rand(5, 95) ?>%; top: <?= rand(5, 95) ?>%; width: <?= rand(8, 15) ?>px; height: <?= rand(8, 15) ?>px; opacity: 0.1; animation-delay: <?= $i * 0.8 ?>s;"></div>
             <?php endfor; ?>
             
-            <?php for ($i = 1; $i <= 12; $i++): ?>
+            <?php for ($i = 1; $i <= 4; $i++): ?>
             <div class="floating-sparkle" style="left: <?= rand(5, 95) ?>%; top: <?= rand(5, 95) ?>%; width: <?= rand(5, 12) ?>px; height: <?= rand(5, 12) ?>px; opacity: 0.08; animation-delay: <?= $i * 0.5 ?>s;"></div>
             <?php endfor; ?>
         </div>
@@ -751,10 +746,6 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
             <div class="leaf leaf2"></div>
             <div class="leaf leaf3"></div>
             <div class="leaf leaf4"></div>
-            <div class="leaf leaf5"></div>
-            <div class="leaf leaf6"></div>
-            <div class="leaf leaf7"></div>
-            <div class="leaf leaf8"></div>
         </div>
 
         <div class="container">
@@ -1751,6 +1742,67 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
         document.querySelectorAll('.fade-in-section, .fade-sequence, .scale-in, .slide-in-left, .slide-in-right').forEach(el => {
             fadeObserver.observe(el);
         });
+    });
+    </script>
+
+    <!-- スクロールアニメーション用のJavaScript（モバイル最適化版） -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // モバイル端末かどうかを検出
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Intersection Observerの設定
+        const options = {
+            root: null, // ビューポートをルートとして使用
+            rootMargin: '20px 0px', // 上下に20pxのマージンを追加して少し早めに検出
+            threshold: 0.05 // 要素の5%が見えた時点で実行（早めに検出）
+        };
+        
+        // フェードイン要素を監視するオブザーバー
+        const fadeObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // モバイルの場合は少し遅延させてGPUに余裕を持たせる
+                    if (isMobile) {
+                        setTimeout(() => {
+                            entry.target.classList.add('is-visible');
+                        }, 50);
+                    } else {
+                        entry.target.classList.add('is-visible');
+                    }
+                    observer.unobserve(entry.target); // 一度表示されたら監視を解除
+                }
+            });
+        }, options);
+        
+        // アニメーション要素の監視を開始
+        // モバイルではviewportに近い要素から順番に監視を追加（一度に多くの要素を監視しない）
+        let elementsToObserve = Array.from(document.querySelectorAll('.fade-in-section, .fade-sequence, .scale-in, .slide-in-left, .slide-in-right'));
+        
+        if (isMobile) {
+            // モバイルの場合は、要素を少しずつ監視対象に追加する
+            let batchSize = 5; // 一度に監視する要素数
+            let currentIndex = 0;
+            
+            function addNextBatch() {
+                let end = Math.min(currentIndex + batchSize, elementsToObserve.length);
+                for (let i = currentIndex; i < end; i++) {
+                    fadeObserver.observe(elementsToObserve[i]);
+                }
+                currentIndex = end;
+                
+                if (currentIndex < elementsToObserve.length) {
+                    setTimeout(addNextBatch, 300); // 300ms後に次のバッチを追加
+                }
+            }
+            
+            addNextBatch();
+        } else {
+            // デスクトップの場合は全ての要素を一度に監視対象に追加
+            elementsToObserve.forEach(el => {
+                fadeObserver.observe(el);
+            });
+        }
     });
     </script>
 </body>
