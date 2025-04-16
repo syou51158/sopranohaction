@@ -10,21 +10,36 @@ ob_start();
 function log_debug($message) {
     global $debug_mode;
     if ($debug_mode) {
-        $log_file = 'logs/form_debug.log';
-        $log_dir = dirname($log_file);
-        
-        // ログディレクトリがなければ作成
-        if (!is_dir($log_dir)) {
-            mkdir($log_dir, 0777, true);
+        try {
+            $log_file = __DIR__ . '/logs/form_debug.log';
+            $log_dir = dirname($log_file);
+            
+            // ログディレクトリがなければ作成
+            if (!is_dir($log_dir)) {
+                if (!mkdir($log_dir, 0777, true)) {
+                    error_log("Failed to create log directory: " . $log_dir);
+                    return; // ディレクトリ作成に失敗したら処理を中止
+                }
+            }
+            
+            // ディレクトリの権限を設定
+            if (!chmod($log_dir, 0777)) {
+                error_log("Failed to set permissions on log directory: " . $log_dir);
+            }
+            
+            // ログファイルがまだなければ作成
+            if (!file_exists($log_file)) {
+                touch($log_file);
+                chmod($log_file, 0666); // すべてのユーザーが読み書き可能に
+            } else if (!is_writable($log_file)) {
+                chmod($log_file, 0666); // すべてのユーザーが読み書き可能に
+            }
+            
+            $timestamp = date('Y-m-d H:i:s');
+            file_put_contents($log_file, "$timestamp $message\n", FILE_APPEND);
+        } catch (Exception $e) {
+            error_log("Error writing to debug log: " . $e->getMessage());
         }
-        
-        // ディレクトリの書き込み権限を確認
-        if (!is_writable($log_dir)) {
-            chmod($log_dir, 0777);
-        }
-        
-        $timestamp = date('Y-m-d H:i:s');
-        file_put_contents($log_file, "$timestamp $message\n", FILE_APPEND);
     }
 }
 
@@ -429,8 +444,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // 最後にQRコードを生成（出席者のみ）
             if ($attending) {
-                // 出席者のQRコード生成
-                generate_qr_for_guest($response_id, $guest_id, $email);
+                // 未定義の関数を呼び出さないように修正
+                // 既にQRコードは上のコードで生成されているので、ここでは不要
+                // generate_qr_for_guest($response_id, $guest_id, $email);
+                
+                // QRコードトークンがまだない場合のみ生成を試みる
+                if ($guest_id && !$qr_code_token) {
+                    $qr_code_token = generate_qr_token($guest_id);
+                    log_debug("出席者用QRコードトークン生成（修正後）: " . ($qr_code_token ? "成功" : "失敗") . " - ゲストID: $guest_id");
+                }
             }
             
             // グループIDが存在する場合は、グループページにリダイレクト

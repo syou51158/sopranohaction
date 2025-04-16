@@ -48,11 +48,33 @@ function send_mail($to, $subject, $message, $from_email, $from_name = '', $reply
             $mail->SMTPDebug = SMTP::DEBUG_SERVER;            // デバッグ出力を有効化
             $mail->Debugoutput = function($str, $level) {
                 $log_file = __DIR__ . '/../logs/mail_debug.log'; // ログディレクトリが存在するか確認が必要
-                if (!file_exists(dirname($log_file))) {
-                    mkdir(dirname($log_file), 0755, true);
+                $log_dir = dirname($log_file);
+                
+                try {
+                    // ログディレクトリが存在するか確認
+                    if (!is_dir($log_dir)) {
+                        if (!mkdir($log_dir, 0777, true)) {
+                            error_log("Failed to create mail log directory: " . $log_dir);
+                            return;
+                        }
+                    }
+                    
+                    // ディレクトリの権限を設定
+                    chmod($log_dir, 0777);
+                    
+                    // ログファイルがまだなければ作成
+                    if (!file_exists($log_file)) {
+                        touch($log_file);
+                        chmod($log_file, 0666); // すべてのユーザーが読み書き可能に
+                    } else if (!is_writable($log_file)) {
+                        chmod($log_file, 0666); // すべてのユーザーが読み書き可能に
+                    }
+                    
+                    $timestamp = date('Y-m-d H:i:s');
+                    file_put_contents($log_file, "$timestamp DEBUG [$level]: $str\n", FILE_APPEND);
+                } catch (Exception $e) {
+                    error_log("Error writing to mail debug log: " . $e->getMessage());
                 }
-                $timestamp = date('Y-m-d H:i:s');
-                file_put_contents($log_file, "$timestamp DEBUG [$level]: $str\n", FILE_APPEND);
             };
         } else {
             $mail->SMTPDebug = SMTP::DEBUG_OFF;               // デバッグ出力を無効化
