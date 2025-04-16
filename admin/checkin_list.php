@@ -8,7 +8,6 @@
 // 設定の読み込み
 require_once '../config.php';
 require_once '../includes/qr_helper.php';
-require_once '../includes/logging_functions.php';  // ログ機能を追加
 
 // セッション開始
 session_start();
@@ -60,11 +59,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete_checkin' && isset($_
                     }
                     $_SESSION['deleted_all_group_ids'][] = $guest['group_id'];
                     
-                    logAction('チェックイン削除', "「{$guest['group_name']}」（ID: {$guest_id}）のチェックイン記録を削除しました");
+                    // logAction('チェックイン削除', "「{$guest['group_name']}」（ID: {$guest_id}）のチェックイン記録を削除しました");
                 } else {
                     $pdo->rollBack();
                     $error = "チェックイン記録の削除に失敗しました。";
-                    logAction('エラー', "チェックイン削除に失敗: ゲストID " . $guest_id);
+                    // logAction('エラー', "チェックイン削除に失敗: ゲストID " . $guest_id);
                 }
             } else {
                 $pdo->rollBack();
@@ -73,7 +72,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete_checkin' && isset($_
         } catch (PDOException $e) {
             $pdo->rollBack();
             $error = "データベースエラー: " . $e->getMessage();
-            logAction('エラー', "チェックイン削除中にデータベースエラー: " . $e->getMessage());
+            // logAction('エラー', "チェックイン削除中にデータベースエラー: " . $e->getMessage());
         }
     } else {
         $error = "無効なゲストIDです。";
@@ -111,7 +110,7 @@ if (isset($_POST['delete_all_checkins'])) {
         }
     } catch (PDOException $e) {
         $_SESSION['error_message'] = 'データベースエラー: ' . $e->getMessage();
-        logAction('エラー', '全チェックイン履歴削除でのエラー: ' . $e->getMessage());
+        // logAction('エラー', '全チェックイン履歴削除でのエラー: ' . $e->getMessage());
     }
     
     header("Location: checkin_list.php");
