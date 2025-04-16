@@ -16,6 +16,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const hasCheckinComplete = urlParams.get('checkin_complete') === '1';
     const groupId = urlParams.get('group');
     
+    // グループIDが存在するか確認
+    if (!groupId) {
+        console.error('グループIDが見つかりません');
+        // 後続処理は通常通り継続（招待状は表示される）
+    } else {
+        console.log('グループID:', groupId);
+    }
+    
     // チェックイン状態をローカルストレージに保存
     if (hasCheckinComplete && groupId) {
         try {
@@ -29,8 +37,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 expires: expiryDate.toISOString()
             };
             
-            localStorage.setItem('checkinComplete_' + groupId, JSON.stringify(checkinData));
-            console.log('チェックイン状態をローカルストレージに保存しました: グループID=' + groupId);
+            // キーを安全に構成
+            const storageKey = 'checkinComplete_' + groupId.trim();
+            
+            // データを保存
+            localStorage.setItem(storageKey, JSON.stringify(checkinData));
+            console.log('チェックイン状態をローカルストレージに保存しました: キー=' + storageKey);
+            
+            // 確認のため保存したデータを読み取る
+            const savedData = localStorage.getItem(storageKey);
+            if (savedData) {
+                console.log('保存確認OK: データ=', savedData);
+            } else {
+                console.error('保存確認失敗: データが取得できません');
+            }
         } catch (e) {
             console.error('ローカルストレージへの保存に失敗しました:', e);
         }
@@ -40,12 +60,17 @@ document.addEventListener('DOMContentLoaded', function() {
     let isCheckedIn = false;
     if (groupId) {
         try {
-            const savedData = localStorage.getItem('checkinComplete_' + groupId);
+            // キーを安全に構成
+            const storageKey = 'checkinComplete_' + groupId.trim();
+            
+            const savedData = localStorage.getItem(storageKey);
+            console.log('ローカルストレージからチェックイン状態を確認:', storageKey, savedData);
+            
             if (savedData) {
                 try {
                     const checkinData = JSON.parse(savedData);
                     // 有効期限をチェック
-                    if (checkinData.expires && new Date(checkinData.expires) > new Date()) {
+                    if (checkinData && checkinData.expires && new Date(checkinData.expires) > new Date()) {
                         isCheckedIn = checkinData.checked === true;
                         if (isCheckedIn) {
                             console.log('保存されたチェックイン状態を検出: グループID=' + groupId + ', 有効期限: ' + checkinData.expires);
@@ -53,13 +78,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         console.log('チェックイン状態の有効期限切れ: グループID=' + groupId);
                         // 有効期限切れデータの削除
-                        localStorage.removeItem('checkinComplete_' + groupId);
+                        localStorage.removeItem(storageKey);
                     }
                 } catch (parseError) {
+                    console.error('保存データの解析に失敗:', parseError, savedData);
+                    
                     // 旧形式のデータ対応
-                    isCheckedIn = savedData === 'true';
-                    if (isCheckedIn) {
+                    if (savedData === 'true') {
+                        isCheckedIn = true;
                         console.log('レガシー形式のチェックイン状態を検出: グループID=' + groupId);
+                        
                         // 新形式に移行
                         const expiryDate = new Date();
                         expiryDate.setDate(expiryDate.getDate() + 60); // 60日間有効
@@ -70,12 +98,25 @@ document.addEventListener('DOMContentLoaded', function() {
                             expires: expiryDate.toISOString()
                         };
                         
-                        localStorage.setItem('checkinComplete_' + groupId, JSON.stringify(checkinData));
+                        // 新形式で再保存
+                        localStorage.setItem(storageKey, JSON.stringify(checkinData));
+                        console.log('レガシー形式から新形式に変換しました:', storageKey);
                     }
                 }
+            } else {
+                console.log('チェックイン状態の保存データが見つかりません:', storageKey);
             }
         } catch (e) {
             console.error('ローカルストレージからの読み込みに失敗しました:', e);
+        }
+    }
+    
+    // デバッグ: 全localStorage表示
+    console.log('現在のlocalStorage内容:');
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('checkinComplete_')) {
+            console.log(`${key}: ${localStorage.getItem(key)}`);
         }
     }
     

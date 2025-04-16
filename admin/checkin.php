@@ -688,6 +688,53 @@ $page_title = 'QRコードチェックイン';
             });
             
             if (token) {
+                // QRコードスキャン履歴をローカルストレージに記録
+                try {
+                    // URLからgroup_idパラメータを抽出
+                    let groupId = null;
+                    if (decodedText.includes('group=')) {
+                        const groupParam = decodedText.match(/[?&]group=([^&]+)/);
+                        if (groupParam && groupParam.length > 1) {
+                            groupId = decodeURIComponent(groupParam[1]);
+                        } else {
+                            try {
+                                const urlObj = new URL(decodedText);
+                                groupId = urlObj.searchParams.get('group');
+                            } catch (urlError) {
+                                console.error("URL解析エラー:", urlError);
+                            }
+                        }
+                    }
+                    
+                    if (groupId) {
+                        console.log(`グループID '${groupId}' のスキャン履歴を記録します`);
+                        
+                        // 現在時刻を取得（24時間後を期限とする）
+                        const now = new Date();
+                        const expires = new Date(now);
+                        expires.setHours(expires.getHours() + 24);
+                        
+                        // ローカルストレージにスキャン情報を保存
+                        const scanData = {
+                            token: token,
+                            scanned: true,
+                            timestamp: now.toISOString(),
+                            expires: expires.toISOString()
+                        };
+                        
+                        // ストレージキーを安全に構成
+                        const storageKey = `qrcode_scanned_${groupId}`;
+                        
+                        // データを保存
+                        localStorage.setItem(storageKey, JSON.stringify(scanData));
+                        console.log(`スキャン履歴を保存しました: キー=${storageKey}`, scanData);
+                    } else {
+                        console.warn("グループIDが特定できないため、スキャン履歴を保存できません");
+                    }
+                } catch (e) {
+                    console.error("ローカルストレージへの保存に失敗しました:", e);
+                }
+                
                 // 成功表示
                 scanResult.innerHTML = `
                     <div class="success-message">

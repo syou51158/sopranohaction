@@ -27,65 +27,56 @@ $date_filter = isset($_GET['date']) ? $_GET['date'] : date('Y-m-d');
 $group_filter = isset($_GET['group']) ? $_GET['group'] : '';
 $status_filter = isset($_GET['status']) ? $_GET['status'] : 'all';
 
-// チェックイン削除処理
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_checkin'])) {
-    $checkin_id = isset($_POST['checkin_id']) ? (int)$_POST['checkin_id'] : 0;
-    $group_id = isset($_POST['group_id']) ? $_POST['group_id'] : '';
+// 個別のチェックイン削除処理
+if (isset($_POST['delete_checkin']) && isset($_POST['checkin_id'])) {
+    $checkin_id = intval($_POST['checkin_id']);
     
-    try {
-        // まずチェックインレコードを取得してグループIDを保存
-        if (empty($group_id)) {
-            $stmt = $pdo->prepare("
-                SELECT g.group_id 
-                FROM checkins c 
-                JOIN guests g ON c.guest_id = g.id 
-                WHERE c.id = ?
-            ");
-            $stmt->execute([$checkin_id]);
-            $group_id = $stmt->fetchColumn();
+    // グループIDを取得
+    $stmt = $pdo->prepare("SELECT group_id FROM checkins WHERE id = :id");
+    $stmt->execute(['id' => $checkin_id]);
+    $group_data = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // 削除処理
+    $stmt = $pdo->prepare("DELETE FROM checkins WHERE id = :id");
+    
+    if ($stmt->execute(['id' => $checkin_id])) {
+        // ローカルストレージ削除用にセッション変数に保存
+        if ($group_data && isset($group_data['group_id'])) {
+            $_SESSION['deleted_checkin_group_id'] = $group_data['group_id'];
         }
         
-        // チェックイン履歴を削除
-        $stmt = $pdo->prepare("DELETE FROM checkins WHERE id = ?");
-        $result = $stmt->execute([$checkin_id]);
-        
-        if ($result) {
-            // チェックイン削除成功の場合、JavaScriptでlocalStorageのデータも削除するためにグループIDを保存
-            $_SESSION['deleted_checkin_group_id'] = $group_id;
-            $success = "チェックインレコードを削除しました。グループID: " . htmlspecialchars($group_id);
-        } else {
-            $error = "チェックインレコードの削除に失敗しました。";
-        }
-    } catch (PDOException $e) {
-        $error = "データベースエラー: " . $e->getMessage();
+        $_SESSION['success_message'] = 'チェックイン履歴を正常に削除しました。';
+    } else {
+        $_SESSION['error_message'] = 'チェックイン履歴の削除に失敗しました。';
     }
+    
+    header("Location: checkin_list.php");
+    exit;
 }
 
-// 全チェックイン履歴削除処理
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_all_checkins'])) {
-    try {
-        // 全てのグループIDを取得して保存
-        $stmt = $pdo->query("
-            SELECT DISTINCT g.group_id 
-            FROM checkins c 
-            JOIN guests g ON c.guest_id = g.id
-        ");
-        $group_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        
-        // 全チェックイン履歴を削除
-        $stmt = $pdo->prepare("TRUNCATE TABLE checkins");
-        $result = $stmt->execute();
-        
-        if ($result) {
-            // 削除成功の場合、JavaScriptでlocalStorageのデータも削除するためにグループIDを保存
+// 全てのチェックイン削除処理
+if (isset($_POST['delete_all_checkins'])) {
+    // 削除前にグループIDを取得
+    $stmt = $pdo->prepare("SELECT group_id FROM checkins");
+    $stmt->execute();
+    $group_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    // 削除処理
+    $stmt = $pdo->prepare("DELETE FROM checkins");
+    
+    if ($stmt->execute()) {
+        // ローカルストレージ削除用にセッション変数に保存
+        if (!empty($group_ids)) {
             $_SESSION['deleted_all_group_ids'] = $group_ids;
-            $success = "全てのチェックイン履歴を削除しました。";
-        } else {
-            $error = "チェックイン履歴の一括削除に失敗しました。";
         }
-    } catch (PDOException $e) {
-        $error = "データベースエラー: " . $e->getMessage();
+        
+        $_SESSION['success_message'] = '全てのチェックイン履歴を正常に削除しました。';
+    } else {
+        $_SESSION['error_message'] = '全てのチェックイン履歴の削除に失敗しました。';
     }
+    
+    header("Location: checkin_list.php");
+    exit;
 }
 
 // 検索クエリを構築
@@ -498,7 +489,7 @@ $page_title = 'チェックイン一覧・統計';
                                             <form method="post" action="checkin_list.php" onsubmit="return confirm('このチェックインを削除してもよろしいですか？');">
                                                 <input type="hidden" name="checkin_id" value="<?= $checkin['id'] ?>">
                                                 <input type="hidden" name="group_id" value="<?= htmlspecialchars($checkin['group_id']) ?>">
-                                                <button type="submit" name="delete_checkin" class="admin-button admin-button-small admin-button-danger">
+                                                <button type="submit" name="delete_checkin" class="admin-button admin-button-small admin-button-danger delete-checkin" data-group-id="<?= htmlspecialchars($checkin['group_id']) ?>">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -631,88 +622,77 @@ $page_title = 'チェックイン一覧・統計';
     </script>
     <?php endif; ?>
     
-    <!-- チェックイン削除後にlocalStorageのデータも削除するためのスクリプト -->
+    <!-- ローカルストレージクリアのためのJavaScript -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            <?php if (isset($_SESSION['deleted_checkin_group_id']) && $_SESSION['deleted_checkin_group_id']): ?>
-                // 削除されたグループIDを取得
-                const deletedGroupId = '<?= htmlspecialchars($_SESSION['deleted_checkin_group_id']) ?>';
-                
-                // そのグループのlocalStorageデータを削除
-                if (deletedGroupId) {
-                    try {
-                        // localStorageからチェックイン状態を削除
-                        localStorage.removeItem('checkinComplete_' + deletedGroupId);
-                        console.log('localStorageからチェックイン状態を削除しました: グループID=' + deletedGroupId);
-                        
-                        // 管理者向けのデバッグ情報
-                        <?php if ($debug_mode): ?>
-                        alert('グループID "' + deletedGroupId + '" のチェックイン状態をlocalStorageから削除しました。');
-                        <?php endif; ?>
-                    } catch (e) {
-                        console.error('localStorageからの削除に失敗しました:', e);
-                    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // セッション変数から削除されたグループIDを取得して処理
+        <?php if (isset($_SESSION['deleted_checkin_group_id'])): ?>
+            const groupId = "<?php echo $_SESSION['deleted_checkin_group_id']; ?>";
+            console.log('削除されたグループID:', groupId);
+            
+            // グループIDに関連するローカルストレージのアイテムを削除
+            clearLocalStorageForGroup(groupId);
+            
+            // セッション変数をクリア
+            <?php unset($_SESSION['deleted_checkin_group_id']); ?>
+        <?php endif; ?>
+        
+        // 全削除の場合
+        <?php if (isset($_SESSION['deleted_all_group_ids']) && is_array($_SESSION['deleted_all_group_ids'])): ?>
+            const groupIds = <?php echo json_encode($_SESSION['deleted_all_group_ids']); ?>;
+            console.log('削除された全グループID:', groupIds);
+            
+            // 各グループIDに対してローカルストレージをクリア
+            groupIds.forEach(groupId => {
+                clearLocalStorageForGroup(groupId);
+            });
+            
+            // セッション変数をクリア
+            <?php unset($_SESSION['deleted_all_group_ids']); ?>
+        <?php endif; ?>
+        
+        // 特定のグループIDに関連するローカルストレージアイテムを削除する関数
+        function clearLocalStorageForGroup(groupId) {
+            if (!groupId) return;
+            
+            try {
+                // グループIDに完全一致するキーを削除
+                const exactKey = `qrcode_scanned_${groupId}`;
+                if (localStorage.getItem(exactKey)) {
+                    localStorage.removeItem(exactKey);
+                    console.log(`ローカルストレージから削除: ${exactKey}`);
                 }
                 
-                <?php 
-                // セッション変数をクリア
-                unset($_SESSION['deleted_checkin_group_id']); 
-                ?>
-            <?php endif; ?>
-            
-            <?php if (isset($_SESSION['deleted_all_group_ids']) && is_array($_SESSION['deleted_all_group_ids'])): ?>
-                // 全削除の場合、すべてのグループIDのlocalStorageデータを削除
-                try {
-                    // 保存されていたグループIDのリスト
-                    const groupIds = <?= json_encode($_SESSION['deleted_all_group_ids']) ?>;
-                    let removedCount = 0;
-                    
-                    // 各グループIDについてlocalStorageを削除
-                    groupIds.forEach(groupId => {
-                        localStorage.removeItem('checkinComplete_' + groupId);
-                        removedCount++;
-                    });
-                    
-                    console.log(`${removedCount}件のチェックイン状態をlocalStorageから削除しました`);
-                    
-                    // さらに、キー名が「checkinComplete_」で始まる全てのlocalStorageを削除
-                    // （データベースに存在しないグループIDの可能性も考慮）
-                    for (let i = 0; i < localStorage.length; i++) {
-                        const key = localStorage.key(i);
-                        if (key && key.startsWith('checkinComplete_')) {
-                            localStorage.removeItem(key);
-                            console.log('追加のlocalStorage削除: ' + key);
-                            removedCount++;
-                        }
-                    }
-                    
-                    // 管理者向けのデバッグ情報
-                    <?php if ($debug_mode): ?>
-                    alert(`${removedCount}件のチェックイン状態をlocalStorageから削除しました`);
-                    <?php endif; ?>
-                } catch (e) {
-                    console.error('localStorageからの一括削除に失敗しました:', e);
-                }
-                
-                <?php 
-                // セッション変数をクリア
-                unset($_SESSION['deleted_all_group_ids']); 
-                ?>
-            <?php endif; ?>
-            
-            // 削除ボタンのクリック時にlocalStorageも削除するための拡張
-            document.querySelectorAll('form[action="checkin_list.php"]').forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    // フォームの送信は通常通り行う（e.preventDefault()はしない）
-                    // しかし、グループIDを取得してコンソールに表示
-                    const groupIdInput = this.querySelector('input[name="group_id"]');
-                    if (groupIdInput) {
-                        const groupId = groupIdInput.value;
-                        console.log('チェックイン削除処理: グループID=' + groupId);
+                // グループIDを含むキーをすべて検索して削除
+                Object.keys(localStorage).forEach(key => {
+                    if (key.includes(groupId)) {
+                        localStorage.removeItem(key);
+                        console.log(`ローカルストレージから削除: ${key}`);
                     }
                 });
+                
+                alert(`グループID「${groupId}」のQRコードスキャン履歴をクリアしました。`);
+            } catch (e) {
+                console.error('ローカルストレージクリアエラー:', e);
+            }
+        }
+        
+        // 削除ボタンのイベントリスナー
+        document.querySelectorAll('.delete-checkin').forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!confirm('このチェックイン履歴を削除しますか？関連するQRコードスキャン履歴も削除されます。')) {
+                    e.preventDefault();
+                }
             });
         });
+        
+        // 全削除ボタンのイベントリスナー
+        document.querySelector('#delete-all-checkins').addEventListener('click', function(e) {
+            if (!confirm('全てのチェックイン履歴を削除しますか？全てのQRコードスキャン履歴も削除されます。')) {
+                e.preventDefault();
+            }
+        });
+    });
     </script>
 </body>
 </html> 
