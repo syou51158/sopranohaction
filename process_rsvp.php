@@ -11,6 +11,18 @@ function log_debug($message) {
     global $debug_mode;
     if ($debug_mode) {
         $log_file = 'logs/form_debug.log';
+        $log_dir = dirname($log_file);
+        
+        // ログディレクトリがなければ作成
+        if (!is_dir($log_dir)) {
+            mkdir($log_dir, 0777, true);
+        }
+        
+        // ディレクトリの書き込み権限を確認
+        if (!is_writable($log_dir)) {
+            chmod($log_dir, 0777);
+        }
+        
         $timestamp = date('Y-m-d H:i:s');
         file_put_contents($log_file, "$timestamp $message\n", FILE_APPEND);
     }
