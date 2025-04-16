@@ -38,15 +38,15 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete_checkin' && isset($_
             $db->beginTransaction();
             
             // グループ名を取得（ログ記録用）
-            $stmt = $db->prepare("SELECT group_name FROM invitations WHERE id = :group_id");
+            $stmt = $db->prepare("SELECT group_name FROM guests WHERE id = :group_id");
             $stmt->bindParam(':group_id', $group_id);
             $stmt->execute();
             $group = $stmt->fetch(PDO::FETCH_ASSOC);
             $group_name = $group ? $group['group_name'] : "未知のグループ";
             
-            // グループIDに基づいてチェックイン記録を削除
-            $stmt = $db->prepare("DELETE FROM checkins WHERE guest_id IN (SELECT id FROM guests WHERE group_id = :group_id)");
-            $stmt->bindParam(':group_id', $group_id);
+            // IDに基づいてチェックイン記録を削除
+            $stmt = $db->prepare("DELETE FROM checkins WHERE guest_id = :guest_id");
+            $stmt->bindParam(':guest_id', $group_id);
             $result = $stmt->execute();
             
             if ($result) {
@@ -70,23 +70,36 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete_checkin' && isset($_
 
 // 全てのチェックイン削除処理
 if (isset($_POST['delete_all_checkins'])) {
-    // 削除前にグループIDを取得
-    $stmt = $pdo->prepare("SELECT group_id FROM checkins");
-    $stmt->execute();
-    $group_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    
-    // 削除処理
-    $stmt = $pdo->prepare("DELETE FROM checkins");
-    
-    if ($stmt->execute()) {
-        // ローカルストレージ削除用にセッション変数に保存
-        if (!empty($group_ids)) {
-            $_SESSION['deleted_all_group_ids'] = $group_ids;
-        }
+    // 削除前にゲストIDを取得して後でlocalStorageクリア用に利用
+    try {
+        // まずは削除前にゲストIDとグループ名の対応を取得しておく
+        $stmt = $pdo->prepare("
+            SELECT DISTINCT c.guest_id, g.group_id 
+            FROM checkins c
+            JOIN guests g ON c.guest_id = g.id
+        ");
+        $stmt->execute();
+        $guest_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        $_SESSION['success_message'] = '全てのチェックイン履歴を正常に削除しました。';
-    } else {
-        $_SESSION['error_message'] = '全てのチェックイン履歴の削除に失敗しました。';
+        // グループIDのみの配列を作成
+        $group_ids = array_column($guest_data, 'group_id');
+        
+        // 削除処理
+        $stmt = $pdo->prepare("DELETE FROM checkins");
+        
+        if ($stmt->execute()) {
+            // ローカルストレージ削除用にセッション変数に保存
+            if (!empty($group_ids)) {
+                $_SESSION['deleted_all_group_ids'] = $group_ids;
+            }
+            
+            $_SESSION['success_message'] = '全てのチェックイン履歴を正常に削除しました。';
+        } else {
+            $_SESSION['error_message'] = '全てのチェックイン履歴の削除に失敗しました。';
+        }
+    } catch (PDOException $e) {
+        $_SESSION['error_message'] = 'データベースエラー: ' . $e->getMessage();
+        logAction('エラー', '全チェックイン履歴削除でのエラー: ' . $e->getMessage());
     }
     
     header("Location: checkin_list.php");
