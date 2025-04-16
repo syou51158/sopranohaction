@@ -505,6 +505,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (invitationContent) {
                         invitationContent.classList.remove('hide');
                     }
+                    document.body.style.overflow = 'auto'; // Re-enable scrolling
+
                 }, 500);
             }
             
@@ -681,4 +683,4 @@ document.addEventListener('DOMContentLoaded', function() {
             openEnvelope(e);
         }
     }
-}); 
+});  
