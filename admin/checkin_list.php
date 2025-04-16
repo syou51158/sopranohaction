@@ -28,43 +28,54 @@ $group_filter = isset($_GET['group']) ? $_GET['group'] : '';
 $status_filter = isset($_GET['status']) ? $_GET['status'] : 'all';
 
 // チェックイン削除処理
-if (isset($_POST['action']) && $_POST['action'] === 'delete_checkin' && isset($_POST['group_id'])) {
-    // グループIDの検証
-    $group_id = filter_var($_POST['group_id'], FILTER_VALIDATE_INT);
+if (isset($_POST['action']) && $_POST['action'] === 'delete_checkin' && isset($_POST['guest_id'])) {
+    // ゲストIDの検証
+    $guest_id = filter_var($_POST['guest_id'], FILTER_VALIDATE_INT);
     
-    if ($group_id !== false) {
+    if ($guest_id !== false) {
         try {
             // トランザクション開始
-            $db->beginTransaction();
+            $pdo->beginTransaction();
             
-            // グループ名を取得（ログ記録用）
-            $stmt = $db->prepare("SELECT group_name FROM guests WHERE id = :group_id");
-            $stmt->bindParam(':group_id', $group_id);
+            // ゲスト情報を取得（ログ記録用）
+            $stmt = $pdo->prepare("SELECT id, group_name, group_id FROM guests WHERE id = :guest_id");
+            $stmt->bindParam(':guest_id', $guest_id);
             $stmt->execute();
-            $group = $stmt->fetch(PDO::FETCH_ASSOC);
-            $group_name = $group ? $group['group_name'] : "未知のグループ";
+            $guest = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            // IDに基づいてチェックイン記録を削除
-            $stmt = $db->prepare("DELETE FROM checkins WHERE guest_id = :guest_id");
-            $stmt->bindParam(':guest_id', $group_id);
-            $result = $stmt->execute();
-            
-            if ($result) {
-                $db->commit();
-                $success_message = "「{$group_name}」のチェックイン記録を削除しました。";
-                logAction('チェックイン削除', "「{$group_name}」（ID: {$group_id}）のチェックイン記録を削除しました");
+            if ($guest) {
+                // チェックイン記録を削除
+                $stmt = $pdo->prepare("DELETE FROM checkins WHERE guest_id = :guest_id");
+                $stmt->bindParam(':guest_id', $guest_id);
+                $result = $stmt->execute();
+                
+                if ($result) {
+                    $pdo->commit();
+                    $success = "「{$guest['group_name']}」のチェックイン記録を削除しました。";
+                    
+                    // localStorageクリア用にセッション変数に保存
+                    if (!isset($_SESSION['deleted_all_group_ids'])) {
+                        $_SESSION['deleted_all_group_ids'] = [];
+                    }
+                    $_SESSION['deleted_all_group_ids'][] = $guest['group_id'];
+                    
+                    logAction('チェックイン削除', "「{$guest['group_name']}」（ID: {$guest_id}）のチェックイン記録を削除しました");
+                } else {
+                    $pdo->rollBack();
+                    $error = "チェックイン記録の削除に失敗しました。";
+                    logAction('エラー', "チェックイン削除に失敗: ゲストID " . $guest_id);
+                }
             } else {
-                $db->rollBack();
-                $error_message = "チェックイン記録の削除に失敗しました。";
-                logAction('エラー', "「{$group_name}」（ID: {$group_id}）のチェックイン記録削除に失敗");
+                $pdo->rollBack();
+                $error = "ゲスト情報が見つかりませんでした。";
             }
         } catch (PDOException $e) {
-            $db->rollBack();
-            $error_message = "データベースエラー: " . $e->getMessage();
+            $pdo->rollBack();
+            $error = "データベースエラー: " . $e->getMessage();
             logAction('エラー', "チェックイン削除中にデータベースエラー: " . $e->getMessage());
         }
     } else {
-        $error_message = "無効なグループIDです。";
+        $error = "無効なゲストIDです。";
     }
 }
 
@@ -515,8 +526,8 @@ $page_title = 'チェックイン一覧・統計';
                                         <td class="admin-actions">
                                             <form method="post" class="delete-form" onsubmit="return confirm('このチェックイン記録を削除しますか？\n\n※この操作は元に戻せません。');">
                                                 <input type="hidden" name="action" value="delete_checkin">
-                                                <input type="hidden" name="group_id" value="<?php echo $checkin['group_id']; ?>">
-                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                <input type="hidden" name="guest_id" value="<?php echo $checkin['guest_id']; ?>">
+                                                <button type="submit" class="admin-button admin-button-small admin-button-danger">
                                                     <i class="fas fa-trash"></i> 削除
                                                 </button>
                                             </form>
