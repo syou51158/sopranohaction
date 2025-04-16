@@ -274,10 +274,15 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
     <!-- Google reCAPTCHA v3 -->
     <script src="https://www.google.com/recaptcha/api.js?render=6LfXwg8rAAAAAO8tgbD74yqTFHK9ZW6Ns18M8GpF"></script>
     <script>
+    // reCAPTCHAが読み込まれて実行されたときに送信ボタンを有効化する関数
+    function enableSubmit() {
+        document.getElementById("submit-btn").disabled = false;
+    }
+
     function onSubmitForm(token) {
         document.getElementById("rsvp-form").submit();
     }
-    
+
     // フォーム送信時にreCAPTCHA v3を実行
     document.addEventListener('DOMContentLoaded', function() {
         const rsvpForm = document.getElementById('rsvp-form');
@@ -297,6 +302,85 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                         rsvpForm.submit();
                     });
                 });
+            });
+        }
+        
+        // 同伴者人数が変更されたときの処理
+        const guestsSelect = document.getElementById('guests');
+        const companionsContainer = document.getElementById('companions-container');
+        const companionsFields = document.getElementById('companions-fields');
+        
+        if (guestsSelect && companionsContainer && companionsFields) {
+            guestsSelect.addEventListener('change', function() {
+                const count = parseInt(this.value);
+                
+                // 既存のフィールドをクリア
+                companionsFields.innerHTML = '';
+                
+                if (count > 0) {
+                    companionsContainer.style.display = 'block';
+                    
+                    // 選択された人数分のフィールドを追加
+                    for (let i = 1; i <= count; i++) {
+                        const fieldHtml = `
+                            <div class="companion-field">
+                                <label for="companion_name_${i}">同伴者${i}のお名前</label>
+                                <input type="text" id="companion_name_${i}" name="companion_name[]" required>
+                            </div>
+                        `;
+                        companionsFields.innerHTML += fieldHtml;
+                    }
+                } else {
+                    companionsContainer.style.display = 'none';
+                }
+            });
+        }
+        
+        // ページ読み込み時にreCAPTCHAを実行して送信ボタンを有効化
+        grecaptcha.ready(function() {
+            grecaptcha.execute('6LfXwg8rAAAAAO8tgbD74yqTFHK9ZW6Ns18M8GpF', {action: 'homepage'}).then(function(token) {
+                enableSubmit();
+            });
+        });
+        
+        // 出席・欠席の選択に応じて関連フィールドの表示/非表示を切り替え
+        const attendYes = document.getElementById('attend-yes');
+        const attendNo = document.getElementById('attend-no');
+        const attendanceDetails = document.querySelector('.attendance-details');
+        const dietaryGroup = document.getElementById('dietary-group');
+        
+        if (attendYes && attendNo && attendanceDetails && dietaryGroup) {
+            // 初期状態の設定
+            if (attendYes.checked) {
+                attendanceDetails.style.display = 'block';
+                dietaryGroup.style.display = 'block';
+            } else {
+                attendanceDetails.style.display = 'none';
+                dietaryGroup.style.display = 'none';
+            }
+            
+            // 出席選択時
+            attendYes.addEventListener('change', function() {
+                if (this.checked) {
+                    attendanceDetails.style.display = 'block';
+                    dietaryGroup.style.display = 'block';
+                }
+            });
+            
+            // 欠席選択時
+            attendNo.addEventListener('change', function() {
+                if (this.checked) {
+                    attendanceDetails.style.display = 'none';
+                    dietaryGroup.style.display = 'none';
+                    // 同伴者数を0にリセット
+                    if (guestsSelect) {
+                        guestsSelect.value = '0';
+                        // 同伴者フィールドを非表示
+                        if (companionsContainer) {
+                            companionsContainer.style.display = 'none';
+                        }
+                    }
+                }
             });
         }
     });
@@ -394,6 +478,130 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
             font-weight: bold;
             color: #4CAF50;
             font-size: 18px;
+        }
+        
+        /* RSVPフォームのスタイル */
+        .rsvp-section {
+            padding: 40px 0;
+            margin-top: 30px;
+            background-color: #f8f4e6;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+        }
+        
+        .rsvp-section h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #795548;
+        }
+        
+        #rsvp-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            color: #333;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input[type="text"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #8d6e63;
+            outline: none;
+            box-shadow: 0 0 5px rgba(141, 110, 99, 0.3);
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 5px;
+        }
+        
+        .radio-group input[type="radio"] {
+            margin-right: 5px;
+        }
+        
+        .companions-note {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .companion-field {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ddd;
+        }
+        
+        .form-actions {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        #submit-btn {
+            padding: 12px 30px;
+            background-color: #8d6e63;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        #submit-btn:hover {
+            background-color: #6d4c41;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+        }
+        
+        #submit-btn:disabled {
+            background-color: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Google reCAPTCHAのバッジを非表示にする代わりに別途プライバシーポリシーへのリンクを表示 */
+        .grecaptcha-badge {
+            visibility: hidden;
+        }
+        
+        .recaptcha-notice {
+            font-size: 0.75rem;
+            color: #777;
+            text-align: center;
+            margin-top: 15px;
         }
     </style>
     
@@ -1184,10 +1392,16 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                         </div>
                         
                         <!-- reCAPTCHA -->
-                        <div class="g-recaptcha" data-sitekey="6LfXwg8rAAAAAA-cI9mQ5Z3YJO7PKCeAuJXNK4vW" data-callback="enableSubmit"></div>
+                        <div class="g-recaptcha" data-sitekey="6LfXwg8rAAAAAA-cI9mQ5Z3YJO7PKCeAuJXNK4vW" data-callback="enableSubmit" data-size="invisible"></div>
                         
                         <div class="form-actions">
                             <button type="submit" id="submit-btn" disabled>送信する</button>
+                        </div>
+                        
+                        <div class="recaptcha-notice">
+                            このフォームはGoogle reCAPTCHAによって保護されています。<br>
+                            <a href="https://policies.google.com/privacy" target="_blank">プライバシーポリシー</a> と 
+                            <a href="https://policies.google.com/terms" target="_blank">利用規約</a> が適用されます。
                         </div>
                     </form>
                     <?php endif; ?>
