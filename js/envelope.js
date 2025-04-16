@@ -21,12 +21,50 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('チェックイン完了状態を検出しました（URLパラメータ）');
         
         // 封筒を非表示にする
-        if (envelope) envelope.style.display = 'none';
-        if (envelopeContainer) envelopeContainer.style.display = 'none';
+        if (envelope) {
+            envelope.style.display = 'none';
+            envelope.style.visibility = 'hidden';
+        }
+        if (envelopeContainer) {
+            envelopeContainer.style.display = 'none';
+            envelopeContainer.style.visibility = 'hidden';
+        }
         
-        // 選択画面または招待状コンテンツを表示
-        if (choiceScreen) choiceScreen.classList.add('active');
-        if (invitationContent) invitationContent.classList.add('active');
+        // 選択画面を完全に非表示にする（複数の方法で確実に）
+        if (choiceScreen) {
+            // クラスを削除
+            choiceScreen.classList.remove('active');
+            choiceScreen.classList.add('hide');
+            
+            // インラインスタイルを直接適用（キャッシュに影響されない）
+            choiceScreen.style.cssText = `
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                position: absolute !important;
+                z-index: -999 !important;
+                pointer-events: none !important;
+                height: 0 !important;
+                width: 0 !important;
+                overflow: hidden !important;
+                clip: rect(0, 0, 0, 0) !important;
+            `;
+            
+            // 内部のコンテンツも非表示に
+            const choiceCards = choiceScreen.querySelectorAll('.choice-card');
+            choiceCards.forEach(card => {
+                card.style.display = 'none';
+                card.style.visibility = 'hidden';
+            });
+        }
+        
+        // 招待状コンテンツを表示
+        if (invitationContent) {
+            invitationContent.classList.add('active');
+            invitationContent.classList.remove('hide');
+            invitationContent.style.display = 'block';
+            invitationContent.style.opacity = '1';
+        }
         
         // スクロールを有効化
         document.body.style.overflow = 'auto';

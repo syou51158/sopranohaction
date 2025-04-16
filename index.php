@@ -121,7 +121,7 @@ if (!empty($token) && $auto_checkin) {
             
             // リダイレクト処理を追加 - QRからのチェックイン後は必ずcheckin_complete=1のURLに変換
             if (!isset($_GET['checkin_complete']) || $_GET['checkin_complete'] !== '1') {
-                $redirectUrl = $site_url . 'index.php?group=' . urlencode($group_id) . '&checkin_complete=1';
+                $redirectUrl = $site_url . 'index.php?group=' . urlencode($group_id) . '&checkin_complete=1&t=' . time();
                 header('Location: ' . $redirectUrl);
                 exit;
             }
@@ -130,6 +130,16 @@ if (!empty($token) && $auto_checkin) {
         }
     } else {
         error_log("無効なQRコード (index.php): token=$token");
+    }
+}
+
+// チェックイン完了フラグの強制
+$force_refresh = false;
+if ($checkin_complete) {
+    // 強制更新タイムスタンプがなければ追加
+    if (!isset($_GET['t'])) {
+        $redirectUrl = $site_url . 'index.php?group=' . urlencode($group_id) . '&checkin_complete=1&t=' . time();
+        $force_refresh = true;
     }
 }
 
@@ -250,8 +260,26 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>翔 & あかね - 結婚式のご案内</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $site_name ?></title>
+    
+    <!-- チェックイン後のキャッシュ対策 -->
+    <?php if ($checkin_complete): ?>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <?php endif; ?>
+    
+    <?php if ($force_refresh): ?>
+    <meta http-equiv="refresh" content="0;url=<?= $redirectUrl ?>">
+    <?php endif; ?>
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="images/favicon.png">
+    
+    <!-- Favicon for various platforms -->
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="shortcut icon" href="images/favicon.ico">
     
     <!-- パフォーマンス最適化 -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
@@ -664,6 +692,20 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
             transition: none !important;
         }
         
+        /* チェックイン完了時の選択画面を完全に非表示 */
+        .hide-completely {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            position: absolute !important;
+            z-index: -999 !important;
+            pointer-events: none !important;
+            height: 0 !important;
+            width: 0 !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+        }
+        
         /* 出席・欠席カードスタイルを追加 */
         .attendance-cards {
             display: flex;
@@ -849,7 +891,7 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
     <?php endif; ?>
 
     <!-- 選択画面 -->
-    <div class="choice-screen <?php echo !$checkin_complete ? 'hide' : ''; ?>">
+    <div class="choice-screen <?php echo $checkin_complete ? 'hide-completely' : 'hide'; ?>">
         <!-- 選択画面用の装飾エフェクト -->
         <div class="choice-decoration-effects">
             <?php for ($i = 1; $i <= 5; $i++): ?>
