@@ -518,7 +518,7 @@ if (isset($success) && $success) {
 <body>
     <div class="response-container">
         <div class="response-card">
-            <?php if (isset($success) && $success)): ?>
+            <?php if (isset($success) && $success) { ?>
                 <div class="success-message">
                     <i class="fas fa-check-circle"></i>
                     <h2>ご回答ありがとうございます</h2>
@@ -554,22 +554,22 @@ if (isset($success) && $success) {
                 <script>
                     // 画面遷移を確実にするためのJavaScriptリダイレクト
                     setTimeout(function() {
-                        <?php if (isset($redirect_url) && !empty($redirect_url)): ?>
+                        <?php if (isset($redirect_url) && !empty($redirect_url)) { ?>
                         window.location.href = "<?= $redirect_url ?>";
-                        <?php else: ?>
+                        <?php } else { ?>
                         window.location.href = "thank_you.php<?= !empty($group_id) ? '?group=' . urlencode($group_id) : '' ?>";
-                        <?php endif; ?>
+                        <?php } ?>
                     }, 3000); // 3秒後に遷移
                 </script>
-            <?php else: ?>
+            <?php } else { ?>
                 <div class="response-form">
                     <h2><i class="fas fa-envelope-open-text"></i> ご回答フォーム</h2>
                     
-                    <?php if (isset($error)): ?>
+                    <?php if (isset($error)) { ?>
                         <div class="error-message">
                             <?= $error ?>
                         </div>
-                    <?php endif; ?>
+                    <?php } ?>
                     
                     <form id="rsvp-form" method="post" action="process_rsvp.php">
                         <?php
@@ -773,7 +773,7 @@ if (isset($success) && $success) {
                     }
                 });
                 </script>
-            <?php endif; ?>
+            <?php } ?>
         </div>
     </div>
 </body>
