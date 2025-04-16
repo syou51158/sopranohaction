@@ -102,9 +102,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($guest_id && $group_id) {
                 $group_check_stmt = $pdo->prepare("
                     SELECT COUNT(*) as count FROM responses 
-                    WHERE group_id = :group_id
+                    WHERE guest_id = :guest_id
                 ");
-                $group_check_stmt->execute(['group_id' => $group_id]);
+                $group_check_stmt->execute(['guest_id' => $guest_id]);
                 $group_result = $group_check_stmt->fetch();
                 $group_has_responses = ($group_result['count'] > 0);
                 
