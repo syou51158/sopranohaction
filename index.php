@@ -317,6 +317,12 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
         if (rsvpForm) {
             rsvpForm.addEventListener('submit', function(e) {
                 e.preventDefault();
+                
+                // 送信ボタンを「送信中...」に変更
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 送信中...';
+                submitBtn.disabled = true;
+                
                 grecaptcha.ready(function() {
                     grecaptcha.execute('6LfXwg8rAAAAAO8tgbD74yqTFHK9ZW6Ns18M8GpF', {action: 'submit'}).then(function(token) {
                         // トークンを隠しフィールドに追加

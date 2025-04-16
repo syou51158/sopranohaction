@@ -3734,3 +3734,26 @@ footer p {
     50% { transform: translateY(0) rotate(0deg); }
     75% { transform: translateY(2px) rotate(2deg); }
 }
+
+/* 送信ボタンのスタイル */
+button[type="submit"] {
+    /* ... existing code ... */
+    transition: all 0.3s ease;
+}
+
+/* 送信ボタンの送信中スタイル */
+button[type="submit"][disabled] {
+    background-color: #888;
+    cursor: wait;
+    opacity: 0.8;
+}
+
+/* 回転スピナーのアニメーション調整 */
+.fa-spinner {
+    margin-right: 5px;
+}
+
+/* 送信中のテキストカラー */
+button[type="submit"][disabled] .fa-spinner {
+    color: #fff;
+}

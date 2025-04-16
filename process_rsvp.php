@@ -906,6 +906,12 @@ if (isset($success) && $success) {
                     if (rsvpForm) {
                         rsvpForm.addEventListener('submit', function(e) {
                             e.preventDefault();
+                            
+                            // 送信ボタンを「送信中...」に変更
+                            const submitBtn = document.querySelector('button[type="submit"]');
+                            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 送信中...';
+                            submitBtn.disabled = true;
+                            
                             grecaptcha.ready(function() {
                                 grecaptcha.execute('6LfXwg8rAAAAAO8tgbD74yqTFHK9ZW6Ns18M8GpF', {action: 'submit'}).then(function(token) {
                                     // トークンを隠しフィールドとして追加
