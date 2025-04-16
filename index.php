@@ -663,6 +663,99 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
             animation-play-state: paused !important;
             transition: none !important;
         }
+        
+        /* 出席・欠席カードスタイルを追加 */
+        .attendance-cards {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .attendance-card {
+            flex: 1;
+            min-width: 130px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .attendance-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .card-content {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        }
+        
+        .card-icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #888;
+        }
+        
+        .card-text {
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        /* 出席カードのスタイル */
+        #attend-yes:checked + .card-content {
+            border-color: #4CAF50;
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        
+        #attend-yes:checked + .card-content .card-icon,
+        #attend-yes:checked + .card-content .card-text {
+            color: #4CAF50;
+        }
+        
+        /* 欠席カードのスタイル */
+        #attend-no:checked + .card-content {
+            border-color: #F44336;
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+        
+        #attend-no:checked + .card-content .card-icon,
+        #attend-no:checked + .card-content .card-text {
+            color: #F44336;
+        }
+        
+        /* ホバー効果 */
+        .card-content:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+        }
+        
+        /* モバイル最適化 */
+        @media (max-width: 480px) {
+            .attendance-cards {
+                gap: 10px;
+            }
+            
+            .card-content {
+                padding: 15px 10px;
+            }
+            
+            .card-icon {
+                font-size: 24px;
+                margin-bottom: 8px;
+            }
+            
+            .card-text {
+                font-size: 15px;
+            }
+        }
     </style>
     
     <script>
@@ -1443,11 +1536,25 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                         <!-- 出欠選択 -->
                         <div class="form-group">
                             <label>ご出欠</label>
-                            <div class="radio-group">
-                                <input type="radio" id="attend-yes" name="attending" value="1" checked required>
-                                <label for="attend-yes">出席します</label>
-                                <input type="radio" id="attend-no" name="attending" value="0">
-                                <label for="attend-no">欠席します</label>
+                            <div class="attendance-cards">
+                                <label class="attendance-card" for="attend-yes">
+                                    <input type="radio" id="attend-yes" name="attending" value="1" checked required>
+                                    <div class="card-content">
+                                        <div class="card-icon">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div class="card-text">出席します</div>
+                                    </div>
+                                </label>
+                                <label class="attendance-card" for="attend-no">
+                                    <input type="radio" id="attend-no" name="attending" value="0">
+                                    <div class="card-content">
+                                        <div class="card-icon">
+                                            <i class="fas fa-times-circle"></i>
+                                        </div>
+                                        <div class="card-text">欠席します</div>
+                                    </div>
+                                </label>
                             </div>
                         </div>
                         <div class="form-group attendance-details">
