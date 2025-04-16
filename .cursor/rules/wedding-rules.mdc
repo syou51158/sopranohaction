@@ -19,3 +19,9 @@ Before implementing any changes or new features, always check `MEMO/wedding_exte
 - Format: `feature/{feature-name}`
 - Check current branches and their status before creating new ones
 - After testing, create a PR to merge into main 
+
+## Date Handling
+- Always use the current date (2025年4月16日) for documentation and commit messages
+- Do not rely on system time for date references
+- When adding dates to the Git commit log (memo/git記録), ensure the date is accurate
+- Double-check dates before committing changes to version control 
