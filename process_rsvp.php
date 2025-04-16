@@ -514,6 +514,53 @@ if (isset($success) && $success) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500&family=Reggae+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+    /* エレガントな遷移アニメーション */
+    body {
+        animation: fadeOutTransition 3s forwards;
+        animation-delay: 1.5s;
+    }
+    
+    .success-message {
+        animation: pulseAndFadeOut 3s forwards;
+    }
+    
+    @keyframes fadeOutTransition {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    
+    @keyframes pulseAndFadeOut {
+        0% { transform: scale(1); }
+        10% { transform: scale(1.05); }
+        20% { transform: scale(1); }
+        100% { transform: scale(1); }
+    }
+
+    /* 同伴者セクションのスタイル改善 */
+    #companion-details {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 2px dashed #ddd;
+    }
+    
+    .companion-fieldset {
+        background-color: #f9f9f9;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        border-left: 3px solid #4CAF50;
+    }
+    
+    .companion-title {
+        background-color: #4CAF50;
+        color: white;
+        padding: 5px 10px;
+        display: inline-block;
+        border-radius: 4px;
+        margin-top: 0;
+    }
+    </style>
 </head>
 <body>
     <div class="response-container">
@@ -655,8 +702,8 @@ if (isset($success) && $success) {
                         </div>
                         
                         <div class="form-group">
-                            <label for="dietary">食事に関するご要望（アレルギーなど）</label>
-                            <textarea id="dietary" name="dietary" rows="2"><?= isset($_POST['dietary']) ? htmlspecialchars($_POST['dietary']) : '' ?></textarea>
+                            <label for="dietary"><strong>ご本人様</strong>の食事に関するご要望（アレルギーなど）</label>
+                            <textarea id="dietary" name="dietary" rows="2" placeholder="ご本人様のアレルギーや食事制限をご記入ください"><?= isset($_POST['dietary']) ? htmlspecialchars($_POST['dietary']) : '' ?></textarea>
                         </div>
                         
                         <div class="form-group">
@@ -726,7 +773,7 @@ if (isset($success) && $success) {
                                 const fieldSet = document.createElement('div');
                                 fieldSet.className = 'companion-fieldset';
                                 fieldSet.innerHTML = `
-                                    <h4>同伴者 ${i + 1}</h4>
+                                    <h4 class="companion-title">同伴者 ${i + 1}</h4>
                                     <div class="form-group">
                                         <label for="companion_name_${i}">お名前</label>
                                         <input type="text" id="companion_name_${i}" name="companion_name[]" required>
@@ -740,8 +787,8 @@ if (isset($success) && $success) {
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="companion_dietary_${i}">食事に関するご要望</label>
-                                        <textarea id="companion_dietary_${i}" name="companion_dietary[]" rows="2"></textarea>
+                                        <label for="companion_dietary_${i}"><strong>同伴者 ${i + 1}</strong> の食事に関するご要望（アレルギーなど）</label>
+                                        <textarea id="companion_dietary_${i}" name="companion_dietary[]" rows="2" placeholder="この同伴者のアレルギーや食事制限をご記入ください"></textarea>
                                     </div>
                                 `;
                                 companionFields.appendChild(fieldSet);

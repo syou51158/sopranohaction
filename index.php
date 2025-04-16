@@ -324,8 +324,23 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                     for (let i = 1; i <= count; i++) {
                         const fieldHtml = `
                             <div class="companion-field">
-                                <label for="companion_name_${i}">同伴者${i}のお名前</label>
-                                <input type="text" id="companion_name_${i}" name="companion_name[]" required>
+                                <h4 class="companion-title">同伴者 ${i}</h4>
+                                <div class="form-group">
+                                    <label for="companion_name_${i}">お名前</label>
+                                    <input type="text" id="companion_name_${i}" name="companion_name[]" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="companion_age_${i}">年齢区分</label>
+                                    <select id="companion_age_${i}" name="companion_age[]">
+                                        <option value="adult">大人</option>
+                                        <option value="child">子供（小学生〜中学生）</option>
+                                        <option value="infant">幼児（未就学児）</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="companion_dietary_${i}"><strong>同伴者 ${i}</strong> の食事に関するご要望（アレルギーなど）</label>
+                                    <textarea id="companion_dietary_${i}" name="companion_dietary[]" rows="2" placeholder="この同伴者のアレルギーや食事制限をご記入ください"></textarea>
+                                </div>
                             </div>
                         `;
                         companionsFields.innerHTML += fieldHtml;
@@ -1372,7 +1387,7 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                                 <?php endfor; ?>
                             </select>
                         </div>
-                        <div id="companions-container" style="display: none;">
+                        <div id="companions-container" style="display: none;" class="companions-section">
                             <div class="form-group">
                                 <h4>同伴者情報</h4>
                                 <p class="companions-note">座席表作成のため、同伴者様のお名前をご記入ください。</p>
@@ -1387,8 +1402,8 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                         </div>
                         
                         <div class="form-group" id="dietary-group">
-                            <label for="dietary">アレルギー・食事制限等</label>
-                            <textarea id="dietary" name="dietary" rows="2" placeholder="アレルギーや食事制限などがあればご記入ください"></textarea>
+                            <label for="dietary"><strong>ご本人様</strong>のアレルギー・食事制限等</label>
+                            <textarea id="dietary" name="dietary" rows="2" placeholder="ご本人様のアレルギーや食事制限をご記入ください"></textarea>
                         </div>
                         
                         <!-- reCAPTCHA -->
@@ -1678,6 +1693,37 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
 
     .info-item .info-link:hover i {
         transform: translateX(3px);
+    }
+
+    /* 同伴者セクションのスタイル改善 */
+    .companions-section {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px dashed #ddd;
+    }
+    
+    .companion-field {
+        background-color: #f9f9f9;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        border-left: 3px solid #4CAF50;
+    }
+    
+    .companion-title {
+        background-color: #4CAF50;
+        color: white;
+        padding: 5px 10px;
+        display: inline-block;
+        border-radius: 4px;
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+    
+    .companions-note {
+        color: #666;
+        font-style: italic;
+        margin-bottom: 15px;
     }
     </style>
 
