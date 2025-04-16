@@ -8,6 +8,7 @@
 // 設定の読み込み
 require_once '../config.php';
 require_once '../includes/qr_helper.php';
+require_once '../includes/logging_functions.php';  // ログ機能を追加
 
 // セッション開始
 session_start();
