@@ -45,7 +45,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete_checkin' && isset($_
             $group_name = $group ? $group['group_name'] : "未知のグループ";
             
             // グループIDに基づいてチェックイン記録を削除
-            $stmt = $db->prepare("DELETE FROM checkin WHERE group_id = :group_id");
+            $stmt = $db->prepare("DELETE FROM checkins WHERE guest_id IN (SELECT id FROM guests WHERE group_id = :group_id)");
             $stmt->bindParam(':group_id', $group_id);
             $result = $stmt->execute();
             
