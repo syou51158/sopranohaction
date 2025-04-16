@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($group_has_responses) {
                     log_debug("Group already has responses: group_id=$group_id, guest_id=$guest_id");
                     // グループに既に回答がある場合は、回答済みとしてリダイレクト
-                    $redirect_url = 'index.php?group=' . $group_id . '&r=done';
+                    $redirect_url = 'thank_you.php?group=' . $group_id . '';
                     log_debug("Redirecting to: " . $redirect_url);
                     header('Location: ' . $redirect_url);
                     exit;
@@ -458,7 +458,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // グループIDが存在する場合は、グループページにリダイレクト
             if ($group_id) {
                 // リダイレクト先を構築
-                $redirect_url = 'index.php?group=' . $group_id . '&r=done'; // 回答済みフラグを追加
+                $redirect_url = 'thank_you.php?group=' . $group_id; // ありがとうページへリダイレクト
                 
                 // QRコードトークンが存在する場合は、それも追加
                 if (isset($qr_token) && !empty($qr_token)) {
@@ -471,7 +471,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             } else {
                 // グループIDがない場合はトップページにリダイレクト（理論上あまり起きない）
-                header('Location: index.php?success=1&r=done');
+                header('Location: thank_you.php');
                 exit;
             }
         } catch (PDOException $e) {
@@ -489,7 +489,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if (isset($success) && $success) {
     // リダイレクトURLが設定されていない場合のデフォルト値を設定
     if (!isset($redirect_url) || empty($redirect_url)) {
-        $redirect_url = 'index.php?r=done';
+        $redirect_url = 'thank_you.php';
+        
+        // グループIDがある場合はクエリパラメータとして追加
+        if (!empty($group_id)) {
+            $redirect_url .= '?group=' . urlencode($group_id);
+        }
     }
     
     // ヘッダーリダイレクトの前に何も出力していないことを確認
@@ -513,7 +518,7 @@ if (isset($success) && $success) {
 <body>
     <div class="response-container">
         <div class="response-card">
-            <?php if (isset($success) && $success): ?>
+            <?php if (isset($success) && $success)): ?>
                 <div class="success-message">
                     <i class="fas fa-check-circle"></i>
                     <h2>ご回答ありがとうございます</h2>
@@ -552,7 +557,7 @@ if (isset($success) && $success) {
                         <?php if (isset($redirect_url) && !empty($redirect_url)): ?>
                         window.location.href = "<?= $redirect_url ?>";
                         <?php else: ?>
-                        window.location.href = "index.php?r=done";
+                        window.location.href = "thank_you.php<?= !empty($group_id) ? '?group=' . urlencode($group_id) : '' ?>";
                         <?php endif; ?>
                     }, 3000); // 3秒後に遷移
                 </script>
