@@ -1025,20 +1025,42 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                     try {
                         $stmt = $pdo->query("SELECT * FROM video_gallery WHERE is_main_video = 1 AND is_active = 1 LIMIT 1");
                         $main_video = $stmt->fetch();
+                        
+                        if (!$main_video) {
+                            error_log("メイン動画が見つかりません。is_main_video=1のレコードがないか、全て非アクティブになっています。");
+                            // 代替としてアクティブな最新の動画を取得
+                            $stmt = $pdo->query("SELECT * FROM video_gallery WHERE is_active = 1 ORDER BY upload_date DESC LIMIT 1");
+                            $main_video = $stmt->fetch();
+                        }
                     } catch (PDOException $e) {
-                        // エラー処理（静かに失敗）
+                        error_log("メイン動画の取得エラー: " . $e->getMessage());
+                    }
+
+                    if ($debug_mode && $main_video) {
+                        error_log("読み込まれる動画情報: ID=" . $main_video['id'] . ", ファイル名=" . $main_video['filename'] . ", メイン動画？=" . $main_video['is_main_video']);
                     }
 
                     // サムネイル画像のパス
                     $thumbnail_path = 'images/thumbnail.jpg'; // デフォルトのサムネイル
                     if ($main_video && $main_video['thumbnail']) {
                         $thumbnail_path = 'images/thumbnails/' . $main_video['thumbnail'];
+                        if (!file_exists($thumbnail_path)) {
+                            error_log("サムネイル画像が見つかりません: " . $thumbnail_path);
+                            $thumbnail_path = 'images/thumbnail.jpg'; // デフォルトに戻す
+                        }
                     }
 
                     // 動画のソースパス
                     $video_src = 'videos/wedding-invitation.mp4'; // デフォルトの動画
+                    $video_exists = false;
+                    
                     if ($main_video) {
                         $video_src = 'videos/' . $main_video['filename'];
+                        $video_exists = file_exists($video_src);
+                        if (!$video_exists) {
+                            error_log("動画ファイルが見つかりません: " . $video_src);
+                            $video_src = 'videos/wedding-invitation.mp4'; // デフォルトに戻す
+                        }
                     }
                     
                     // 拡張子に基づいてMIMEタイプを判定する
@@ -1071,18 +1093,27 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                             break;
                         // その他の形式も必要に応じて追加
                     }
+                    
+                    if ($debug_mode) {
+                        error_log("使用する動画ファイル: " . $video_src . ", MIMEタイプ: " . $mime_type . ", 存在: " . ($video_exists ? 'はい' : 'いいえ'));
+                    }
                     ?>
                     <video id="wedding-video" controls poster="<?= $thumbnail_path ?>" preload="none" playsinline>
                         <!-- プライマリソース - 判定されたMIMEタイプに基づく -->
                         <source src="<?= $video_src ?>" type="<?= $mime_type ?>">
                         
-                        <!-- 代替ソース - 主要なビデオフォーマット -->
+                        <!-- 異なるMIMEタイプでの代替ソース - ブラウザ互換性のため -->
+                        <?php if (strtolower($file_extension) !== 'mp4'): ?>
                         <source src="<?= $video_src ?>" type="video/mp4">
+                        <?php endif; ?>
+                        
+                        <?php if (strtolower($file_extension) !== 'mov'): ?>
                         <source src="<?= $video_src ?>" type="video/quicktime">
+                        <?php endif; ?>
+                        
+                        <?php if (strtolower($file_extension) !== 'webm'): ?>
                         <source src="<?= $video_src ?>" type="video/webm">
-                        <source src="<?= $video_src ?>" type="video/ogg">
-                        <source src="<?= $video_src ?>" type="video/x-msvideo">
-                        <source src="<?= $video_src ?>" type="video/x-ms-wmv">
+                        <?php endif; ?>
                         
                         <!-- フォールバックメッセージ -->
                         お使いのブラウザは動画の再生に対応していません。
@@ -1090,6 +1121,40 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                     <div class="video-overlay">
                         <button class="play-button"><i class="fas fa-play"></i></button>
                     </div>
+                    
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const videoPlayer = document.getElementById('wedding-video');
+                        const playButton = document.querySelector('.play-button');
+                        const videoOverlay = document.querySelector('.video-overlay');
+                        
+                        playButton.addEventListener('click', function() {
+                            videoPlayer.play().catch(e => {
+                                console.error('Video playback error:', e);
+                                alert('動画の再生中にエラーが発生しました。別のブラウザで試すか、管理者にお問い合わせください。');
+                            });
+                            
+                            videoOverlay.style.display = 'none';
+                        });
+                        
+                        videoPlayer.addEventListener('play', function() {
+                            videoOverlay.style.display = 'none';
+                        });
+                        
+                        videoPlayer.addEventListener('pause', function() {
+                            videoOverlay.style.display = 'flex';
+                        });
+                        
+                        videoPlayer.addEventListener('ended', function() {
+                            videoOverlay.style.display = 'flex';
+                        });
+                        
+                        videoPlayer.addEventListener('error', function(e) {
+                            console.error('Video error event:', e);
+                            alert('動画の読み込み中にエラーが発生しました。管理者にお問い合わせください。');
+                        });
+                    });
+                    </script>
                 </div>
             </div>
 

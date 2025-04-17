@@ -631,7 +631,7 @@ try {
                                                     <i class="fas fa-video" style="font-size: 3rem; color: #666;"></i>
                                                 </div>
                                             <?php endif; ?>
-                                            <div class="play-icon" onclick="playVideo('<?= htmlspecialchars($upload_dir . $video['filename']) ?>', '<?= htmlspecialchars($video['title']) ?>')">
+                                            <div class="play-icon" onclick="playVideo('../videos/<?= htmlspecialchars($video['filename']) ?>', '<?= htmlspecialchars($video['title']) ?>')">
                                                 <i class="fas fa-play"></i>
                                             </div>
                                         </div>
@@ -912,6 +912,7 @@ try {
         const playVideoTitle = document.getElementById('playVideoTitle');
         
         function playVideo(videoSrc, videoTitle) {
+            console.log('Playing video:', videoSrc);
             videoPlayer.src = videoSrc;
             playVideoTitle.textContent = videoTitle;
             playModal.style.display = 'block';
@@ -919,12 +920,17 @@ try {
             // 動画を読み込み
             videoPlayer.load();
             // 再生開始
-            videoPlayer.play();
+            videoPlayer.play().catch(e => {
+                console.error('Video playback error:', e);
+                alert('動画の再生中にエラーが発生しました。別の形式で再試行してください。');
+            });
         }
         
         function closePlayModal() {
             // 動画を一時停止
             videoPlayer.pause();
+            // ソースをリセット
+            videoPlayer.src = '';
             playModal.style.display = 'none';
         }
         
