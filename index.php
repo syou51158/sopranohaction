@@ -1017,6 +1017,23 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                 </div>
             </header>
 
+            <?php
+            // 動画プレイヤーの表示設定を取得
+            $show_video_player = true; // デフォルトは表示
+            try {
+                $stmt = $pdo->prepare("SELECT setting_value FROM wedding_settings WHERE setting_key = 'show_video_player'");
+                $stmt->execute();
+                $video_setting = $stmt->fetch();
+                if ($video_setting && isset($video_setting['setting_value'])) {
+                    $show_video_player = (bool)$video_setting['setting_value'];
+                }
+            } catch (PDOException $e) {
+                error_log("動画プレイヤー設定の取得エラー: " . $e->getMessage());
+            }
+            
+            // 動画プレイヤーの表示設定がオンの場合のみ表示
+            if ($show_video_player):
+            ?>
             <div class="video-container fade-in-section">
                 <div class="video-wrapper">
                     <?php
@@ -1157,6 +1174,7 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                     </script>
                 </div>
             </div>
+            <?php endif; // show_video_player の条件終了 ?>
 
             <section class="timeline-section fade-in-section">
                 <div class="section-title">

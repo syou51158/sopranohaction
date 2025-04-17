@@ -832,3 +832,53 @@ html {
     background-color: #0056b3; /* ホバー時の背景色 */
     border-color: #0056b3; /* ホバー時のボーダー色 */
 }
+
+/* トグルスイッチスタイル */
+.admin-form-toggle {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.toggle-checkbox {
+    position: absolute;
+    opacity: 0;
+    z-index: -1;
+}
+
+.toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+    margin-right: 10px;
+    cursor: pointer;
+    background-color: #e9ecef;
+    border-radius: 30px;
+    transition: background-color 0.3s;
+}
+
+.toggle-checkbox:checked + .toggle-label {
+    background-color: #4CAF50;
+}
+
+.toggle-switch {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.toggle-checkbox:checked + .toggle-label .toggle-switch {
+    transform: translateX(30px);
+}
+
+.toggle-status {
+    font-size: 0.9rem;
+    color: #666;
+}

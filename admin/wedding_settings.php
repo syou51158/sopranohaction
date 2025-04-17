@@ -75,6 +75,11 @@ $default_settings = [
         'value' => 'https://maps.google.com/maps?q=ホテルニューオータニ', 
         'display_name' => '会場のGoogleマップリンク', 
         'description' => 'スマートフォンなどで開くためのGoogleマップリンクを入力してください。'
+    ],
+    'show_video_player' => [
+        'value' => '1', 
+        'display_name' => 'トップページの動画プレイヤー', 
+        'description' => 'インデックスページに動画プレイヤーを表示するかどうかを設定します。オフにするとメイン動画が設定されていても表示されません。'
     ]
 ];
 
@@ -105,6 +110,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         // トランザクション開始
         $pdo->beginTransaction();
         
+        // 現在のすべての設定キーを取得
+        $all_settings = [];
+        $stmt = $pdo->query("SELECT setting_key FROM wedding_settings");
+        while ($row = $stmt->fetch()) {
+            $all_settings[] = $row['setting_key'];
+        }
+        
+        // 送信された設定を処理
         foreach ($_POST['settings'] as $key => $value) {
             $stmt = $pdo->prepare("
                 UPDATE wedding_settings 
@@ -112,6 +125,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 WHERE setting_key = ?
             ");
             $stmt->execute([trim($value), $key]);
+        }
+        
+        // チェックボックス（未チェック時に送信されない値）の特別処理
+        $checkboxes = ['show_video_player']; // チェックボックスの設定キーリスト
+        foreach ($checkboxes as $checkbox) {
+            if (in_array($checkbox, $all_settings) && !isset($_POST['settings'][$checkbox])) {
+                // チェックされていない場合は0を設定
+                $stmt = $pdo->prepare("
+                    UPDATE wedding_settings 
+                    SET setting_value = '0'
+                    WHERE setting_key = ?
+                ");
+                $stmt->execute([$checkbox]);
+            }
         }
         
         // トランザクション完了
@@ -200,14 +227,19 @@ try {
                                         <label for="<?= $setting['setting_key'] ?>">
                                             <?= htmlspecialchars($setting['display_name']) ?>
                                         </label>
-                                        <input 
-                                            type="text" 
-                                            id="<?= $setting['setting_key'] ?>" 
-                                            name="settings[<?= $setting['setting_key'] ?>]" 
-                                            value="<?= htmlspecialchars($setting['setting_value']) ?>"
-                                            required
-                                        >
-                                        <?php if (!empty($setting['description'])): ?>
+                                        
+                                        <?php if ($setting['setting_key'] === 'show_video_player'): ?>
+                                            <div class="admin-form-toggle">
+                                                <input type="checkbox" id="<?= $setting['setting_key'] ?>" name="settings[<?= $setting['setting_key'] ?>]" value="1" <?= $setting['setting_value'] == '1' ? 'checked' : '' ?> class="toggle-checkbox">
+                                                <label for="<?= $setting['setting_key'] ?>" class="toggle-label">
+                                                    <span class="toggle-inner"></span>
+                                                    <span class="toggle-switch"></span>
+                                                </label>
+                                                <span class="toggle-status"><?= $setting['setting_value'] == '1' ? '表示する' : '表示しない' ?></span>
+                                            </div>
+                                            <small><?= htmlspecialchars($setting['description']) ?></small>
+                                        <?php else: ?>
+                                            <input type="text" id="<?= $setting['setting_key'] ?>" name="settings[<?= $setting['setting_key'] ?>]" value="<?= htmlspecialchars($setting['setting_value']) ?>">
                                             <small><?= htmlspecialchars($setting['description']) ?></small>
                                         <?php endif; ?>
                                     </div>
@@ -227,5 +259,29 @@ try {
             </div>
         </div>
     </div>
+    
+    <script>
+        // トグルスイッチの処理
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleCheckboxes = document.querySelectorAll('.toggle-checkbox');
+            
+            toggleCheckboxes.forEach(checkbox => {
+                // 初期状態を設定
+                updateToggleStatus(checkbox);
+                
+                // 変更イベントを監視
+                checkbox.addEventListener('change', function() {
+                    updateToggleStatus(this);
+                });
+            });
+            
+            function updateToggleStatus(checkbox) {
+                const statusElem = checkbox.closest('.admin-form-toggle').querySelector('.toggle-status');
+                if (statusElem) {
+                    statusElem.textContent = checkbox.checked ? '表示する' : '表示しない';
+                }
+            }
+        });
+    </script>
 </body>
 </html> 
