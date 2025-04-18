@@ -54,6 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $guest_id = isset($_POST['guest_id']) ? (int)$_POST['guest_id'] : null;
     $group_id = isset($_POST['group_id']) ? htmlspecialchars($_POST['group_id']) : '';
     $email = isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '';
+    $postal_code = isset($_POST['postal_code']) ? htmlspecialchars($_POST['postal_code']) : '';
+    $address = isset($_POST['address']) ? htmlspecialchars($_POST['address']) : '';
     $recaptcha_response = isset($_POST['g-recaptcha-response']) ? $_POST['g-recaptcha-response'] : '';
     
     // デバッグログ - POSTデータ
@@ -110,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     // デバッグログ - 処理されたデータ
-    log_debug("Processed Data: name: $name, email: $email, attending: $attending, companions: $companions, guest_id: $guest_id, group_id: $group_id");
+    log_debug("Processed Data: name: $name, email: $email, postal_code: $postal_code, address: $address, attending: $attending, companions: $companions, guest_id: $guest_id, group_id: $group_id");
     
     // 基本的なバリデーション
     if (empty($name)) {
@@ -154,8 +156,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // データベースに保存
             $stmt = $pdo->prepare("
                  INSERT INTO responses 
-                 (guest_id, name, email, attending, companions, message, dietary) 
-                 VALUES (:guest_id, :name, :email, :attending, :companions, :message, :dietary)
+                 (guest_id, name, email, attending, companions, message, dietary, postal_code, address) 
+                 VALUES (:guest_id, :name, :email, :attending, :companions, :message, :dietary, :postal_code, :address)
             ");
             
             $params = [
@@ -165,7 +167,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'attending' => $attending,
                 'companions' => $companions,
                 'message' => $message,
-                'dietary' => $dietary
+                'dietary' => $dietary,
+                'postal_code' => $postal_code,
+                'address' => $address
             ];
             
             // デバッグログ - SQLパラメータ
