@@ -48,6 +48,16 @@ function send_notification($type, $data, $recipient_email = null) {
             $message = str_replace($placeholder, $value, $message);
         }
         
+        // 出席ステータスに応じたカスタムメッセージ
+        if (strpos($message, "{{attendance}}") !== false) {
+            if (isset($data['{attendance_status}']) && $data['{attendance_status}'] === '出席') {
+                $attendance_message = "<p>当日お会いできることを楽しみにしております。</p>";
+            } else {
+                $attendance_message = "<p>ご都合がつかず残念ですが、ご連絡いただきありがとうございます。<br>またの機会にお会いできることを願っております。</p>";
+            }
+            $message = str_replace("{{attendance}}", $attendance_message, $message);
+        }
+        
         // メール送信
         $result = send_system_mail($recipient_email, $subject, $message);
         
