@@ -59,19 +59,24 @@ function send_mail($to, $subject, $message, $from_email, $from_name = '', $reply
                         }
                     }
                     
-                    // ディレクトリの権限を設定
-                    chmod($log_dir, 0777);
+                    // ディレクトリの権限を設定（エラー抑制）
+                    @chmod($log_dir, 0777);
                     
                     // ログファイルがまだなければ作成
                     if (!file_exists($log_file)) {
                         touch($log_file);
-                        chmod($log_file, 0666); // すべてのユーザーが読み書き可能に
+                        @chmod($log_file, 0666); // すべてのユーザーが読み書き可能に（エラー抑制）
                     } else if (!is_writable($log_file)) {
-                        chmod($log_file, 0666); // すべてのユーザーが読み書き可能に
+                        @chmod($log_file, 0666); // すべてのユーザーが読み書き可能に（エラー抑制）
                     }
                     
-                    $timestamp = date('Y-m-d H:i:s');
-                    file_put_contents($log_file, "$timestamp DEBUG [$level]: $str\n", FILE_APPEND);
+                    // ファイルに書き込めるか確認してから書き込み
+                    if (is_writable($log_file)) {
+                        $timestamp = date('Y-m-d H:i:s');
+                        file_put_contents($log_file, "$timestamp DEBUG [$level]: $str\n", FILE_APPEND);
+                    } else {
+                        error_log("Mail debug log file is not writable: " . $log_file);
+                    }
                 } catch (Exception $e) {
                     error_log("Error writing to mail debug log: " . $e->getMessage());
                 }

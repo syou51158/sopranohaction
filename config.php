@@ -126,7 +126,7 @@ if ($debug_mode) {
 }
 
 // メールデバッグを強制的に有効化（テスト用）
-$mail_debug = true;
+$mail_debug = false;
 
 // メールヘルパー関数を読み込み
 require_once __DIR__ . '/includes/mail_helper.php';
