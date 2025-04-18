@@ -263,6 +263,29 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $site_name ?></title>
     
+    <!-- OGP（Open Graph Protocol）タグ - SNS共有表示用 -->
+    <?php 
+    // OGP画像のタイムスタンプを取得（キャッシュ対策）
+    $ogp_image_path = 'images/ogp-image.jpg';
+    $ogp_timestamp = file_exists($ogp_image_path) ? '?' . filemtime($ogp_image_path) : '';
+    ?>
+    <meta property="og:title" content="<?= $site_name ?>">
+    <meta property="og:description" content="<?= isset($guest_info['group_name']) ? htmlspecialchars($guest_info['group_name']) . 'さん、ご招待状です。' : '結婚式の招待状' ?>">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?= $site_url . (isset($_GET['group']) ? '?group=' . urlencode($_GET['group']) : '') ?>">
+    <meta property="og:image" content="<?= $site_url ?>images/ogp-image.jpg<?= $ogp_timestamp ?>">
+    <meta property="og:image:secure_url" content="<?= $site_url ?>images/ogp-image.jpg<?= $ogp_timestamp ?>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:site_name" content="<?= $site_name ?>">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?= $site_name ?>">
+    <meta name="twitter:description" content="<?= isset($guest_info['group_name']) ? htmlspecialchars($guest_info['group_name']) . 'さん、ご招待状です。' : '結婚式の招待状' ?>">
+    <meta name="twitter:image" content="<?= $site_url ?>images/ogp-image.jpg<?= $ogp_timestamp ?>">
+    
     <!-- チェックイン後のキャッシュ対策 -->
     <?php if ($checkin_complete): ?>
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
@@ -2044,6 +2067,7 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
             </div>
         </div>
 
+        <!-- フッター -->
         <footer class="fade-in-section">
             <div class="footer-decoration">
                 <div class="leaf-decoration left"></div>
@@ -2054,8 +2078,26 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                 </div>
                 <div class="leaf-decoration right"></div>
             </div>
-            <p>&copy; 2023 翔 & あかね - Our Wedding</p>
-            <p class="domain">sopranohaction.fun</p>
+            <p>&copy; <?= date('Y') ?> <?= $site_name ?></p>
+            <p class="domain"><?= str_replace(['http://', 'https://'], '', $site_url) ?></p>
+            
+            <!-- ソーシャル共有ボタン -->
+            <div class="social-share" style="margin-top:15px;">
+                <?php 
+                // 現在のURL（グループIDを含む）
+                $current_url = $site_url . (isset($_GET['group']) ? '?group=' . urlencode($_GET['group']) : '');
+                // LINE共有用URL（キャッシュ回避用）
+                $line_share_url = $site_url . 'line_share.php?nocache=' . time() . (isset($_GET['group']) ? '&group=' . urlencode($_GET['group']) : '');
+                ?>
+                <!-- LINEの専用共有リンク -->
+                <a href="https://line.me/R/msg/text/?<?= urlencode($site_name . ' ' . $line_share_url) ?>" class="social-btn" style="background-color: #06C755; color: white; padding: 8px 15px; border-radius: 5px; margin: 5px; display: inline-block; text-decoration: none;" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-line"></i> <span>LINEで共有</span>
+                </a>
+                <!-- Twitter/X共有ボタン -->
+                <a href="https://twitter.com/intent/tweet?url=<?= urlencode($current_url) ?>&text=<?= urlencode($site_name) ?>" class="social-btn" style="background-color: #1DA1F2; color: white; padding: 8px 15px; border-radius: 5px; margin: 5px; display: inline-block; text-decoration: none;" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-twitter"></i> <span>Xで共有</span>
+                </a>
+            </div>
         </footer>
     </div>
 

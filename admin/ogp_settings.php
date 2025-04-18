@@ -705,6 +705,22 @@ try {
                             <?php if ($is_xampp): ?>
                             <p><strong>注意：</strong> ローカル環境で生成した画像は一時ディレクトリに保存されます。本番環境にアップロードする際は、改めて本番環境で画像を生成またはアップロードしてください。</p>
                             <?php endif; ?>
+                            
+                            <div class="debug-tools" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                                <p><i class="fas fa-tools"></i> <strong>OGPデバッグツール</strong></p>
+                                <p>OGPタグが正しく設定されているか確認するには、以下のデバッグツールを使用してください：</p>
+                                <ul style="margin-left: 20px; margin-top: 10px;">
+                                    <li><a href="https://developers.facebook.com/tools/debug/?q=<?= urlencode($site_url) ?>" target="_blank">Facebook Sharing Debugger</a> - フェイスブック用OGPタグの確認</li>
+                                    <li><a href="https://cards-dev.twitter.com/validator?url=<?= urlencode($site_url) ?>" target="_blank">Twitter Card Validator</a> - ツイッター用カードの確認</li>
+                                    <li><a href="https://www.linkedin.com/post-inspector/inspect/<?= urlencode($site_url) ?>" target="_blank">LinkedIn Post Inspector</a> - リンクドイン用OGPタグの確認</li>
+                                </ul>
+                                <p style="margin-top: 10px;"><strong>LINEでOGP画像が表示されない場合：</strong></p>
+                                <ul style="margin-left: 20px;">
+                                    <li>LINEはOGP画像を一度キャッシュすると更新されにくいことがあります</li>
+                                    <li>異なるURLパラメータ（例：<code><?= $site_url ?>?nocache=<?= time() ?></code>）でページを共有してみてください</li>
+                                    <li>画像サイズが1200×630ピクセルであることを確認してください</li>
+                                </ul>
+                            </div>
                         </div>
                         
                         <div class="ogp-tabs">
