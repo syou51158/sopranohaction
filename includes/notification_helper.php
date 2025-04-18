@@ -126,11 +126,15 @@ function send_rsvp_notification($response) {
     
     // ゲスト情報を取得（存在する場合）
     $guest_info = [];
+    $group_id = '';
     if (!empty($response['guest_id'])) {
         try {
             $stmt = $pdo->prepare("SELECT * FROM guests WHERE id = ?");
             $stmt->execute([$response['guest_id']]);
             $guest_info = $stmt->fetch();
+            if ($guest_info && !empty($guest_info['group_id'])) {
+                $group_id = $guest_info['group_id'];
+            }
         } catch (PDOException $e) {
             // ゲスト情報の取得に失敗
         }
@@ -147,6 +151,12 @@ function send_rsvp_notification($response) {
         // 結婚式設定の取得に失敗
     }
     
+    // グループID付きのウェブサイトURL
+    $website_url = $GLOBALS['site_url'];
+    if (!empty($group_id)) {
+        $website_url .= '?group=' . $group_id;
+    }
+    
     // 通知データを準備
     $notification_data = [
         '{guest_name}' => $response['name'],
@@ -157,11 +167,12 @@ function send_rsvp_notification($response) {
         '{admin_url}' => $GLOBALS['site_url'] . 'admin/dashboard.php',
         '{bride_name}' => $wedding_settings['bride_name'] ?? '新婦',
         '{groom_name}' => $wedding_settings['groom_name'] ?? '新郎',
-        '{website_url}' => $GLOBALS['site_url'],
+        '{website_url}' => $website_url,
         '{wedding_date}' => $wedding_settings['wedding_date'] ?? '未設定',
         '{wedding_time}' => $wedding_settings['wedding_time'] ?? '未設定',
         '{venue_name}' => $wedding_settings['venue_name'] ?? '未設定',
-        '{venue_address}' => $wedding_settings['venue_address'] ?? '未設定'
+        '{venue_address}' => $wedding_settings['venue_address'] ?? '未設定',
+        '{group_id}' => $group_id
     ];
     
     // 管理者への通知
