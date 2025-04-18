@@ -93,6 +93,11 @@ $menu_items = [
         'text' => '通知設定'
     ],
     [
+        'href' => 'ogp_settings.php',
+        'icon' => 'fas fa-share-alt',
+        'text' => 'OGP画像設定'
+    ],
+    [
         'href' => 'wedding_settings.php',
         'icon' => 'fas fa-cog',
         'text' => '結婚式設定'
