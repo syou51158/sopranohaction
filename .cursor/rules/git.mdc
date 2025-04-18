@@ -1,0 +1,23 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
+- メインにマージする際は、必ず許可を得てから
+- GitHubにプッシュする際も、必ず許可を得てから
+- 毎回確認が必要。mainにマージする時、GitHubに送る時
+- XAMPPを使ってるので、データベースにアクセスしても大丈夫です。パスワードはありません。
+- GitHubへのプッシュは絶対に指示がない限り行わないこと
+- 常に新しいブランチで作業し、mainブランチには直接変更を加えないこと
+- 変更をテストせずにマージやプッシュを行わないこと
+- コードの変更前に必ず「新しいブランチを作成する」ことを最優先する
+- ブランチ名は機能を明確に表す名前にすること（例：fix-mobile-ui, improve-form-validation）
+- すべての変更は必ずユーザーの明示的な承認を得てから適用すること
+- 緊急の場合でも、まずユーザーに確認を取ること
+
+

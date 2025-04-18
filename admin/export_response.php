@@ -60,13 +60,15 @@ try {
     
     // 回答者情報のセクション
     fputcsv($output, ['■回答者情報']);
-    fputcsv($output, ['回答ID', '回答日時', 'グループ名', '名前', 'メールアドレス', '出欠', '同伴者数', 'メッセージ', '食事制限']);
+    fputcsv($output, ['回答ID', '回答日時', 'グループ名', '名前', 'メールアドレス', '郵便番号', '住所', '出欠', '同伴者数', 'メッセージ', '食事制限']);
     fputcsv($output, [
         $response['id'],
         $response['created_at'],
         $response['group_name'] ?? '未指定',
         $response['name'],
         $response['email'],
+        $response['postal_code'] ?? '',
+        $response['address'] ?? '',
         $response['attending'] ? '出席' : '欠席',
         $response['companions'],
         $response['message'] ?? '',

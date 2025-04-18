@@ -380,7 +380,14 @@
 
 .admin-table .message-cell {
     max-width: 200px;
-    white-space: nowrap;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-table .address-cell {
+    max-width: 250px;
+    white-space: normal;
     overflow: hidden;
     text-overflow: ellipsis;
 }

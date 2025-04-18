@@ -55,6 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $group_id = isset($_POST['group_id']) ? htmlspecialchars($_POST['group_id']) : '';
     $email = isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '';
     $recaptcha_response = isset($_POST['g-recaptcha-response']) ? $_POST['g-recaptcha-response'] : '';
+    $postal_code = isset($_POST['postal_code']) ? htmlspecialchars($_POST['postal_code']) : '';
+    $address = isset($_POST['address']) ? htmlspecialchars($_POST['address']) : '';
     
     // デバッグログ - POSTデータ
     log_debug("POST Data: " . print_r($_POST, true));
@@ -154,8 +156,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // データベースに保存
             $stmt = $pdo->prepare("
                  INSERT INTO responses 
-                 (guest_id, name, email, attending, companions, message, dietary) 
-                 VALUES (:guest_id, :name, :email, :attending, :companions, :message, :dietary)
+                 (guest_id, name, email, attending, companions, message, dietary, postal_code, address) 
+                 VALUES (:guest_id, :name, :email, :attending, :companions, :message, :dietary, :postal_code, :address)
             ");
             
             $params = [
@@ -165,7 +167,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'attending' => $attending,
                 'companions' => $companions,
                 'message' => $message,
-                'dietary' => $dietary
+                'dietary' => $dietary,
+                'postal_code' => $postal_code,
+                'address' => $address
             ];
             
             // デバッグログ - SQLパラメータ
@@ -653,6 +657,62 @@ if (isset($success) && $success) {
             font-size: 15px;
         }
     }
+
+    /* 郵便番号検索のスタイル */
+    .postal-code-wrapper {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .address-lookup-btn {
+        background-color: #4285F4;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        white-space: nowrap;
+        transition: background-color 0.3s;
+    }
+
+    .address-lookup-btn:hover {
+        background-color: #3367d6;
+    }
+
+    .address-lookup-btn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    .form-hint {
+        font-size: 12px;
+        color: #666;
+        margin-top: 4px;
+        margin-bottom: 0;
+    }
+
+    #postal_code {
+        width: 150px;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 480px) {
+        .postal-code-wrapper {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+        
+        #postal_code {
+            width: 100%;
+        }
+        
+        .address-lookup-btn {
+            align-self: flex-end;
+        }
+    }
     </style>
 </head>
 <body>
@@ -810,6 +870,20 @@ if (isset($success) && $success) {
                         </div>
                         
                         <div class="form-group">
+                            <label for="postal_code">郵便番号</label>
+                            <div class="postal-code-wrapper">
+                                <input type="text" id="postal_code" name="postal_code" placeholder="例: 123-4567" maxlength="8" value="<?= isset($_POST['postal_code']) ? htmlspecialchars($_POST['postal_code']) : '' ?>">
+                                <button type="button" id="address-lookup-btn" class="address-lookup-btn">住所検索</button>
+                            </div>
+                            <p class="form-hint">郵便番号を入力して「住所検索」ボタンをクリックすると住所が自動入力されます</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="address">ご住所（詳細）</label>
+                            <textarea id="address" name="address" rows="2" placeholder="ご住所の詳細をご記入ください"><?= isset($_POST['address']) ? htmlspecialchars($_POST['address']) : '' ?></textarea>
+                        </div>
+                        
+                        <div class="form-group">
                             <label for="message">メッセージ</label>
                             <textarea id="message" name="message" rows="4"><?= isset($_POST['message']) ? htmlspecialchars($_POST['message']) : '' ?></textarea>
                         </div>
@@ -834,6 +908,77 @@ if (isset($success) && $success) {
                     const companionsSelect = document.getElementById('companions');
                     const companionDetails = document.getElementById('companion-details');
                     const companionFields = document.getElementById('companion-fields');
+                    
+                    // 郵便番号から住所検索機能
+                    const postalCodeInput = document.getElementById('postal_code');
+                    const addressInput = document.getElementById('address');
+                    const addressLookupBtn = document.getElementById('address-lookup-btn');
+                    
+                    if (addressLookupBtn) {
+                        addressLookupBtn.addEventListener('click', function() {
+                            lookupAddress();
+                        });
+                    }
+                    
+                    // 郵便番号入力時の自動フォーマット
+                    if (postalCodeInput) {
+                        postalCodeInput.addEventListener('input', function(e) {
+                            let value = e.target.value.replace(/[^\d]/g, '');
+                            if (value.length > 3) {
+                                value = value.slice(0, 3) + '-' + value.slice(3, 7);
+                            }
+                            e.target.value = value;
+                        });
+                        
+                        // Enterキーで住所検索を実行
+                        postalCodeInput.addEventListener('keypress', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                lookupAddress();
+                            }
+                        });
+                    }
+                    
+                    // 住所検索関数
+                    function lookupAddress() {
+                        if (!postalCodeInput || !addressInput) return;
+                        
+                        const postalCode = postalCodeInput.value.replace(/[^\d]/g, '');
+                        
+                        if (postalCode.length !== 7) {
+                            alert('7桁の郵便番号を入力してください');
+                            return;
+                        }
+                        
+                        // 検索中の状態を表示
+                        addressLookupBtn.disabled = true;
+                        addressLookupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 検索中...';
+                        
+                        // 住所検索APIを呼び出し
+                        fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postalCode}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                addressLookupBtn.disabled = false;
+                                addressLookupBtn.innerHTML = '住所検索';
+                                
+                                if (data.status === 200 && data.results) {
+                                    const result = data.results[0];
+                                    const address = `${result.address1}${result.address2}${result.address3}`;
+                                    addressInput.value = address;
+                                    // フォーカスを住所欄の末尾に移動
+                                    addressInput.focus();
+                                    addressInput.setSelectionRange(address.length, address.length);
+                                } else {
+                                    alert('郵便番号に該当する住所が見つかりませんでした');
+                                }
+                            })
+                            .catch(error => {
+                                addressLookupBtn.disabled = false;
+                                addressLookupBtn.innerHTML = '住所検索';
+                                console.error('住所検索エラー:', error);
+                                alert('住所の検索中にエラーが発生しました');
+                            });
+                    }
                     
                     // 出欠選択の変更を監視
                     attendingRadios.forEach(radio => {

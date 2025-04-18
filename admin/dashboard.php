@@ -307,6 +307,8 @@ unset($_SESSION['success_message']);
                                         <th>名前</th>
                                         <th>出欠</th>
                                         <th>同伴者</th>
+                                        <th>郵便番号</th>
+                                        <th>住所</th>
                                         <th>メッセージ</th>
                                         <th>食事制限</th>
                                         <th>回答日時</th>
@@ -316,7 +318,7 @@ unset($_SESSION['success_message']);
                                 <tbody>
                                     <?php if (empty($responses)): ?>
                                     <tr>
-                                        <td colspan="9">まだ回答がありません。</td>
+                                        <td colspan="11">まだ回答がありません。</td>
                                     </tr>
                                     <?php else: ?>
                                         <?php foreach ($responses as $response): ?>
@@ -333,6 +335,8 @@ unset($_SESSION['success_message']);
                                                 </button>
                                                 <?php endif; ?>
                                             </td>
+                                            <td><?= htmlspecialchars($response['postal_code'] ?? '') ?></td>
+                                            <td class="address-cell"><?= nl2br(htmlspecialchars($response['address'] ?? '')) ?></td>
                                             <td class="message-cell"><?= nl2br(htmlspecialchars($response['message'] ?? '')) ?></td>
                                             <td><?= nl2br(htmlspecialchars($response['dietary'] ?? '')) ?></td>
                                             <td><?= date('Y/m/d H:i', strtotime($response['created_at'])) ?></td>

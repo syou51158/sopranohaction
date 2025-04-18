@@ -841,6 +841,108 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
             });
         }
     </script>
+
+    <style>
+        /* 追加スタイル */
+        .postal-code-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-address-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .search-address-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 出欠回答フォームのJSコード
+            // ... 既存のコード ...
+            
+            // 郵便番号から住所を検索する機能
+            const postalCodeInput = document.getElementById('postal_code');
+            const addressInput = document.getElementById('address');
+            const searchBtn = document.getElementById('search_address_btn');
+            
+            if (searchBtn) {
+                searchBtn.addEventListener('click', function() {
+                    const postalCode = postalCodeInput.value.replace(/-/g, ''); // ハイフンを削除
+                    
+                    if (postalCode.length < 7) {
+                        alert('7桁の郵便番号を入力してください');
+                        return;
+                    }
+                    
+                    // 検索中の表示
+                    searchBtn.textContent = '検索中...';
+                    searchBtn.disabled = true;
+                    
+                    // 郵便番号APIを使用して住所を検索
+                    fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postalCode}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            searchBtn.textContent = '住所検索';
+                            searchBtn.disabled = false;
+                            
+                            if (data.status === 200 && data.results) {
+                                const result = data.results[0];
+                                const address = `${result.address1}${result.address2}${result.address3}`;
+                                addressInput.value = address;
+                            } else {
+                                alert('住所が見つかりませんでした。郵便番号を確認してください。');
+                            }
+                        })
+                        .catch(error => {
+                            searchBtn.textContent = '住所検索';
+                            searchBtn.disabled = false;
+                            alert('住所の検索中にエラーが発生しました。');
+                            console.error('住所検索エラー:', error);
+                        });
+                });
+                
+                // 郵便番号入力欄でEnterキーを押したときも検索実行
+                postalCodeInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault(); // フォーム送信を防止
+                        searchBtn.click();
+                    }
+                });
+                
+                // 郵便番号の入力形式を整える（3桁入力後に自動的にハイフンを挿入）
+                postalCodeInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/[^0-9]/g, ''); // 数字以外を削除
+                    
+                    if (value.length > 3) {
+                        value = value.slice(0, 3) + '-' + value.slice(3, 7);
+                    }
+                    
+                    // 最大8文字（7桁の数字+ハイフン）
+                    if (value.length > 8) {
+                        value = value.slice(0, 8);
+                    }
+                    
+                    e.target.value = value;
+                });
+            }
+        });
+    </script>
 </head>
 <body>
     <!-- 装飾エフェクト（常時表示） -->
@@ -1662,6 +1764,22 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                         <div class="form-group">
                             <label for="email">メールアドレス</label>
                             <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <!-- 郵便番号フィールド -->
+                        <div class="form-group">
+                            <label for="postal_code">郵便番号</label>
+                            <div class="postal-code-container">
+                                <input type="text" id="postal_code" name="postal_code" placeholder="例: 123-4567" maxlength="8">
+                                <button type="button" id="search_address_btn" class="search-address-btn">住所検索</button>
+                            </div>
+                            <p class="hint">郵便番号を入力して「住所検索」をクリックすると、住所が自動入力されます</p>
+                        </div>
+                        
+                        <!-- 住所フィールド -->
+                        <div class="form-group">
+                            <label for="address">住所</label>
+                            <textarea id="address" name="address" rows="2" placeholder="例: 東京都渋谷区〇〇町1-2-3 〇〇マンション101号室"></textarea>
                         </div>
                         
                         <!-- 出欠選択 -->

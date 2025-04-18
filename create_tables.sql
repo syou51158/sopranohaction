@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS responses (
   guest_id INT NULL,
   name VARCHAR(100) NOT NULL,
   email VARCHAR(255) NOT NULL,
+  postal_code VARCHAR(10),
+  address TEXT,
   attending BOOLEAN NOT NULL,
   companions INT DEFAULT 0,
   message TEXT,
