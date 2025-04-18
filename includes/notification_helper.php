@@ -158,8 +158,9 @@ function send_rsvp_notification($response) {
     $admin_result = send_notification('rsvp_received', $notification_data);
     
     // ゲスト自身への確認メール（メールアドレスが含まれている場合のみ）
+    // ただし、出席する場合は別のQRコード付きメールが送信されるのでスキップ
     $guest_result = true;
-    if (!empty($response['email'])) {
+    if (!empty($response['email']) && !$response['attending']) {
         $guest_result = send_notification('guest_confirmation', $notification_data, $response['email']);
     }
     
