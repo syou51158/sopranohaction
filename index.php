@@ -1664,18 +1664,6 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
                             <input type="email" id="email" name="email" required>
                         </div>
                         
-                        <!-- 郵便番号フィールド -->
-                        <div class="form-group">
-                            <label for="postal_code">郵便番号</label>
-                            <input type="text" id="postal_code" name="postal_code" placeholder="例: 123-4567">
-                        </div>
-                        
-                        <!-- 住所フィールド -->
-                        <div class="form-group">
-                            <label for="address">住所</label>
-                            <textarea id="address" name="address" rows="2" placeholder="例: 東京都渋谷区〇〇町1-2-3 〇〇マンション101号室"></textarea>
-                        </div>
-                        
                         <!-- 出欠選択 -->
                         <div class="form-group">
                             <label>ご出欠</label>
