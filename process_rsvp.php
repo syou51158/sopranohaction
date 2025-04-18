@@ -419,6 +419,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 
                                 <div class='footer'>
                                     <p>※このメールは自動送信されています。ご返信いただいてもお答えできません。</p>
+                                    <p>ウェディングサイト: <a href='{$site_url}?group={$group_id}'>{$site_url}?group={$group_id}</a></p>
                                     <p>&copy; " . date('Y') . " " . ($wedding_settings['couple_name'] ?? '翔＆あかね') . " Wedding</p>
                                 </div>
                             </div>

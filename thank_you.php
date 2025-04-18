@@ -348,6 +348,14 @@ if ($group_id) {
                     <a href="<?= $group_id ? "index.php?group=$group_id" : 'index.php' ?>" class="return-button">
                         <i class="fas fa-arrow-left"></i> 招待状に戻る
                     </a>
+                    <?php if ($group_id): ?>
+                    <div style="margin-top: 20px; padding: 15px; background-color: #f5f5f5; border-radius: 8px;">
+                        <p style="margin: 0 0 10px 0; font-size: 14px;">以下のURLでいつでもアクセスできます：</p>
+                        <a href="<?= $site_url ?>?group=<?= $group_id ?>" style="word-break: break-all; color: #4285F4;">
+                            <?= $site_url ?>?group=<?= $group_id ?>
+                        </a>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="thank-you-decoration">
