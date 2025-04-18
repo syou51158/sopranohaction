@@ -513,6 +513,17 @@ if (isset($success) && $success) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- OGP Tags -->
+    <meta property="og:title" content="回答受付 - <?= $site_name ?>">
+    <meta property="og:description" content="<?= $site_name ?>の結婚式の出欠回答ページです。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?= $site_url ?>process_rsvp.php<?= !empty($group_id) ? '?group=' . $group_id : '' ?>">
+    <meta property="og:image" content="<?= $site_url ?>images/ogp-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="<?= $site_name ?>">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="<?= $site_url ?>images/ogp-image.jpg">
     <title>回答受付 - <?= $site_name ?></title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">

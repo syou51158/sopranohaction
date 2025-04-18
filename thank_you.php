@@ -61,6 +61,23 @@ if ($group_id) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ありがとうございます - <?= $site_name ?></title>
+    
+    <!-- OGP（Open Graph Protocol）タグ - SNS共有表示用 -->
+    <meta property="og:title" content="ありがとうございます - <?= $site_name ?>">
+    <meta property="og:description" content="<?= isset($guest_info['group_name']) ? htmlspecialchars($guest_info['group_name']) . 'さん、ご回答ありがとうございます。' : '結婚式のご回答ありがとうございます' ?>">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?= $site_url ?>thank_you.php<?= isset($_GET['group']) ? '?group=' . urlencode($_GET['group']) : '' ?>">
+    <meta property="og:image" content="<?= $site_url ?>images/ogp-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="<?= $site_name ?>">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ありがとうございます - <?= $site_name ?>">
+    <meta name="twitter:description" content="<?= isset($guest_info['group_name']) ? htmlspecialchars($guest_info['group_name']) . 'さん、ご回答ありがとうございます。' : '結婚式のご回答ありがとうございます' ?>">
+    <meta name="twitter:image" content="<?= $site_url ?>images/ogp-image.jpg">
+    
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

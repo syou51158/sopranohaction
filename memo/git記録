@@ -360,3 +360,7 @@ git push origin main
   - `api/get_group_by_token.php`: トークンからグループ情報を取得するAPIエンドポイントを追加
   - `js/envelope.js`: QRコードスキャン後の自動遷移機能の無駄なコードを削除
 - 目的: チェックイン履歴の管理方法を改善し、削除機能の不具合を修正して、ユーザー体験と管理機能の安定性を向上させる
+
+git add .
+git commit -m "さんの削除"
+git push origin main

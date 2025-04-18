@@ -270,7 +270,7 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
     $ogp_timestamp = file_exists($ogp_image_path) ? '?' . filemtime($ogp_image_path) : '';
     ?>
     <meta property="og:title" content="<?= $site_name ?>">
-    <meta property="og:description" content="<?= isset($guest_info['group_name']) ? htmlspecialchars($guest_info['group_name']) . 'さん、ご招待状です。' : '結婚式の招待状' ?>">
+    <meta property="og:description" content="<?= isset($guest_info['group_name']) ? htmlspecialchars($guest_info['group_name']) . '、ご招待状です。' : '結婚式の招待状' ?>">
     <meta property="og:type" content="website">
     <meta property="og:url" content="<?= $site_url . (isset($_GET['group']) ? '?group=' . urlencode($_GET['group']) : '') ?>">
     <meta property="og:image" content="<?= $site_url ?>images/ogp-image.jpg<?= $ogp_timestamp ?>">
@@ -283,7 +283,7 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<?= $site_name ?>">
-    <meta name="twitter:description" content="<?= isset($guest_info['group_name']) ? htmlspecialchars($guest_info['group_name']) . 'さん、ご招待状です。' : '結婚式の招待状' ?>">
+    <meta name="twitter:description" content="<?= isset($guest_info['group_name']) ? htmlspecialchars($guest_info['group_name']) . '、ご招待状です。' : '結婚式の招待状' ?>">
     <meta name="twitter:image" content="<?= $site_url ?>images/ogp-image.jpg<?= $ogp_timestamp ?>">
     
     <!-- チェックイン後のキャッシュ対策 -->
