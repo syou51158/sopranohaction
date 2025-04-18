@@ -284,6 +284,23 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
     if (isset($_GET['group']) && !empty($_GET['group'])) {
         $canonical_url .= '?group=' . urlencode($_GET['group']);
     }
+    
+    // LINE対応のためのUser-Agent検出
+    $is_line = false;
+    if (isset($_SERVER['HTTP_USER_AGENT'])) {
+        if (stripos($_SERVER['HTTP_USER_AGENT'], 'Line') !== false) {
+            $is_line = true;
+        }
+    }
+    
+    // OGP画像のフルURL生成（絶対URLにする）
+    $ogp_image_url = $base_canonical_url . 'images/ogp-image.jpg' . $ogp_timestamp;
+    
+    // LINE用のURL調整（index.phpを明示的に含める）
+    $line_canonical_url = $base_canonical_url . 'index.php';
+    if (isset($_GET['group']) && !empty($_GET['group'])) {
+        $line_canonical_url .= '?group=' . urlencode($_GET['group']);
+    }
     ?>
     <!-- 正規URLの設定 -->
     <link rel="canonical" href="<?= $canonical_url ?>">
@@ -291,9 +308,9 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
     <meta property="og:title" content="<?= $site_name ?>">
     <meta property="og:description" content="<?= isset($guest_info['group_name']) ? htmlspecialchars($guest_info['group_name']) . 'さん、ご招待状です。' : '結婚式の招待状' ?>">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="<?= $canonical_url ?>">
-    <meta property="og:image" content="<?= $base_canonical_url ?>images/ogp-image.jpg<?= $ogp_timestamp ?>">
-    <meta property="og:image:secure_url" content="<?= $base_canonical_url ?>images/ogp-image.jpg<?= $ogp_timestamp ?>">
+    <meta property="og:url" content="<?= $is_line ? $line_canonical_url : $canonical_url ?>">
+    <meta property="og:image" content="<?= $ogp_image_url ?>">
+    <meta property="og:image:secure_url" content="<?= $ogp_image_url ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:type" content="image/jpeg">
@@ -303,7 +320,7 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<?= $site_name ?>">
     <meta name="twitter:description" content="<?= isset($guest_info['group_name']) ? htmlspecialchars($guest_info['group_name']) . 'さん、ご招待状です。' : '結婚式の招待状' ?>">
-    <meta name="twitter:image" content="<?= $base_canonical_url ?>images/ogp-image.jpg<?= $ogp_timestamp ?>">
+    <meta name="twitter:image" content="<?= $ogp_image_url ?>">
     
     <!-- チェックイン後のキャッシュ対策 -->
     <?php if ($checkin_complete): ?>
