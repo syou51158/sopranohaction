@@ -47,10 +47,19 @@ ErrorDocument 404 /error.php
     RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
     RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
     
-    # トップページへのアクセス（/?group=xxx）をindex.phpにリダイレクト
-    # これによりOGP画像の表示問題を解決
+    # 重要: OGPスクレイパー対策 - クローラーの場合は/?group=xxxをindex.phpにそのまま内部転送
+    # User-Agentを確認してクローラーの場合は内部転送のみ行う（リダイレクトしない）
+    RewriteCond %{HTTP_USER_AGENT} (facebook|LinkedInBot|Pinterest|Twitterbot|WhatsApp|Line|Slack|facebookexternalhit|Facebot|Telegrambot) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} (Applebot|baiduspider|bingbot|Discordbot|Googlebot|ia_archiver|msnbot|Naverbot|Pinterestbot|seznambot|Slackbot|TelegramBot|tumblr|Yandex) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} (bot|crawler|spider|scraper|curl|wget|slurp|mediapartners-google) [NC]
+    RewriteCond %{REQUEST_URI} ^/$ [NC]
     RewriteCond %{QUERY_STRING} ^group=(.*)$ [NC]
-    RewriteRule ^$ /index.php?group=%1 [L]
+    RewriteRule ^(.*)$ /index.php?group=%1 [QSA,L]
+    
+    # 通常のブラウザアクセスの場合はリダイレクト（外部リダイレクト）
+    RewriteCond %{REQUEST_URI} ^/$ [NC]
+    RewriteCond %{QUERY_STRING} ^group=(.*)$ [NC]
+    RewriteRule ^$ /index.php?group=%1 [R=301,L]
     
     # index.phpへのアクセスを正規化（末尾のスラッシュを削除）
     RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /index\.php\ HTTP/
