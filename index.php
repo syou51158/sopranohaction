@@ -265,8 +265,17 @@ if ($group_id && isset($guest_info['id']) && !$already_responded) {
     
     <!-- OGP（Open Graph Protocol）タグ - SNS共有表示用 -->
     <?php 
-    // OGP画像のタイムスタンプを取得（キャッシュ対策）
+    // OGP画像のパスを設定
     $ogp_image_path = 'images/ogp-image.jpg';
+    $sample_ogp_image_path = 'images/samples/sample-ogp-image.jpg';
+    
+    // OGP画像が存在しない場合はサンプル画像をコピー
+    if (!file_exists($ogp_image_path) && file_exists($sample_ogp_image_path)) {
+        // サンプル画像をOGP画像としてコピー
+        @copy($sample_ogp_image_path, $ogp_image_path);
+    }
+    
+    // タイムスタンプを取得（キャッシュ対策）
     $ogp_timestamp = file_exists($ogp_image_path) ? '?' . filemtime($ogp_image_path) : '';
     ?>
     <meta property="og:title" content="<?= $site_name ?>">

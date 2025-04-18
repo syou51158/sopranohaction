@@ -15,6 +15,14 @@ logs/
 # アップロード済みのファイル（必要に応じて）
 uploads/
 
+# OGP画像とユーザーアップロード画像
+images/ogp-image.jpg
+images/ogp-image.jpg.bak
+images/user-uploads/
+# 画像ディレクトリは保持するが中身は環境ごとに管理
+!images/
+!images/.gitkeep
+
 # キャッシュ等
 vendor/
 /node_modules

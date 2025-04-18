@@ -519,11 +519,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 }
 
 // OGP画像パスとタイムスタンプ（キャッシュ対策）
-$ogp_image_path = $is_xampp ? $local_images_dir . 'ogp-image.jpg' : $web_images_dir . 'ogp-image.jpg';
+$ogp_image_path = $web_images_dir . 'ogp-image.jpg';
+$local_ogp_image_path = $local_images_dir . 'ogp-image.jpg';
 $ogp_image_url = $is_xampp ? $xampp_base_url . 'xamppfiles/temp/wedding_images/ogp-image.jpg' : $site_url . 'images/ogp-image.jpg';
 
-// 画像が存在するかチェック
+// サンプルOGP画像パス
+$sample_ogp_image_path = 'images/samples/sample-ogp-image.jpg';
+
+// 画像が存在するかチェック（ローカル環境ではローカルパスもチェック）
 $ogp_image_exists = file_exists($ogp_image_path);
+if (!$ogp_image_exists && $is_xampp) {
+    $ogp_image_exists = file_exists($local_ogp_image_path);
+    
+    // ローカルにはあるがWebディレクトリにはない場合、自動的にコピー
+    if ($ogp_image_exists && !file_exists($ogp_image_path)) {
+        if (!is_dir($web_images_dir)) {
+            @mkdir($web_images_dir, 0755, true);
+        }
+        @copy($local_ogp_image_path, $ogp_image_path);
+    }
+}
+
+// OGP画像が存在しない場合かつサンプル画像が存在する場合はコピー
+if (!$ogp_image_exists && file_exists($sample_ogp_image_path)) {
+    // サンプル画像をOGP画像としてコピー
+    if (!is_dir(dirname($ogp_image_path))) {
+        @mkdir(dirname($ogp_image_path), 0755, true);
+    }
+    
+    if ($is_xampp) {
+        @copy($sample_ogp_image_path, $local_ogp_image_path);
+        $ogp_image_exists = file_exists($local_ogp_image_path);
+    } else {
+        @copy($sample_ogp_image_path, $ogp_image_path);
+        $ogp_image_exists = file_exists($ogp_image_path);
+    }
+    
+    if ($ogp_image_exists) {
+        $success = 'サンプルOGP画像が見つからなかったため、サンプル画像をコピーしました。必要に応じてカスタマイズしてください。';
+    }
+}
 
 $timestamp = $ogp_image_exists ? '?t=' . time() : '';
 
@@ -705,6 +740,16 @@ try {
                             <?php if ($is_xampp): ?>
                             <p><strong>注意：</strong> ローカル環境で生成した画像は一時ディレクトリに保存されます。本番環境にアップロードする際は、改めて本番環境で画像を生成またはアップロードしてください。</p>
                             <?php endif; ?>
+                            
+                            <div class="dev-mode-info" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                                <p><i class="fas fa-code-branch"></i> <strong>開発者向け情報</strong></p>
+                                <p>OGP画像ファイルは環境ごとに異なる設定が必要なため、Gitでの追跡対象から除外されています。</p>
+                                <ul style="margin-left: 20px; margin-top: 10px;">
+                                    <li>ローカル環境と本番環境で別々に設定してください</li>
+                                    <li>新しい環境にデプロイする際は、OGP画像を再設定する必要があります</li>
+                                    <li>OGP画像が存在しない場合は、サンプル画像が自動的に使用されます</li>
+                                </ul>
+                            </div>
                             
                             <div class="debug-tools" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
                                 <p><i class="fas fa-tools"></i> <strong>OGPデバッグツール</strong></p>

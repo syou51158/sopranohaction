@@ -214,3 +214,55 @@ wedding/
 
 ## Gitテスト
 このセクションはGitのテスト用に2025年3月25日に追加されました。
+
+# 結婚式管理システム
+
+このシステムは結婚式の招待状、出欠管理、QRコードチェックインなどの機能を提供します。
+
+## OGP画像について
+
+OGP（Open Graph Protocol）画像は、Webサイトがソーシャルメディア（LINE、Twitter、Facebookなど）で共有される際に表示される画像です。
+
+### 環境ごとの画像管理
+
+- OGP画像（`images/ogp-image.jpg`）はGitの追跡対象から除外されています
+- 各環境（ローカル開発環境、本番環境など）で個別に設定する必要があります
+- 新環境でのセットアップ時には、管理画面のOGP設定から画像を設定してください
+
+### 自動サンプル画像機能
+
+- OGP画像が存在しない場合、`images/samples/sample-ogp-image.jpg`が自動的にコピーされます
+- サンプル画像はGitで管理されており、初期状態でも基本的な共有機能が動作します
+
+## 開発フロー
+
+1. 新機能開発時は必ず新しいブランチを作成してください
+   ```
+   git checkout -b feature/new-feature-name
+   ```
+
+2. コミット時には変更内容を明確に記述してください
+   ```
+   git commit -m "Add feature X that does Y"
+   ```
+
+3. メインブランチへのマージは承認を得てから行ってください
+   ```
+   git checkout main
+   git merge feature/new-feature-name
+   ```
+
+4. GitHubへのプッシュも承認を得てから行ってください
+   ```
+   git push origin main
+   ```
+
+## 環境固有のファイル
+
+以下のファイルは環境ごとに個別に設定する必要があります：
+
+- `.env` - 環境変数設定ファイル
+- `images/ogp-image.jpg` - OGP画像
+- `.htaccess` - Apacheの設定ファイル
+
+これらのファイルはGitの追跡対象から除外されているため、環境ごとに手動で設定してください。

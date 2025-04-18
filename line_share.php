@@ -29,6 +29,14 @@ if ($group_id) {
 
 // OGP画像のタイムスタンプを取得（キャッシュ対策）
 $ogp_image_path = 'images/ogp-image.jpg';
+$sample_ogp_image_path = 'images/samples/sample-ogp-image.jpg';
+
+// OGP画像が存在しない場合はサンプル画像をコピー
+if (!file_exists($ogp_image_path) && file_exists($sample_ogp_image_path)) {
+    // サンプル画像をOGP画像としてコピー
+    @copy($sample_ogp_image_path, $ogp_image_path);
+}
+
 $ogp_timestamp = file_exists($ogp_image_path) ? '?' . filemtime($ogp_image_path) : '';
 
 // カップル名を取得
